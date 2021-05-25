@@ -1,7 +1,6 @@
 package com.plenart.organizeme.activities
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
@@ -54,7 +53,7 @@ class SignInActivity : BaseActivity() {
             auth.signInWithEmailAndPassword(email,password).addOnCompleteListener{ task ->
                 hideProgressDialog();
                 if(task.isSuccessful){
-                   FirestoreClass().signInUser(this);
+                   FirestoreClass().loadUserData(this);
                     val user = auth.currentUser;
                     //startActivity(Intent(this,MainActivity::class.java))
                 }

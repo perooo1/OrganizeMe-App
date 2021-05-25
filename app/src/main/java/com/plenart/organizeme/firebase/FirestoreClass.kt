@@ -2,13 +2,11 @@ package com.plenart.organizeme.firebase
 
 import android.app.Activity
 import android.util.Log
+import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
-import com.plenart.organizeme.activities.BaseActivity
-import com.plenart.organizeme.activities.MainActivity
-import com.plenart.organizeme.activities.SignInActivity
-import com.plenart.organizeme.activities.SignUpActivity
+import com.plenart.organizeme.activities.*
 import com.plenart.organizeme.models.User
 import com.plenart.organizeme.utils.Constants
 
@@ -35,7 +33,24 @@ class FirestoreClass {
         return currentUserID;
     }
 
-    fun signInUser(activity: Activity){
+    fun updateUserProfileData(activity: MyProfileActivity, userHashMap: HashMap<String, Any>){
+        mFirestore.collection(Constants.USERS)
+            .document(getCurrentUserID())
+            .update(userHashMap)
+            .addOnSuccessListener {
+                Log.i(activity.javaClass.simpleName,"Profile data updated successfully");
+                Toast.makeText(activity,"Profile updated!", Toast.LENGTH_SHORT).show();
+                activity.profileUpdateSuccess();
+            }.addOnFailureListener {
+                e ->
+                activity.hideProgressDialog();
+                Log.e(activity.javaClass.simpleName,"Error while updating user data",e);
+                Toast.makeText(activity,"Error when updating user profile!", Toast.LENGTH_SHORT).show();
+            }
+    }
+
+
+    fun loadUserData(activity: Activity){
         mFirestore.collection(Constants.USERS)
             .document(getCurrentUserID())
             .get()
@@ -51,6 +66,11 @@ class FirestoreClass {
                     is MainActivity ->{
                         if (loggedInUser != null) {
                             activity.updateNavigationUserDetails(loggedInUser)
+                        };
+                    }
+                    is MyProfileActivity ->{
+                        if (loggedInUser != null) {
+                            activity.setUserDataInUI(loggedInUser)
                         };
                     }
                 }
