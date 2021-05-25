@@ -32,6 +32,10 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
         FirestoreClass().loadUserData(this);
 
+        appBarMainBinding.fabCreateBoard.setOnClickListener{
+            startActivity(Intent(this,CreateBoardActivity::class.java));
+        }
+
     }
 
 
@@ -101,7 +105,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             FirestoreClass().loadUserData(this);
         }
         else{
-            Log.e("Main onActivityResult Error", "error")
+            Log.e("MainOnActivityResultErr", "error")
         }
     }
 
