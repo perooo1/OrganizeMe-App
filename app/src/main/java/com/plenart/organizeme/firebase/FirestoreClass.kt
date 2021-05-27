@@ -7,6 +7,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.plenart.organizeme.activities.*
+import com.plenart.organizeme.models.Board
 import com.plenart.organizeme.models.User
 import com.plenart.organizeme.utils.Constants
 
@@ -87,6 +88,21 @@ class FirestoreClass {
                         activity.hideProgressDialog();
                     }
                 }
+            }
+    }
+
+    fun createBoard(activity: CreateBoardActivity, board:Board){
+        mFirestore.collection(Constants.BOARDS)
+            .document()
+            .set(board, SetOptions.merge())
+            .addOnSuccessListener {
+                Log.e(activity.javaClass.simpleName, "Board created successfully!");
+                Toast.makeText(activity,"Board created successfully!",Toast.LENGTH_SHORT).show();
+                activity.boardCreatedSuccessfully();
+            }.addOnFailureListener {
+                exception ->
+                activity.hideProgressDialog();
+                Log.e(activity.javaClass.simpleName,"Error while creating a board",exception);
             }
     }
 

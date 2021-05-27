@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
+import android.view.View
 import androidx.core.view.GravityCompat
 import com.bumptech.glide.Glide
 import com.google.android.material.navigation.NavigationView
@@ -14,12 +15,15 @@ import com.plenart.organizeme.databinding.ActivityMainBinding
 import com.plenart.organizeme.databinding.AppBarMainBinding
 import com.plenart.organizeme.databinding.NavHeaderMainBinding
 import com.plenart.organizeme.firebase.FirestoreClass
+import com.plenart.organizeme.utils.Constants
 
 class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private lateinit var mainActivityBinding: ActivityMainBinding;
     private lateinit var appBarMainBinding: AppBarMainBinding;
     private lateinit var navHeaderMainBinding: NavHeaderMainBinding;
+
+    private lateinit var mUserName: String;
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,6 +37,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         FirestoreClass().loadUserData(this);
 
         appBarMainBinding.fabCreateBoard.setOnClickListener{
+            Log.i("dodir fab","radi dodir");
             startActivity(Intent(this,CreateBoardActivity::class.java));
         }
 
@@ -89,6 +94,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     fun updateNavigationUserDetails(loggedInUser: com.plenart.organizeme.models.User) {
         navHeaderMainBinding = NavHeaderMainBinding.inflate(layoutInflater);
+        mUserName = loggedInUser.name;
 
         Glide.with(this)
             .load(loggedInUser.image)
@@ -111,6 +117,15 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     companion object {
         const val MY_PROFILE_REQUEST_CODE: Int = 11;
+    }
+
+    fun klikniMe(view: View) {
+        Log.i("klik","klik")
+
+        val intent = Intent(this,CreateBoardActivity::class.java);
+        intent.putExtra(Constants.NAME, mUserName);
+
+        startActivity(intent);
     }
 
 }

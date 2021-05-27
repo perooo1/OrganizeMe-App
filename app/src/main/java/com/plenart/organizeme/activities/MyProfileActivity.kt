@@ -23,11 +23,6 @@ import java.io.IOException
 
 class MyProfileActivity : BaseActivity() {
 
-    companion object{
-        private const val READ_STORAGE_PERMISSION_CODE = 1;
-        private const val PICK_IMAGE_REQUEST_CODE = 2;
-    }
-
     private lateinit var myProfileBinding: ActivityMyProfileBinding;
     private lateinit var mUserDetails: User;
     private var mSelectedImageFileUri: Uri? = null;
@@ -43,11 +38,11 @@ class MyProfileActivity : BaseActivity() {
         FirestoreClass().loadUserData(this);
 
         myProfileBinding.ivUserImage.setOnClickListener {
-            if(isReadExternalStorageAllowed()){
-                showImageChooser();
+            if(Constants.isReadExternalStorageAllowed(this)){
+                Constants.showImageChooser(this);
             }
             else{
-                requestStoragePermission();
+                Constants.requestStoragePermission(this);
             }
         }
 
@@ -63,14 +58,10 @@ class MyProfileActivity : BaseActivity() {
 
     }
 
-    private fun showImageChooser(){
-        val galleryIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(galleryIntent, PICK_IMAGE_REQUEST_CODE);
-    }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if(resultCode == Activity.RESULT_OK && requestCode == PICK_IMAGE_REQUEST_CODE && data!!.data != null){
+        if(resultCode == Activity.RESULT_OK && requestCode == Constants.PICK_IMAGE_REQUEST_CODE && data!!.data != null){
             mSelectedImageFileUri = data.data;
 
             try{
@@ -121,19 +112,9 @@ class MyProfileActivity : BaseActivity() {
 
     }
 
-    private fun isReadExternalStorageAllowed(): Boolean{
-        val result = ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE);
-        return result == PackageManager.PERMISSION_GRANTED;
-    }
 
-    private fun requestStoragePermission() {
-        if(ActivityCompat.shouldShowRequestPermissionRationale(this, arrayOf(
-                android.Manifest.permission.READ_EXTERNAL_STORAGE,
-                android.Manifest.permission.WRITE_EXTERNAL_STORAGE).toString())){
-            Toast.makeText(this, "Need permission to Change Profile Picture", Toast.LENGTH_SHORT).show();
-        }
-        ActivityCompat.requestPermissions(this,arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE), READ_STORAGE_PERMISSION_CODE);
-    }
+
+
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -141,9 +122,9 @@ class MyProfileActivity : BaseActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if(requestCode == READ_STORAGE_PERMISSION_CODE){
+        if(requestCode == Constants.READ_STORAGE_PERMISSION_CODE){
             if(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                showImageChooser();
+                Constants.showImageChooser(this);
             }
         }
         else{
@@ -157,7 +138,7 @@ class MyProfileActivity : BaseActivity() {
             val sRef: StorageReference = FirebaseStorage.getInstance()
                 .reference
                 .child("USER_IMAGE"+System.currentTimeMillis()
-                        +"."+getFileExtension(mSelectedImageFileUri))
+                        +"."+Constants.getFileExtension(this,mSelectedImageFileUri))
 
         sRef.putFile(mSelectedImageFileUri!!).addOnSuccessListener {
             taskSnapshot ->
@@ -181,9 +162,7 @@ class MyProfileActivity : BaseActivity() {
         }
     }
 
-    private fun getFileExtension(uri: Uri?): String?{
-        return MimeTypeMap.getSingleton().getExtensionFromMimeType(contentResolver.getType(uri!!));
-    }
+
 
     fun profileUpdateSuccess(){
         hideProgressDialog();

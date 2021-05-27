@@ -63,7 +63,7 @@
                     >
 
                     <androidx.appcompat.widget.AppCompatEditText
-                        android:id="@+id/et_name_my_profile_activity"
+                        android:id="@+id/et_board_name_create_board_activity"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/board_name"
