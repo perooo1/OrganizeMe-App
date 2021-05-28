@@ -51,7 +51,7 @@ class FirestoreClass {
     }
 
 
-    fun loadUserData(activity: Activity){
+    fun loadUserData(activity: Activity, readBoardsList: Boolean = false){
         mFirestore.collection(Constants.USERS)
             .document(getCurrentUserID())
             .get()
@@ -66,7 +66,7 @@ class FirestoreClass {
                     }
                     is MainActivity ->{
                         if (loggedInUser != null) {
-                            activity.updateNavigationUserDetails(loggedInUser)
+                            activity.updateNavigationUserDetails(loggedInUser, readBoardsList)
                         };
                     }
                     is MyProfileActivity ->{
@@ -103,6 +103,31 @@ class FirestoreClass {
                 exception ->
                 activity.hideProgressDialog();
                 Log.e(activity.javaClass.simpleName,"Error while creating a board",exception);
+            }
+    }
+
+    fun getBoardsList(activity: MainActivity){
+        mFirestore.collection(Constants.BOARDS)
+            .whereArrayContains(Constants.ASSIGNED_TO,getCurrentUserID())
+            .get()
+            .addOnSuccessListener {
+                document ->
+                Log.i(activity.javaClass.simpleName, document.documents.toString()); //logs correct data
+                val boardList: ArrayList<Board> = ArrayList();
+
+                for(i in document.documents){
+                    val board = i.toObject(Board::class.java)!!;
+                    board.documentID = i.id;
+                    boardList.add(board)
+
+                }
+
+                activity.populateBoardsListToUI(boardList);                 //TODO(pls petre rename this function eg. addBoards(boardList))
+
+            }.addOnFailureListener {
+                e ->
+                activity.hideProgressDialog();
+                Log.e(activity.javaClass.simpleName,"Error while creatng a board",e);
             }
     }
 

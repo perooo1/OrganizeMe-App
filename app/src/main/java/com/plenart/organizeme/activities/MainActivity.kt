@@ -6,15 +6,20 @@ import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
+import android.widget.LinearLayout
 import androidx.core.view.GravityCompat
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.plenart.organizeme.R
+import com.plenart.organizeme.adapters.BoardItemsAdapter
 import com.plenart.organizeme.databinding.ActivityMainBinding
 import com.plenart.organizeme.databinding.AppBarMainBinding
+import com.plenart.organizeme.databinding.MainContentBinding
 import com.plenart.organizeme.databinding.NavHeaderMainBinding
 import com.plenart.organizeme.firebase.FirestoreClass
+import com.plenart.organizeme.models.Board
 import com.plenart.organizeme.utils.Constants
 
 class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -22,6 +27,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     private lateinit var mainActivityBinding: ActivityMainBinding;
     private lateinit var appBarMainBinding: AppBarMainBinding;
     private lateinit var navHeaderMainBinding: NavHeaderMainBinding;
+    private lateinit var mainContentBinding: MainContentBinding;
 
     private lateinit var mUserName: String;
 
@@ -34,7 +40,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         setUpActionBar();
         mainActivityBinding.navView.setNavigationItemSelectedListener(this);
 
-        FirestoreClass().loadUserData(this);
+        FirestoreClass().loadUserData(this,true);
 
         appBarMainBinding.fabCreateBoard.setOnClickListener{
             Log.i("dodir fab","radi dodir");
@@ -92,7 +98,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         return true;
     }
 
-    fun updateNavigationUserDetails(loggedInUser: com.plenart.organizeme.models.User) {
+    fun updateNavigationUserDetails(loggedInUser: com.plenart.organizeme.models.User, readBoardsList: Boolean) {
         navHeaderMainBinding = NavHeaderMainBinding.inflate(layoutInflater);
         mUserName = loggedInUser.name;
 
@@ -103,6 +109,12 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             .into(navHeaderMainBinding.navUserImg);
 
         navHeaderMainBinding.tvUsername.text = loggedInUser.name;
+
+        if(readBoardsList){
+            showProgressDialog(resources.getString(R.string.please_wait));
+            FirestoreClass().getBoardsList(this);
+        }
+
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -115,8 +127,31 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         }
     }
 
-    companion object {
-        const val MY_PROFILE_REQUEST_CODE: Int = 11;
+
+    fun populateBoardsListToUI(boardsList: ArrayList<Board>){
+
+        mainContentBinding = MainContentBinding.inflate(layoutInflater);
+        hideProgressDialog();
+
+        if(boardsList.size > 0){
+            mainContentBinding.rvBoards.visibility = View.VISIBLE;
+            mainContentBinding.tvNoBoardsAvailable.visibility = View.GONE;
+
+            mainContentBinding.rvBoards.layoutManager = LinearLayoutManager(this);
+            mainContentBinding.rvBoards.setHasFixedSize(true);
+
+            val adapter = BoardItemsAdapter(this@MainActivity, boardsList);
+            mainContentBinding.rvBoards.adapter = adapter;
+            Log.i("POPUI","Board adapter size: ${adapter.itemCount}");
+            //adapter.notifyDataSetChanged();
+        }
+
+        else{
+            mainContentBinding.rvBoards.visibility = View.GONE;
+            mainContentBinding.tvNoBoardsAvailable.visibility = View.VISIBLE;
+        }
+
+
     }
 
     fun klikniMe(view: View) {
@@ -128,4 +163,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         startActivity(intent);
     }
 
+    companion object {
+        const val MY_PROFILE_REQUEST_CODE: Int = 11;
+    }
 }

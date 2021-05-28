@@ -11,14 +11,16 @@ data class Board(
     val name: String = "",
     val image : String = "",
     val createdBy: String = "",
-    val assignedTo: ArrayList<String> = ArrayList()
+    val assignedTo: ArrayList<String> = ArrayList(),
+    var documentID: String = ""
 
 ): Parcelable{
     constructor(parcel: Parcel): this(
         parcel.readString()!!,
         parcel.readString()!!,
         parcel.readString()!!,
-        parcel.createStringArrayList()!!
+        parcel.createStringArrayList()!!,
+        parcel.readString()!!
     )
 
     override fun describeContents() = 0
@@ -29,6 +31,7 @@ data class Board(
            writeString(image);
            writeString(createdBy);
            writeStringList(assignedTo);
+            writeString(documentID);
         }
 
         override fun create(parcel: Parcel): Board = TODO()
