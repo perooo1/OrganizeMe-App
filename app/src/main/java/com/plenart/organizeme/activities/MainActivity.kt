@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
-import android.widget.LinearLayout
 import androidx.core.view.GravityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
@@ -122,13 +121,16 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         if(resultCode == Activity.RESULT_OK && requestCode == MY_PROFILE_REQUEST_CODE){
             FirestoreClass().loadUserData(this);
         }
+        else if(resultCode == Activity.RESULT_OK && requestCode == CREATE_BOARD_REQUEST_CODE){
+            FirestoreClass().getBoardsList(this)
+        }
         else{
             Log.e("MainOnActivityResultErr", "error")
         }
     }
 
 
-    fun populateBoardsListToUI(boardsList: ArrayList<Board>){
+    fun displayBoards(boardsList: ArrayList<Board>){
 
         mainContentBinding = MainContentBinding.inflate(layoutInflater);
         hideProgressDialog();
@@ -137,20 +139,19 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             mainContentBinding.rvBoards.visibility = View.VISIBLE;
             mainContentBinding.tvNoBoardsAvailable.visibility = View.GONE;
 
-            mainContentBinding.rvBoards.layoutManager = LinearLayoutManager(this);
+            mainContentBinding.rvBoards.layoutManager = LinearLayoutManager(this@MainActivity);
             mainContentBinding.rvBoards.setHasFixedSize(true);
 
             val adapter = BoardItemsAdapter(this@MainActivity, boardsList);
             mainContentBinding.rvBoards.adapter = adapter;
             Log.i("POPUI","Board adapter size: ${adapter.itemCount}");
-            //adapter.notifyDataSetChanged();
+
         }
 
         else{
             mainContentBinding.rvBoards.visibility = View.GONE;
             mainContentBinding.tvNoBoardsAvailable.visibility = View.VISIBLE;
         }
-
 
     }
 
@@ -160,10 +161,11 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         val intent = Intent(this,CreateBoardActivity::class.java);
         intent.putExtra(Constants.NAME, mUserName);
 
-        startActivity(intent);
+        startActivityForResult(intent, CREATE_BOARD_REQUEST_CODE);
     }
 
     companion object {
         const val MY_PROFILE_REQUEST_CODE: Int = 11;
+        const val CREATE_BOARD_REQUEST_CODE: Int = 12;
     }
 }

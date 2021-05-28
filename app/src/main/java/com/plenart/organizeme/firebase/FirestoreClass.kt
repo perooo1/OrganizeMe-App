@@ -82,7 +82,7 @@ class FirestoreClass {
                 Log.e("FirestoreSignInUser", "Error writing document", e);
                 when (activity) {
                     is SignInActivity -> {
-                        activity.hideProgressDialog()
+                        activity.hideProgressDialog();
                     }
                     is MainActivity -> {
                         activity.hideProgressDialog();
@@ -118,11 +118,11 @@ class FirestoreClass {
                 for(i in document.documents){
                     val board = i.toObject(Board::class.java)!!;
                     board.documentID = i.id;
-                    boardList.add(board)
+                    boardList.add(board);
 
                 }
 
-                activity.populateBoardsListToUI(boardList);                 //TODO(pls petre rename this function eg. addBoards(boardList))
+                activity.displayBoards(boardList);
 
             }.addOnFailureListener {
                 e ->
