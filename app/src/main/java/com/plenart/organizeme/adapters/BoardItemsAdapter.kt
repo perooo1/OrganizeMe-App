@@ -35,15 +35,12 @@ open class BoardItemsAdapter(private val context: Context, private val list: Arr
             holder.binding.tvNameItemBoard.text = model.name;
             holder.binding.tvCreatedByItemBoard.text = "Created by: ${model.createdBy}";
 
-
             holder.itemView.setOnClickListener {
                 if(boardItemClickListener != null){
                     boardItemClickListener!!.onClick(position, model);
                 }
             }
-
         }
-
     }
 
     override fun getItemCount(): Int {

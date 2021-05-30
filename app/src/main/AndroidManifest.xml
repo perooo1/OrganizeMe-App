@@ -14,9 +14,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.OrganizeMe">
         <activity
+            android:name=".activities.TestRecyclerActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme"/>
+        <activity
             android:name=".activities.CreateBoardActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme"></activity>
+            android:theme="@style/AppTheme" />
         <activity
             android:name=".activities.MyProfileActivity"
             android:screenOrientation="portrait"
@@ -47,8 +51,7 @@
         <activity
             android:name=".activities.MainActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme"
-            />
+            android:theme="@style/AppTheme" />
     </application>
 
 </manifest>

@@ -4,8 +4,7 @@ import android.app.Activity
 import android.util.Log
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.SetOptions
+import com.google.firebase.firestore.*
 import com.plenart.organizeme.activities.*
 import com.plenart.organizeme.models.Board
 import com.plenart.organizeme.models.User
@@ -107,8 +106,9 @@ class FirestoreClass {
     }
 
     fun getBoardsList(activity: MainActivity){
+
         mFirestore.collection(Constants.BOARDS)
-            .whereArrayContains(Constants.ASSIGNED_TO,getCurrentUserID())
+            .whereArrayContains(Constants.ASSIGNED_TO, getCurrentUserID())
             .get()
             .addOnSuccessListener {
                 document ->
@@ -121,15 +121,43 @@ class FirestoreClass {
                     boardList.add(board);
 
                 }
-
                 activity.displayBoards(boardList);
+
+
 
             }.addOnFailureListener {
                 e ->
                 activity.hideProgressDialog();
                 Log.e(activity.javaClass.simpleName,"Error while creatng a board",e);
             }
+
     }
 
+    fun getBoardsList2(activity: TestRecyclerActivity){
 
+        mFirestore.collection(Constants.BOARDS)
+            .whereArrayContains(Constants.ASSIGNED_TO, getCurrentUserID())
+            .get()
+            .addOnSuccessListener {
+                    document ->
+                Log.i(activity.javaClass.simpleName, document.documents.toString()); //logs correct data
+                val boardList: ArrayList<Board> = ArrayList();
+
+                for(i in document.documents){
+                    val board = i.toObject(Board::class.java)!!;
+                    board.documentID = i.id;
+                    boardList.add(board);
+
+                }
+                activity.displayRecyclerView(boardList);
+
+
+
+            }.addOnFailureListener {
+                    e ->
+                activity.hideProgressDialog();
+                Log.e(activity.javaClass.simpleName,"Error while creatng a board",e);
+            }
+
+    }
 }

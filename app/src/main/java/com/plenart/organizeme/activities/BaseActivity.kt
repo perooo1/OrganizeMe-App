@@ -36,7 +36,7 @@ open class BaseActivity : AppCompatActivity() {
 
         dialogProgressBinding.tvProgressText.text = text;
 
-        //mProgressDialog.tv_progress_text.text = text;
+
         mProgressDialog.show();
     }
 

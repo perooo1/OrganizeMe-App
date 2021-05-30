@@ -47,6 +47,4 @@ object Constants {
         }
         ActivityCompat.requestPermissions(activity,arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE), Constants.READ_STORAGE_PERMISSION_CODE);
     }
-
-
 }

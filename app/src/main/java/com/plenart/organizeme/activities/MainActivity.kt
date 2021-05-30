@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.plenart.organizeme.R
 import com.plenart.organizeme.adapters.BoardItemsAdapter
 import com.plenart.organizeme.databinding.ActivityMainBinding
@@ -91,6 +92,9 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                 startActivity(intent);
                 finish();
             }
+            R.id.nav_your_boards ->{
+                startActivity(Intent(this, TestRecyclerActivity::class.java));
+            }
         }
             mainActivityBinding.drawerLayout.closeDrawer(GravityCompat.START);
 
@@ -144,7 +148,9 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
             val adapter = BoardItemsAdapter(this@MainActivity, boardsList);
             mainContentBinding.rvBoards.adapter = adapter;
-            Log.i("POPUI","Board adapter size: ${adapter.itemCount}");
+
+            Log.i("displayBoards","Board adapter size: ${adapter.itemCount}");
+            adapter.notifyDataSetChanged();
 
         }
 
@@ -168,4 +174,5 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         const val MY_PROFILE_REQUEST_CODE: Int = 11;
         const val CREATE_BOARD_REQUEST_CODE: Int = 12;
     }
+
 }
