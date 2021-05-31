@@ -9,10 +9,12 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class Board(
     val name: String = "",
-    val image : String = "",
+    val image: String = "",
     val createdBy: String = "",
     val assignedTo: ArrayList<String> = ArrayList(),
-    var documentID: String = ""
+    var documentID: String = "",
+
+    var taskList: ArrayList<Task> = ArrayList()
 
 ): Parcelable{
     constructor(parcel: Parcel): this(
@@ -20,7 +22,8 @@ data class Board(
         parcel.readString()!!,
         parcel.readString()!!,
         parcel.createStringArrayList()!!,
-        parcel.readString()!!
+        parcel.readString()!!,
+        parcel.createTypedArrayList(Task.CREATOR)!!
     )
 
     override fun describeContents() = 0
@@ -32,6 +35,7 @@ data class Board(
            writeString(createdBy);
            writeStringList(assignedTo);
             writeString(documentID);
+            writeTypedList(taskList);
         }
 
         override fun create(parcel: Parcel): Board = TODO()

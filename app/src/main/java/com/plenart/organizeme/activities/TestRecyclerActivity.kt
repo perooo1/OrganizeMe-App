@@ -1,5 +1,6 @@
 package com.plenart.organizeme.activities
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -10,7 +11,9 @@ import com.plenart.organizeme.adapters.BoardItemsAdapter
 import com.plenart.organizeme.databinding.ActivityTestRecyclerBinding
 import com.plenart.organizeme.databinding.MainContentBinding
 import com.plenart.organizeme.firebase.FirestoreClass
+import com.plenart.organizeme.interfaces.BoardItemClickInterface
 import com.plenart.organizeme.models.Board
+import com.plenart.organizeme.utils.Constants
 
 class TestRecyclerActivity : BaseActivity() {
     private lateinit var activityTestRecyclerBinding: ActivityTestRecyclerBinding;
@@ -59,6 +62,16 @@ class TestRecyclerActivity : BaseActivity() {
 
             val adapter = BoardItemsAdapter(this@TestRecyclerActivity, boardsList);
             activityTestRecyclerBinding.rvBoards2.adapter = adapter;
+
+            adapter.setOnClickListener(object: BoardItemClickInterface{
+                override fun onClick(position: Int, model: Board) {
+                    val intent = Intent(this@TestRecyclerActivity, TaskListActivity::class.java)
+                    intent.putExtra(Constants.DOCUMENT_ID, model.documentID);
+                    startActivity(intent);
+                }
+
+            })
+
 
             Log.i("POPUI","Board adapter size: ${adapter.itemCount}");
             adapter.notifyDataSetChanged();

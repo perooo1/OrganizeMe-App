@@ -160,4 +160,20 @@ class FirestoreClass {
             }
 
     }
+
+    fun getBoardDetails(activity: TaskListActivity, documentID: String) {
+        mFirestore.collection(Constants.BOARDS)
+            .document(documentID)
+            .get()
+            .addOnSuccessListener {
+                    document ->
+                Log.i(activity.javaClass.simpleName, document.toString());
+                activity.boardDetails(document.toObject(Board::class.java)!!);
+
+            }.addOnFailureListener {
+                    e ->
+                activity.hideProgressDialog();
+                Log.e(activity.javaClass.simpleName,"Error while creatng a board",e);
+            }
+    }
 }
