@@ -2,10 +2,13 @@ package com.plenart.organizeme.activities
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.plenart.organizeme.R
+import com.plenart.organizeme.adapters.TaskListItemsAdapter
 import com.plenart.organizeme.databinding.ActivityTaskListBinding
 import com.plenart.organizeme.firebase.FirestoreClass
 import com.plenart.organizeme.models.Board
+import com.plenart.organizeme.models.Task
 import com.plenart.organizeme.utils.Constants
 
 class TaskListActivity : BaseActivity() {
@@ -49,8 +52,14 @@ class TaskListActivity : BaseActivity() {
         hideProgressDialog();
         setUpActionBar(board.name);
 
+        val addTaskList = Task(resources.getString(R.string.add_list));
+        board.taskList.add(addTaskList);
 
+        activityTaskListBinding.rvTaskList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        activityTaskListBinding.rvTaskList.setHasFixedSize(true);
 
+        val adapter = TaskListItemsAdapter(this,board.taskList);
+        activityTaskListBinding.rvTaskList.adapter = adapter;
     }
 
 }
