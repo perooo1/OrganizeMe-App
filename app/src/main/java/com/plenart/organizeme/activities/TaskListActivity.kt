@@ -1,6 +1,5 @@
 package com.plenart.organizeme.activities
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.plenart.organizeme.R
@@ -14,6 +13,7 @@ import com.plenart.organizeme.utils.Constants
 class TaskListActivity : BaseActivity() {
 
     private lateinit var activityTaskListBinding: ActivityTaskListBinding
+    private lateinit var mBoardDetails: Board;
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,7 +32,7 @@ class TaskListActivity : BaseActivity() {
     }
 
 
-    private fun setUpActionBar(title: String){
+    private fun setUpActionBar(){
         setSupportActionBar(activityTaskListBinding.toolbarTaskListActivity)
 
         activityTaskListBinding.toolbarTaskListActivity.setNavigationIcon(R.drawable.ic_action_navigation_menu)
@@ -41,7 +41,7 @@ class TaskListActivity : BaseActivity() {
         if(actionBar != null){
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setHomeAsUpIndicator(R.drawable.ic_white_color_back_24dp);
-            actionBar.title = title;
+            actionBar.title = mBoardDetails.name;
         }
         activityTaskListBinding.toolbarTaskListActivity.setNavigationOnClickListener{
             onBackPressed();
@@ -49,8 +49,11 @@ class TaskListActivity : BaseActivity() {
     }
 
     fun boardDetails(board:Board){
+
+        mBoardDetails = board;
+
         hideProgressDialog();
-        setUpActionBar(board.name);
+        setUpActionBar();
 
         val addTaskList = Task(resources.getString(R.string.add_list));
         board.taskList.add(addTaskList);
@@ -60,6 +63,41 @@ class TaskListActivity : BaseActivity() {
 
         val adapter = TaskListItemsAdapter(this,board.taskList);
         activityTaskListBinding.rvTaskList.adapter = adapter;
+    }
+
+    fun addUpdateTaskListSuccess(){
+        hideProgressDialog();
+        showProgressDialog(resources.getString(R.string.please_wait));
+        FirestoreClass().getBoardDetails(this, mBoardDetails.documentID);
+
+    }
+
+    fun createTaskList(taskListName: String){
+        val task = Task(taskListName, FirestoreClass().getCurrentUserID());
+        mBoardDetails.taskList.add(0,task);
+        mBoardDetails.taskList.removeAt(mBoardDetails.taskList.size - 1);
+
+        showProgressDialog(resources.getString(R.string.please_wait));
+        FirestoreClass().addUpdateTaskList(this,mBoardDetails);
+
+    }
+
+    fun updateTaskList(position: Int, listName: String, model: Task){
+        val task = Task(listName, model.createdBy);
+        mBoardDetails.taskList[position] = task;
+        mBoardDetails.taskList.removeAt(mBoardDetails.taskList.size - 1);
+
+        showProgressDialog(resources.getString(R.string.please_wait));
+        FirestoreClass().addUpdateTaskList(this,mBoardDetails);
+    }
+
+    fun deleteTaskList(position: Int){
+        mBoardDetails.taskList.removeAt(position);
+
+        mBoardDetails.taskList.removeAt(mBoardDetails.taskList.size - 1);
+
+        showProgressDialog(resources.getString(R.string.please_wait));
+        FirestoreClass().addUpdateTaskList(this,mBoardDetails);
     }
 
 }
