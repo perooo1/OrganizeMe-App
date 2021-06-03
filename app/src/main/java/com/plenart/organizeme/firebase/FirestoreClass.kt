@@ -158,7 +158,6 @@ class FirestoreClass {
                 activity.hideProgressDialog();
                 Log.e(activity.javaClass.simpleName,"Error while creatng a board",e);
             }
-
     }
 
     fun getBoardDetails(activity: TaskListActivity, documentID: String) {
@@ -195,6 +194,30 @@ class FirestoreClass {
                 Log.e(activity.javaClass.simpleName, "Error while creating a board", exception);
             }
 
+    }
+
+    fun getAssignedMembersListDetails(activity: MembersActivity, assignedTo: ArrayList<String>){
+        mFirestore.collection(Constants.USERS)
+            .whereIn(Constants.ID, assignedTo)
+            .get()
+            .addOnSuccessListener {
+                document ->
+                Log.i(activity.javaClass.simpleName, document.documents.toString());
+
+                val usersList: ArrayList<User> = ArrayList();
+
+                for(i in document.documents){
+                    val user = i.toObject(User::class.java)!!
+                    usersList.add(user);
+                }
+
+                activity.setUpMembersList(usersList);
+
+            }.addOnFailureListener {
+                e ->
+                activity.hideProgressDialog();
+                Log.e(activity.javaClass.simpleName, "error while getting assigned member",e);
+            }
     }
 
 }

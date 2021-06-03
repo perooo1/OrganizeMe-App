@@ -29,6 +29,16 @@ data class Board(
     override fun describeContents() = 0
 
     companion object : Parceler<Board> {
+
+        val CREATOR = object: Parcelable.Creator<Board>{             //careful!
+            override fun createFromParcel(source: Parcel?): Board {
+                return Board(source!!);
+            }
+
+            override fun newArray(size: Int): Array<Board?> = arrayOfNulls(size)
+
+        }
+
         override fun Board.write(dest: Parcel, flags: Int) = with(dest) {
            writeString(name);
            writeString(image);
@@ -38,7 +48,14 @@ data class Board(
             writeTypedList(taskList);
         }
 
-        override fun create(parcel: Parcel): Board = TODO()
+        override fun create(parcel: Parcel): Board =
+            Board(parcel.readString()!!,
+                parcel.readString()!!,
+                parcel.readString()!!,
+                parcel.createStringArrayList()!!,
+                parcel.readString()!!,
+                parcel.createTypedArrayList(Task.CREATOR)!!)
+
     }
 
 }

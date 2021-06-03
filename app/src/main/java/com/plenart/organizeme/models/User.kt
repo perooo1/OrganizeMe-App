@@ -27,6 +27,16 @@ data class User(
     override fun describeContents() = 0;
 
     companion object : Parceler<User> {
+
+        val CREATOR = object: Parcelable.Creator<User>{             //careful!
+            override fun createFromParcel(source: Parcel?): User {
+                return User(source!!);
+            }
+
+            override fun newArray(size: Int): Array<User?> = arrayOfNulls(size)
+
+        }
+
         override fun User.write(dest: Parcel, flags: Int) = with(dest) {
             writeString(id);
             writeString(name);
