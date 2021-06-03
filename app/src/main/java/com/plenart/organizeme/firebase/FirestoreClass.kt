@@ -202,7 +202,7 @@ class FirestoreClass {
             .get()
             .addOnSuccessListener {
                 document ->
-                Log.i(activity.javaClass.simpleName, document.documents.toString());
+                Log.e(activity.javaClass.simpleName, document.documents.toString());
 
                 val usersList: ArrayList<User> = ArrayList();
 

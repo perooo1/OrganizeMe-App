@@ -20,16 +20,16 @@ class MembersActivity : BaseActivity() {
 
         activityMembersBinding = ActivityMembersBinding.inflate(layoutInflater)
         setContentView(activityMembersBinding.root)
-/*
+
         if(intent.hasExtra(Constants.BOARD_DETAIL)){
             mBoardDetails = intent.getParcelableExtra<Board>(Constants.BOARD_DETAIL)!!
         }
-*/
+
         setUpActionBar();
-/*
+
         showProgressDialog(resources.getString(R.string.please_wait));
         FirestoreClass().getAssignedMembersListDetails(this,mBoardDetails.assignedTo);
-*/
+
     }
 
     private fun setUpActionBar(){
