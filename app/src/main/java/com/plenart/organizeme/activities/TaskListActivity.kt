@@ -1,12 +1,16 @@
 package com.plenart.organizeme.activities
 
+import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.plenart.organizeme.R
 import com.plenart.organizeme.adapters.TaskListItemsAdapter
 import com.plenart.organizeme.databinding.ActivityTaskListBinding
 import com.plenart.organizeme.firebase.FirestoreClass
 import com.plenart.organizeme.models.Board
+import com.plenart.organizeme.models.Card
 import com.plenart.organizeme.models.Task
 import com.plenart.organizeme.utils.Constants
 
@@ -98,6 +102,45 @@ class TaskListActivity : BaseActivity() {
 
         showProgressDialog(resources.getString(R.string.please_wait));
         FirestoreClass().addUpdateTaskList(this,mBoardDetails);
+    }
+
+    fun addCardToTaskList(position: Int, cardName: String){
+        mBoardDetails.taskList.removeAt(mBoardDetails.taskList.size - 1);
+
+        val cardAssignedUsersList: ArrayList<String> = ArrayList();
+        cardAssignedUsersList.add(FirestoreClass().getCurrentUserID());
+
+        val card = Card(cardName, FirestoreClass().getCurrentUserID(), cardAssignedUsersList);
+
+        val cardsList = mBoardDetails.taskList[position].cards;
+        cardsList.add(card);
+
+        val task = Task(mBoardDetails.taskList[position].title,
+            mBoardDetails.taskList[position].title,
+            cardsList);
+
+        mBoardDetails.taskList[position] = task;
+
+        showProgressDialog(resources.getString(R.string.please_wait));
+        FirestoreClass().addUpdateTaskList(this,mBoardDetails);
+
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_members,menu);
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId){
+            R.id.action_members ->{
+                val intent = Intent(this, MembersActivity::class.java);
+                intent.putExtra(Constants.BOARD_DETAIL, mBoardDetails);
+                startActivity(intent);
+            }
+        }
+
+        return super.onOptionsItemSelected(item)
     }
 
 }

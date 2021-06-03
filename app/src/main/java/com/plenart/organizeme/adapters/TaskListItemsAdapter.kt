@@ -8,10 +8,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.plenart.organizeme.R
 import com.plenart.organizeme.activities.TaskListActivity
 import com.plenart.organizeme.databinding.ItemTaskBinding
+import com.plenart.organizeme.firebase.FirestoreClass
 import com.plenart.organizeme.models.Task
 
 class TaskListItemsAdapter(private val context: Context, private var list: ArrayList<Task>):RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -91,6 +93,37 @@ class TaskListItemsAdapter(private val context: Context, private var list: Array
             holder.binding.ibDeleteListName.setOnClickListener {
                 alertDialogForDeleteList(position,model.title);
             }
+
+            //showing cards UI
+            holder.binding.tvAddCard.setOnClickListener {
+                holder.binding.tvAddCard.visibility = View.GONE;
+                holder.binding.cvAddCard.visibility = View.VISIBLE;
+            }
+
+            holder.binding.ibCloseCardName.setOnClickListener {
+                holder.binding.tvAddCard.visibility = View.VISIBLE;
+                holder.binding.cvAddCard.visibility = View.GONE;
+            }
+            holder.binding.ibDoneCardName.setOnClickListener {
+                val cardName = holder.binding.etCardName.text.toString();
+
+                if(cardName.isNotEmpty()){
+                    if(context is TaskListActivity){
+                       context.addCardToTaskList(position, cardName);
+                    }
+                }
+                else{
+                    Toast.makeText(context, "Please enter a card name!",Toast.LENGTH_SHORT).show();
+                }
+
+            }
+
+            //loading cards into UI
+            holder.binding.rvCardList.layoutManager = LinearLayoutManager(context);
+            holder.binding.rvCardList.setHasFixedSize(true);
+
+            val adapter = CardListItemsAdapter(context, model.cards);
+            holder.binding.rvCardList.adapter = adapter;
 
         }
 
