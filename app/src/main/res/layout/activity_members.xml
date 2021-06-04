@@ -23,9 +23,10 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:background="@drawable/ic_background"
         android:gravity="center"
         android:orientation="vertical"
@@ -49,6 +50,15 @@
 
         </androidx.cardview.widget.CardView>
 
-    </LinearLayout>
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabMember"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="@dimen/fab_margin"
+            app:srcCompat = "@drawable/ic_vector_add24dp"
+            />
+
+    </FrameLayout>
 
 </LinearLayout>

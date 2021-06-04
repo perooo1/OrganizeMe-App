@@ -35,7 +35,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
-        app:srcCompat = "@drawable/ic_vector_add24dp"
+        app:srcCompat = "@drawable/ic_baseline_create_24"
         android:onClick="klikniMe"
         />
 
