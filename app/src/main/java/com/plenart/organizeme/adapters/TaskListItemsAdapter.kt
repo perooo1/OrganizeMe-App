@@ -14,6 +14,9 @@ import com.plenart.organizeme.R
 import com.plenart.organizeme.activities.TaskListActivity
 import com.plenart.organizeme.databinding.ItemTaskBinding
 import com.plenart.organizeme.firebase.FirestoreClass
+import com.plenart.organizeme.interfaces.BoardItemClickInterface
+import com.plenart.organizeme.interfaces.CardItemClickInterface
+import com.plenart.organizeme.models.Card
 import com.plenart.organizeme.models.Task
 
 class TaskListItemsAdapter(private val context: Context, private var list: ArrayList<Task>):RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -125,9 +128,19 @@ class TaskListItemsAdapter(private val context: Context, private var list: Array
             val adapter = CardListItemsAdapter(context, model.cards);
             holder.binding.rvCardList.adapter = adapter;
 
+            adapter.setOnClickListener(object : CardItemClickInterface{
+                override fun onClick(cardPosition: Int) {
+                    if(context is TaskListActivity){
+                        context.cardDetails(position, cardPosition)
+                    }
+                }
+
+            })
+
         }
 
     }
+
 
     override fun getItemCount(): Int {
         return list.size;

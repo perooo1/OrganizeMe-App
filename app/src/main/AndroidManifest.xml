@@ -14,9 +14,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.OrganizeMe">
         <activity
-            android:name=".activities.MembersActivity"
+            android:name=".activities.CardDetailsActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme"/>
+        <activity
+            android:name=".activities.MembersActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
         <activity
             android:name=".activities.TaskListActivity"
             android:screenOrientation="portrait"
