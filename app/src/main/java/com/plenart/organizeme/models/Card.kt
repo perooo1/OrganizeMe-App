@@ -9,12 +9,14 @@ import kotlinx.parcelize.Parcelize
 data class Card(
     val name: String = "",
     val createdBy: String = "",
-    val assignedTo: ArrayList<String> = ArrayList()
+    val assignedTo: ArrayList<String> = ArrayList(),
+    val labelColor: String = ""
 ): Parcelable{
     constructor(parcel: Parcel): this(
         parcel.readString()!!,
         parcel.readString()!!,
-        parcel.createStringArrayList()!!
+        parcel.createStringArrayList()!!,
+        parcel.readString()!!
     )
 
     override fun describeContents(): Int = 0;
@@ -34,6 +36,7 @@ data class Card(
             writeString(name);
             writeString(createdBy);
             writeStringList(assignedTo);
+            writeString(labelColor);
         }
 
         override fun create(parcel: Parcel): Card = TODO()
