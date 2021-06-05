@@ -23,6 +23,8 @@ class MembersActivity : BaseActivity() {
     private lateinit var activityMembersBinding: ActivityMembersBinding;
     private lateinit var mBoardDetails: Board;
 
+    private lateinit var mAssignedMembersList: ArrayList<User>;
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -65,6 +67,8 @@ class MembersActivity : BaseActivity() {
     }
 
     fun setUpMembersList(list: ArrayList<User>){
+
+        mAssignedMembersList = list;
         hideProgressDialog();
 
         activityMembersBinding.rvMembers.layoutManager = LinearLayoutManager(this);
@@ -72,6 +76,19 @@ class MembersActivity : BaseActivity() {
 
         val adapter = MemberListItemAdapter(this, list);
         activityMembersBinding.rvMembers.adapter = adapter;
+
+    }
+
+    fun memberDetails(user: User){
+        mBoardDetails.assignedTo.add(user.id);
+        FirestoreClass().assignMemberToBoard(this,mBoardDetails,user);
+
+    }
+
+    fun memberAssignSuccess(user: User){
+        hideProgressDialog();
+        mAssignedMembersList.add(user);
+        setUpMembersList(mAssignedMembersList);
 
     }
 
@@ -87,7 +104,10 @@ class MembersActivity : BaseActivity() {
 
             if(email.isNotEmpty()){
                 dialog.dismiss();
-                //TODO implement logic
+                showProgressDialog(resources.getString(R.string.please_wait));
+
+                FirestoreClass().getMemberDetails(this, email);
+
             }
             else{
                 Toast.makeText(this, "Please enter members' email address",Toast.LENGTH_SHORT).show();
