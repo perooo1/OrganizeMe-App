@@ -14,6 +14,7 @@ import com.plenart.organizeme.firebase.FirestoreClass
 import com.plenart.organizeme.models.Board
 import com.plenart.organizeme.models.Card
 import com.plenart.organizeme.models.Task
+import com.plenart.organizeme.models.User
 import com.plenart.organizeme.utils.Constants
 
 class TaskListActivity : BaseActivity() {
@@ -21,6 +22,7 @@ class TaskListActivity : BaseActivity() {
     private lateinit var activityTaskListBinding: ActivityTaskListBinding
     private lateinit var mBoardDetails: Board;
     private lateinit var mBoardDocumentID: String;
+    lateinit var mAssignedMemberDetailList: ArrayList<User>;
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,14 +65,9 @@ class TaskListActivity : BaseActivity() {
         hideProgressDialog();
         setUpActionBar();
 
-        val addTaskList = Task(resources.getString(R.string.add_list));
-        board.taskList.add(addTaskList);
+        showProgressDialog(resources.getString(R.string.please_wait));
+        FirestoreClass().getAssignedMembersListDetails(this, mBoardDetails.assignedTo);
 
-        activityTaskListBinding.rvTaskList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-        activityTaskListBinding.rvTaskList.setHasFixedSize(true);
-
-        val adapter = TaskListItemsAdapter(this,board.taskList);
-        activityTaskListBinding.rvTaskList.adapter = adapter;
     }
 
     fun addUpdateTaskListSuccess(){
@@ -166,8 +163,23 @@ class TaskListActivity : BaseActivity() {
         intent.putExtra(Constants.BOARD_DETAIL, mBoardDetails);
         intent.putExtra(Constants.TASK_LIST_ITEM_POSITION,taskListPosition);
         intent.putExtra(Constants.CARD_LIST_ITEM_POSITION,cardPosition);
+        intent.putExtra(Constants.BOARD_MEMBERS_LIST,mAssignedMemberDetailList);
 
         startActivityForResult(intent, CARD_DETAILS_REQUEST_CODE);
+    }
+
+    fun boardMembersDetailsList(list: ArrayList<User>){
+        mAssignedMemberDetailList = list;
+        hideProgressDialog();
+
+        val addTaskList = Task(resources.getString(R.string.add_list));
+        mBoardDetails.taskList.add(addTaskList);
+
+        activityTaskListBinding.rvTaskList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        activityTaskListBinding.rvTaskList.setHasFixedSize(true);
+
+        val adapter = TaskListItemsAdapter(this,mBoardDetails.taskList);
+        activityTaskListBinding.rvTaskList.adapter = adapter;
     }
 
     companion object{

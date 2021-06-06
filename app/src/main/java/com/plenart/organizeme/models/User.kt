@@ -1,7 +1,9 @@
 package com.plenart.organizeme.models
 
+import android.os.Build
 import android.os.Parcel
 import android.os.Parcelable
+import androidx.annotation.RequiresApi
 import kotlinx.parcelize.Parceler
 import kotlinx.parcelize.Parcelize
 
@@ -12,7 +14,8 @@ data class User(
     val email: String = "",
     val image: String = "",
     val mobile: Long = 0,
-    val fcmToken: String =""
+    val fcmToken: String ="",
+    var selected: Boolean = false
 ): Parcelable{
     constructor(parcel: Parcel): this(
         parcel.readString()!!,
@@ -20,22 +23,13 @@ data class User(
         parcel.readString()!!,
         parcel.readString()!!,
         parcel.readLong(),
-        parcel.readString()!!
+        parcel.readString()!!,
 
     )
 
     override fun describeContents() = 0;
 
     companion object : Parceler<User> {
-
-        val CREATOR = object: Parcelable.Creator<User>{             //careful!
-            override fun createFromParcel(source: Parcel?): User {
-                return User(source!!);
-            }
-
-            override fun newArray(size: Int): Array<User?> = arrayOfNulls(size)
-
-        }
 
         override fun User.write(dest: Parcel, flags: Int) = with(dest) {
             writeString(id);
@@ -47,7 +41,10 @@ data class User(
 
         }
 
-        override fun create(parcel: Parcel): User = TODO()
+        override fun create(source: Parcel): User {
+            return User(source!!);
+        }
+
     }
 
 
