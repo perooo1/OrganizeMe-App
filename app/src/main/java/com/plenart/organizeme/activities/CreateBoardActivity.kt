@@ -124,13 +124,22 @@ class CreateBoardActivity : BaseActivity() {
         val assignedUserArrayList: ArrayList<String> = ArrayList();
         assignedUserArrayList.add(getCurrentUserID());
 
-        var board = Board(createBoardBinding.etBoardNameCreateBoardActivity.text.toString(),
-            mBoardImageURL,
-            mUserName!!,
-            assignedUserArrayList
-        )
+        val boardName = createBoardBinding.etBoardNameCreateBoardActivity.text.toString();
+        if(boardName.isEmpty()){
+            hideProgressDialog();
+            Toast.makeText(this, resources.getString(R.string.please_provide_a_board_name),Toast.LENGTH_SHORT).show();
+        }
+        else{
+            var board = Board(boardName,
+                mBoardImageURL,
+                mUserName!!,
+                assignedUserArrayList
+            )
 
-        FirestoreClass().createBoard(this,board);
+            FirestoreClass().createBoard(this,board);
+
+        }
+
 
     }
 

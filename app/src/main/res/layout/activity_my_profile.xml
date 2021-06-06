@@ -48,12 +48,14 @@
                 android:padding="@dimen/my_profile_screen_content_padding"
                 >
 
-                <ImageView
+                <de.hdodenhof.circleimageview.CircleImageView
                     android:id="@+id/iv_user_image"
-                    android:layout_width="@dimen/nav_image_size"
-                    android:layout_height="@dimen/nav_image_size"
+                    android:layout_width="@dimen/board_image_size"
+                    android:layout_height="@dimen/board_image_size"
                     android:contentDescription="@string/intro_screen_image_contentDescription"
                     android:src="@drawable/ic_user_place_holder"
+                    app:civ_border_color="@color/primary_text_color"
+                    app:civ_border_width="@dimen/item_board_image_circular_border_width"
                     />
 
                 <com.google.android.material.textfield.TextInputLayout

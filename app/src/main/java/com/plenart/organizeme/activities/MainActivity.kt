@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import com.plenart.organizeme.R
 import com.plenart.organizeme.adapters.BoardItemsAdapter
 import com.plenart.organizeme.databinding.ActivityMainBinding
@@ -43,7 +42,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         FirestoreClass().loadUserData(this,true);
 
         appBarMainBinding.fabCreateBoard.setOnClickListener{
-            Log.i("dodir fab","radi dodir");
+            Log.e("dodir fab","radi dodir");
             startActivity(Intent(this,CreateBoardActivity::class.java));
         }
 
@@ -81,6 +80,10 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
+            R.id.nav_home ->{
+                toggleDrawer();
+              //  mainActivityBinding.drawerLayout.closeDrawer(GravityCompat.START);
+            }
             R.id.nav_my_profile -> {
                 startActivityForResult(Intent(this, MyProfileActivity::class.java),
                     MY_PROFILE_REQUEST_CODE);
@@ -103,8 +106,10 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     fun updateNavigationUserDetails(loggedInUser: com.plenart.organizeme.models.User, readBoardsList: Boolean) {
         navHeaderMainBinding = NavHeaderMainBinding.inflate(layoutInflater);
-        mUserName = loggedInUser.name;
 
+
+        mUserName = loggedInUser.name;
+        /*
         Glide.with(this)
             .load(loggedInUser.image)
             .centerCrop()
@@ -112,9 +117,9 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             .into(navHeaderMainBinding.navUserImg);
 
         navHeaderMainBinding.tvUsername.text = loggedInUser.name;
-
+        */
         if(readBoardsList){
-            showProgressDialog(resources.getString(R.string.please_wait));
+            //showProgressDialog(resources.getString(R.string.please_wait));
             FirestoreClass().getBoardsList(this);
         }
 
@@ -133,7 +138,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         }
     }
 
-
+/*
     fun displayBoards(boardsList: ArrayList<Board>){
 
         mainContentBinding = MainContentBinding.inflate(layoutInflater);
@@ -160,7 +165,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         }
 
     }
-
+*/
     fun klikniMe(view: View) {
         Log.i("klik","klik")
 

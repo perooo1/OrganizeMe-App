@@ -4,8 +4,8 @@
 
     <gradient
         android:angle="360"
-        android:startColor="@color/shape_button_rounded_colorStart"
-        android:endColor="@color/shape_button_rounded_colorEnd"
+        android:startColor="@color/purple_700"
+        android:endColor="@color/shape_button_rounded_colorEnd2"
         android:type="linear"
         >
 

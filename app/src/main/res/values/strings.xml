@@ -59,6 +59,8 @@
 
 
     <string name="default_notification_channel_id">projemanag_notification_channel_id</string>
+    <string name="nav_home">Home</string>
+    <string name="please_provide_a_board_name">Please provide a board name</string>
 
 
 </resources>

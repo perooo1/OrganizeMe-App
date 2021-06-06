@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.WindowManager
 import com.plenart.organizeme.R
 import com.plenart.organizeme.databinding.ActivitySplashBinding
 import com.plenart.organizeme.firebase.FirestoreClass
@@ -22,8 +23,9 @@ class SplashActivity : AppCompatActivity() {
         //setContentView(R.layout.activity_splash)                  deprecated
 
 
-        val typeFace: Typeface = Typeface.createFromAsset(assets,"carbon bl.ttf");
-        binding.tvAppName.typeface = typeFace;
+        //val typeFace: Typeface = Typeface.createFromAsset(assets,"carbon bl.ttf");
+        //binding.tvAppName.typeface = typeFace;
+
 
        Handler(Looper.getMainLooper()).postDelayed({
            
