@@ -98,6 +98,7 @@ class CardDetailsActivity : BaseActivity() {
     }
 
 
+
     private fun setUpActionBar(){
         setSupportActionBar(activityCardDetailsBinding.toolbarCardDetailsActivity)
 
