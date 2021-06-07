@@ -26,15 +26,44 @@
             android:visibility="gone"
             />
 
-        <TextView
-            android:id="@+id/tv_no_boards_available"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/no_boards_available"
-            android:gravity="center"
-            android:textColor="@color/secondary_text_color"
-            android:textSize="@dimen/no_boards_available_text_size"
-            />
+            android:layout_height="700dp"
+            android:orientation="vertical"
+            >
+
+            <ImageView
+                android:id="@+id/iv_no_boards_illustration"
+                android:layout_width="wrap_content"
+                android:layout_height="700dp"
+                android:layout_marginTop="-150dp"
+                android:src="@drawable/checklist_purple" />
+
+            <TextView
+                android:id="@+id/tv_no_boards_available"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="-100dp"
+                android:layout_below="@id/iv_no_boards_illustration"
+                android:text="@string/no_boards_available"
+                android:gravity="center"
+                android:textColor="@color/secondary_text_color"
+                android:textSize="25sp"
+                android:textStyle="bold"
+                />
+            <TextView
+                android:id="@+id/tv_tip"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/tv_no_boards_available"
+                android:text="@string/create_board_tip"
+                android:gravity="center"
+                android:textColor="@color/secondary_text_color"
+                android:textSize="16sp"
+                />
+
+        </RelativeLayout>
+
 
     </androidx.cardview.widget.CardView>
 

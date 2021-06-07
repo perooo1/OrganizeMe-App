@@ -121,7 +121,7 @@ class FirestoreClass {
                     boardList.add(board);
 
                 }
-                //activity.displayBoards(boardList);
+                activity.displayBoards(boardList);
 
 
 

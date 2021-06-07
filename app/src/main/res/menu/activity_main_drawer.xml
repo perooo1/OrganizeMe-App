@@ -6,11 +6,13 @@
             android:icon="@drawable/ic_baseline_home_24"
             android:title="@string/nav_home"
             />
+        <!--
         <item
             android:id="@+id/nav_your_boards"
             android:icon="@drawable/ic_board"
             android:title="@string/nav_my_boards"
             />
+        -->
         <item
             android:id="@+id/nav_my_profile"
             android:icon="@drawable/ic_nav_user"

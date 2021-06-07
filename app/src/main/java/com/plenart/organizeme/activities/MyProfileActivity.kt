@@ -50,6 +50,9 @@ class MyProfileActivity : BaseActivity() {
             if(mSelectedImageFileUri != null){
                 uploadUserImage();
             }
+            if(myProfileBinding.etMobileMyProfileActivity.text!!.isEmpty()){
+                Toast.makeText(this,"Please provide a phone number",Toast.LENGTH_SHORT).show();
+            }
             else{
                 showProgressDialog(resources.getString(R.string.please_wait));
                 updateUserProfileData();
