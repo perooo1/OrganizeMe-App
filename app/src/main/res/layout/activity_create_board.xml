@@ -60,9 +60,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/my_profile_name_til_marginTop"
+                    app:boxBackgroundColor="@android:color/transparent"
+                    android:background="@android:color/transparent"
                     >
 
-                    <androidx.appcompat.widget.AppCompatEditText
+                    <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_board_name_create_board_activity"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"

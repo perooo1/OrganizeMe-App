@@ -132,9 +132,7 @@ class MembersActivity : BaseActivity() {
         dialog.show();
 
     }
-
-
-
+    /*
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_add_member,menu);
         return super.onCreateOptionsMenu(menu)
@@ -151,7 +149,7 @@ class MembersActivity : BaseActivity() {
 
         return super.onOptionsItemSelected(item)
     }
-
+    */
 
 
 }

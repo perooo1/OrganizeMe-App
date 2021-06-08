@@ -2,7 +2,7 @@
     <string name="app_name">OrganizeMe</string>
     <string name="intro_screen_image_contentDescription">image of a guy</string>
     <string name="lets_get_started_text">Let\'s Get Started!</string>
-    <string name="intro_text_description">description bla bla TODO</string>
+    <string name="intro_text_description">Organize and manage your tasks easily!</string>
     <string name="sign_in">Sign In</string>
     <string name="sign_up">Sign Up</string>
 
