@@ -15,8 +15,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.plenart.organizeme.R
 import com.plenart.organizeme.activities.TaskListActivity
 import com.plenart.organizeme.databinding.ItemTaskBinding
-import com.plenart.organizeme.firebase.FirestoreClass
-import com.plenart.organizeme.interfaces.BoardItemClickInterface
 import com.plenart.organizeme.interfaces.CardItemClickInterface
 import com.plenart.organizeme.models.Task
 import java.util.*
@@ -62,6 +60,7 @@ class TaskListItemsAdapter(private val context: Context, private var list: Array
                 holder.binding.cvAddTaskListName.visibility = View.GONE;
             }
 
+            //adding list
             holder.binding.ibDoneListName.setOnClickListener {
                 val listName = holder.binding.etTaskListName.text.toString();
                 if(listName.isNotEmpty()){
@@ -225,9 +224,6 @@ class TaskListItemsAdapter(private val context: Context, private var list: Array
         alertDialog.show();
 
     }
-
-
-
 
     inner class ListItemViewHolder(val binding: ItemTaskBinding): RecyclerView.ViewHolder(binding.root){
 

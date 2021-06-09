@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.plenart.organizeme.R
 import com.plenart.organizeme.adapters.TaskListItemsAdapter
 import com.plenart.organizeme.databinding.ActivityTaskListBinding
-import com.plenart.organizeme.firebase.FirestoreClass
+import com.plenart.organizeme.firebase.Firestore
 import com.plenart.organizeme.models.Board
 import com.plenart.organizeme.models.Card
 import com.plenart.organizeme.models.Task
@@ -37,7 +37,7 @@ class TaskListActivity : BaseActivity() {
 
 
         showProgressDialog(resources.getString(R.string.please_wait));
-        FirestoreClass().getBoardDetails(this,mBoardDocumentID);
+        Firestore().getBoardDetails(this,mBoardDocumentID);
 
     }
 
@@ -66,14 +66,14 @@ class TaskListActivity : BaseActivity() {
         setUpActionBar();
 
         showProgressDialog(resources.getString(R.string.please_wait));
-        FirestoreClass().getAssignedMembersListDetails(this, mBoardDetails.assignedTo);
+        Firestore().getAssignedMembersListDetails(this, mBoardDetails.assignedTo);
 
     }
 
     fun addUpdateTaskListSuccess(){
         hideProgressDialog();
         showProgressDialog(resources.getString(R.string.please_wait));
-        FirestoreClass().getBoardDetails(this, mBoardDetails.documentID);
+        Firestore().getBoardDetails(this, mBoardDetails.documentID);
 
     }
 
@@ -81,7 +81,7 @@ class TaskListActivity : BaseActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if(resultCode == Activity.RESULT_OK && requestCode == MEMBERS_REQUEST_CODE || requestCode == CARD_DETAILS_REQUEST_CODE){
             showProgressDialog(resources.getString(R.string.please_wait));
-            FirestoreClass().getBoardDetails(this, mBoardDocumentID);
+            Firestore().getBoardDetails(this, mBoardDocumentID);
         }
         else{
             Log.e("cancelled","cancelled")
@@ -90,12 +90,12 @@ class TaskListActivity : BaseActivity() {
     }
 
     fun createTaskList(taskListName: String){
-        val task = Task(taskListName, FirestoreClass().getCurrentUserID());
+        val task = Task(taskListName, Firestore().getCurrentUserID());
         mBoardDetails.taskList.add(0,task);
         mBoardDetails.taskList.removeAt(mBoardDetails.taskList.size - 1);
 
         showProgressDialog(resources.getString(R.string.please_wait));
-        FirestoreClass().addUpdateTaskList(this,mBoardDetails);
+        Firestore().addUpdateTaskList(this,mBoardDetails);
 
     }
 
@@ -105,7 +105,7 @@ class TaskListActivity : BaseActivity() {
         mBoardDetails.taskList.removeAt(mBoardDetails.taskList.size - 1);
 
         showProgressDialog(resources.getString(R.string.please_wait));
-        FirestoreClass().addUpdateTaskList(this,mBoardDetails);
+        Firestore().addUpdateTaskList(this,mBoardDetails);
     }
 
     fun deleteTaskList(position: Int){
@@ -114,16 +114,16 @@ class TaskListActivity : BaseActivity() {
         mBoardDetails.taskList.removeAt(mBoardDetails.taskList.size - 1);
 
         showProgressDialog(resources.getString(R.string.please_wait));
-        FirestoreClass().addUpdateTaskList(this,mBoardDetails);
+        Firestore().addUpdateTaskList(this,mBoardDetails);
     }
 
     fun addCardToTaskList(position: Int, cardName: String){
         mBoardDetails.taskList.removeAt(mBoardDetails.taskList.size - 1);
 
         val cardAssignedUsersList: ArrayList<String> = ArrayList();
-        cardAssignedUsersList.add(FirestoreClass().getCurrentUserID());
+        cardAssignedUsersList.add(Firestore().getCurrentUserID());
 
-        val card = Card(cardName, FirestoreClass().getCurrentUserID(), cardAssignedUsersList);
+        val card = Card(cardName, Firestore().getCurrentUserID(), cardAssignedUsersList);
 
         val cardsList = mBoardDetails.taskList[position].cards;
         cardsList.add(card);
@@ -135,7 +135,7 @@ class TaskListActivity : BaseActivity() {
         mBoardDetails.taskList[position] = task;
 
         showProgressDialog(resources.getString(R.string.please_wait));
-        FirestoreClass().addUpdateTaskList(this,mBoardDetails);
+        Firestore().addUpdateTaskList(this,mBoardDetails);
 
     }
 
@@ -187,7 +187,7 @@ class TaskListActivity : BaseActivity() {
 
         mBoardDetails.taskList[position].cards = cards;
         showProgressDialog(resources.getString(R.string.please_wait));
-        FirestoreClass().addUpdateTaskList(this,mBoardDetails);
+        Firestore().addUpdateTaskList(this,mBoardDetails);
 
     }
 

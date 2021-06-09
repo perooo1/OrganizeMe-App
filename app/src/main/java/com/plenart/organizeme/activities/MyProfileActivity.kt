@@ -5,18 +5,14 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.util.Log
-import android.webkit.MimeTypeMap
 import android.widget.Toast
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.plenart.organizeme.R
 import com.plenart.organizeme.databinding.ActivityMyProfileBinding
-import com.plenart.organizeme.firebase.FirestoreClass
+import com.plenart.organizeme.firebase.Firestore
 import com.plenart.organizeme.models.User
 import com.plenart.organizeme.utils.Constants
 import java.io.IOException
@@ -35,7 +31,7 @@ class MyProfileActivity : BaseActivity() {
 
 
         setUpActionBar();
-        FirestoreClass().loadUserData(this);
+        Firestore().loadUserData(this);
 
         myProfileBinding.ivUserImage.setOnClickListener {
             if(Constants.isReadExternalStorageAllowed(this)){
@@ -115,10 +111,6 @@ class MyProfileActivity : BaseActivity() {
 
     }
 
-
-
-
-
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -165,8 +157,6 @@ class MyProfileActivity : BaseActivity() {
         }
     }
 
-
-
     fun profileUpdateSuccess(){
         hideProgressDialog();
         setResult(Activity.RESULT_OK);
@@ -193,7 +183,7 @@ class MyProfileActivity : BaseActivity() {
         }
 
         if(changesMade){
-            FirestoreClass().updateUserProfileData(this, userHashMap);
+            Firestore().updateUserProfileData(this, userHashMap);
             hideProgressDialog();
             changesMade = false;
         }

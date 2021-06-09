@@ -3,7 +3,6 @@ package com.plenart.organizeme.adapters
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.plenart.organizeme.R
@@ -18,13 +17,13 @@ open class BoardItemsAdapter(private val context: Context, private val list: Arr
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val binding = ItemBoardBinding.inflate(LayoutInflater.from(parent.context),parent,false);
-        return MyViewHolder(binding);
+        return BoardItemViewHolder(binding);
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val model = list[position];
 
-        if(holder is MyViewHolder){
+        if(holder is BoardItemViewHolder){
             Glide.with(context)
                 .load(model.image)
                 .centerCrop()
@@ -51,7 +50,7 @@ open class BoardItemsAdapter(private val context: Context, private val list: Arr
         this.boardItemClickListener = onClickInterface;
     }
 
-    inner class MyViewHolder(val binding:ItemBoardBinding):RecyclerView.ViewHolder(binding.root){
+    inner class BoardItemViewHolder(val binding:ItemBoardBinding):RecyclerView.ViewHolder(binding.root){
     }
 
 }

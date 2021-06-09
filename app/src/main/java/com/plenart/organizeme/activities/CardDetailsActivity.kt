@@ -4,7 +4,6 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -17,7 +16,7 @@ import com.plenart.organizeme.adapters.CardMembersListItemAdapter
 import com.plenart.organizeme.databinding.ActivityCardDetailsBinding
 import com.plenart.organizeme.dialogs.LabelColorListDialog
 import com.plenart.organizeme.dialogs.MembersListDialog
-import com.plenart.organizeme.firebase.FirestoreClass
+import com.plenart.organizeme.firebase.Firestore
 import com.plenart.organizeme.interfaces.MemberItemClickInterface
 import com.plenart.organizeme.models.*
 import com.plenart.organizeme.utils.Constants
@@ -134,9 +133,7 @@ class CardDetailsActivity : BaseActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-
         menuInflater.inflate(R.menu.menu_delete_card,menu);
-
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -145,7 +142,6 @@ class CardDetailsActivity : BaseActivity() {
 
         setResult(Activity.RESULT_OK);
         finish();
-
     }
 
     private fun updateCardDetails(){
@@ -161,9 +157,7 @@ class CardDetailsActivity : BaseActivity() {
 
         mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition] = card;
         showProgressDialog(resources.getString(R.string.please_wait))
-        FirestoreClass().addUpdateTaskList(this@CardDetailsActivity, mBoardDetails);
-
-
+        Firestore().addUpdateTaskList(this@CardDetailsActivity, mBoardDetails);
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -186,7 +180,7 @@ class CardDetailsActivity : BaseActivity() {
 
         taskList[mTaskListPosition].cards = cardsList;
         showProgressDialog(resources.getString(R.string.please_wait))
-        FirestoreClass().addUpdateTaskList(this@CardDetailsActivity, mBoardDetails);
+        Firestore().addUpdateTaskList(this@CardDetailsActivity, mBoardDetails);
     }
 
     private fun membersListDialog(){
@@ -356,7 +350,7 @@ class CardDetailsActivity : BaseActivity() {
     }
 
 
-    private fun showDatePicker(){                               //maybe needs  @RequiresApi(Build.VERSION_CODES.N)
+    private fun showDatePicker(){
         val calendar = Calendar.getInstance();
         val year = calendar.get(Calendar.YEAR);
         val month = calendar.get(Calendar.MONTH);

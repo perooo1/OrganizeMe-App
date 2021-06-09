@@ -17,8 +17,7 @@ import com.plenart.organizeme.adapters.BoardItemsAdapter
 import com.plenart.organizeme.databinding.ActivityMainBinding
 import com.plenart.organizeme.databinding.AppBarMainBinding
 import com.plenart.organizeme.databinding.MainContentBinding
-import com.plenart.organizeme.databinding.NavHeaderMainBinding
-import com.plenart.organizeme.firebase.FirestoreClass
+import com.plenart.organizeme.firebase.Firestore
 import com.plenart.organizeme.interfaces.BoardItemClickInterface
 import com.plenart.organizeme.models.Board
 import com.plenart.organizeme.utils.Constants
@@ -28,7 +27,6 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     private lateinit var mainActivityBinding: ActivityMainBinding;
     private lateinit var appBarMainBinding: AppBarMainBinding;
-    //private lateinit var navHeaderMainBinding: NavHeaderMainBinding;
     private lateinit var mainContentBinding: MainContentBinding;
 
     private lateinit var mUserName: String;
@@ -42,7 +40,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         setUpActionBar();
         mainActivityBinding.navView.setNavigationItemSelectedListener(this);
 
-        FirestoreClass().loadUserData(this,true);
+        Firestore().loadUserData(this,true);
 
         appBarMainBinding.fabCreateBoard.setOnClickListener{
             val intent = Intent(this,CreateBoardActivity::class.java);
@@ -56,9 +54,6 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     private fun setUpActionBar(){
         appBarMainBinding = mainActivityBinding.appBarMainIncluded;
-
-        //appBarMainBinding = AppBarMainBinding.inflate(layoutInflater)
-
 
         setSupportActionBar(appBarMainBinding.toolbarMainActivity)
         appBarMainBinding.toolbarMainActivity.setNavigationIcon(R.drawable.ic_action_navigation_menu);
@@ -103,11 +98,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                 startActivity(intent);
                 finish();
             }
-            /*
-            R.id.nav_your_boards ->{
-                startActivity(Intent(this, TestRecyclerActivity::class.java));
-            }
-            */
+
         }
             mainActivityBinding.drawerLayout.closeDrawer(GravityCompat.START);
 
@@ -116,11 +107,8 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     fun updateNavigationUserDetails(loggedInUser: com.plenart.organizeme.models.User, readBoardsList: Boolean) {
 
-        //navHeaderMainBinding = NavHeaderMainBinding.inflate(layoutInflater);
         val nav_user_img: CircleImageView = findViewById(R.id.nav_user_img);
         val tv_username: TextView = findViewById(R.id.tv_username);
-
-
 
         mUserName = loggedInUser.name;
 
@@ -134,7 +122,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
         if(readBoardsList){
             showProgressDialog(resources.getString(R.string.please_wait));
-            FirestoreClass().getBoardsList(this);
+            Firestore().getBoardsList(this);
         }
 
     }
@@ -142,10 +130,10 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if(resultCode == Activity.RESULT_OK && requestCode == MY_PROFILE_REQUEST_CODE){
-            FirestoreClass().loadUserData(this);
+            Firestore().loadUserData(this);
         }
         else if(resultCode == Activity.RESULT_OK && requestCode == CREATE_BOARD_REQUEST_CODE){
-            FirestoreClass().getBoardsList(this)
+            Firestore().getBoardsList(this)
         }
         else{
             Log.e("MainOnActivityResultErr", "error")
@@ -154,8 +142,6 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
 
     fun displayBoards(boardsList: ArrayList<Board>){
-
-        //mainContentBinding = MainContentBinding.inflate(layoutInflater);
 
         mainContentBinding = appBarMainBinding.mainContentIncluded;
 
@@ -195,16 +181,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         }
 
     }
-/*
-    fun klikniMe(view: View) {
-        Log.i("klik","klik")
 
-        val intent = Intent(this,CreateBoardActivity::class.java);
-        intent.putExtra(Constants.NAME, mUserName);
-
-        startActivityForResult(intent, CREATE_BOARD_REQUEST_CODE);
-    }
-*/
     companion object {
         const val MY_PROFILE_REQUEST_CODE: Int = 11;
         const val CREATE_BOARD_REQUEST_CODE: Int = 12;

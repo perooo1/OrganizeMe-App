@@ -12,7 +12,7 @@ import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.plenart.organizeme.R
 import com.plenart.organizeme.databinding.ActivityCreateBoardBinding
-import com.plenart.organizeme.firebase.FirestoreClass
+import com.plenart.organizeme.firebase.Firestore
 import com.plenart.organizeme.models.Board
 import com.plenart.organizeme.utils.Constants
 import java.io.IOException
@@ -21,7 +21,7 @@ class CreateBoardActivity : BaseActivity() {
     private lateinit var createBoardBinding: ActivityCreateBoardBinding;
 
     private var mSelectedImageFileUri: Uri? =null;
-    private var mUserName: String? = "";                                         //potential problem?
+    private var mUserName: String? = "";
     private var mBoardImageURL: String = "";
 
 
@@ -33,7 +33,7 @@ class CreateBoardActivity : BaseActivity() {
         setUpActionBar();
 
         if(intent.hasExtra(Constants.NAME)){
-            mUserName = intent.getStringExtra(Constants.NAME);                  //potential problem?
+            mUserName = intent.getStringExtra(Constants.NAME);
         }
 
         createBoardBinding.ivBoardImageCreateBoardActivity.setOnClickListener {
@@ -55,16 +55,13 @@ class CreateBoardActivity : BaseActivity() {
                 createBoard();
             }
 
-
         }
 
     }
 
     fun boardCreatedSuccessfully(){
         hideProgressDialog();
-
         setResult(Activity.RESULT_OK);
-
         finish();
     }
 
@@ -136,10 +133,9 @@ class CreateBoardActivity : BaseActivity() {
                 assignedUserArrayList
             )
 
-            FirestoreClass().createBoard(this,board);
+            Firestore().createBoard(this,board);
 
         }
-
 
     }
 

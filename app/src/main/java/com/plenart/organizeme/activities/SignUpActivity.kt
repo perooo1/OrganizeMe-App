@@ -1,6 +1,5 @@
 package com.plenart.organizeme.activities
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.TextUtils
 import android.widget.Toast
@@ -8,7 +7,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.plenart.organizeme.R
 import com.plenart.organizeme.databinding.ActivitySignUpBinding
-import com.plenart.organizeme.firebase.FirestoreClass
+import com.plenart.organizeme.firebase.Firestore
 import com.plenart.organizeme.models.User
 
 class SignUpActivity : BaseActivity() {
@@ -18,7 +17,6 @@ class SignUpActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivitySignUpBinding.inflate(layoutInflater);
         setContentView(binding.root);
-        //setContentView(R.layout.activity_sign_up)             deprecated
 
         setUpActionBar();
 
@@ -38,8 +36,6 @@ class SignUpActivity : BaseActivity() {
 
         binding.toolbarSignUpActivity.setNavigationOnClickListener{onBackPressed();}
 
-
-
     }
 
     private fun registerUser(){
@@ -54,7 +50,7 @@ class SignUpActivity : BaseActivity() {
                     val firebaseUser: FirebaseUser = task.result!!.user!!;
                     val registeredEmail = firebaseUser.email!!;
                     val user = User(firebaseUser.uid,name, registeredEmail);
-                    FirestoreClass().registerUser(this,user);
+                    Firestore().registerUser(this,user);
                     hideProgressDialog();
                     finish();
                 }

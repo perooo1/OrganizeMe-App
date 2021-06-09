@@ -1,21 +1,16 @@
 package com.plenart.organizeme.activities
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.app.Dialog
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.plenart.organizeme.R
 import com.plenart.organizeme.adapters.MemberListItemAdapter
 import com.plenart.organizeme.databinding.ActivityMembersBinding
 import com.plenart.organizeme.databinding.DialogAddSearchMemberBinding
-import com.plenart.organizeme.firebase.FirestoreClass
+import com.plenart.organizeme.firebase.Firestore
 import com.plenart.organizeme.models.Board
 import com.plenart.organizeme.models.User
 import com.plenart.organizeme.utils.Constants
@@ -42,15 +37,12 @@ class MembersActivity : BaseActivity() {
         setUpActionBar();
 
         showProgressDialog(resources.getString(R.string.please_wait));
-        FirestoreClass().getAssignedMembersListDetails(this,mBoardDetails.assignedTo);
+        Firestore().getAssignedMembersListDetails(this,mBoardDetails.assignedTo);
 
         activityMembersBinding.fabMember.setOnClickListener {
             Log.e("heh","fab click click clickity click");
             dialogAddSearchMember();
         }
-
-
-
     }
 
     private fun setUpActionBar(){
@@ -92,7 +84,7 @@ class MembersActivity : BaseActivity() {
 
     fun memberDetails(user: User){
         mBoardDetails.assignedTo.add(user.id);
-        FirestoreClass().assignMemberToBoard(this,mBoardDetails,user);
+        Firestore().assignMemberToBoard(this,mBoardDetails,user);
 
     }
 
@@ -118,7 +110,7 @@ class MembersActivity : BaseActivity() {
                 dialog.dismiss();
                 showProgressDialog(resources.getString(R.string.please_wait));
 
-                FirestoreClass().getMemberDetails(this, email);
+                Firestore().getMemberDetails(this, email);
 
             }
             else{
@@ -132,24 +124,5 @@ class MembersActivity : BaseActivity() {
         dialog.show();
 
     }
-    /*
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_add_member,menu);
-        return super.onCreateOptionsMenu(menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId){
-            R.id.action_add_member ->{
-                Log.e("sth","adddd member click click");
-                dialogAddSearchMember();
-                return true;
-            }
-        }
-
-        return super.onOptionsItemSelected(item)
-    }
-    */
-
 
 }

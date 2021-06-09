@@ -1,15 +1,12 @@
 package com.plenart.organizeme.activities
 
 import android.content.Intent
-import android.graphics.Typeface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.view.WindowManager
-import com.plenart.organizeme.R
 import com.plenart.organizeme.databinding.ActivitySplashBinding
-import com.plenart.organizeme.firebase.FirestoreClass
+import com.plenart.organizeme.firebase.Firestore
 
 
 class SplashActivity : AppCompatActivity() {
@@ -20,16 +17,9 @@ class SplashActivity : AppCompatActivity() {
         binding = ActivitySplashBinding.inflate(layoutInflater);
         setContentView(binding.root);
 
-        //setContentView(R.layout.activity_splash)                  deprecated
-
-
-        //val typeFace: Typeface = Typeface.createFromAsset(assets,"carbon bl.ttf");
-        //binding.tvAppName.typeface = typeFace;
-
-
        Handler(Looper.getMainLooper()).postDelayed({
            
-           var currentUserID = FirestoreClass().getCurrentUserID();
+           var currentUserID = Firestore().getCurrentUserID();
 
            if(currentUserID.isNotEmpty()){
                startActivity(Intent(this,MainActivity::class.java))

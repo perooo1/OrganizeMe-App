@@ -25,8 +25,6 @@ open class BaseActivity : AppCompatActivity() {
         baseActivityBinding = ActivityBaseBinding.inflate(layoutInflater)
         setContentView(baseActivityBinding.root);
 
-        //setContentView(R.layout.activity_base)                        deprecated
-
     }
 
     fun showProgressDialog(text: String){
@@ -35,7 +33,6 @@ open class BaseActivity : AppCompatActivity() {
         mProgressDialog.setContentView(dialogProgressBinding.root);
 
         dialogProgressBinding.tvProgressText.text = text;
-
 
         mProgressDialog.show();
     }

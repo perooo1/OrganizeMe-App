@@ -8,7 +8,7 @@ import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.plenart.organizeme.R
 import com.plenart.organizeme.databinding.ActivitySignInBinding
-import com.plenart.organizeme.firebase.FirestoreClass
+import com.plenart.organizeme.firebase.Firestore
 import com.plenart.organizeme.models.User
 
 class SignInActivity : BaseActivity() {
@@ -17,7 +17,6 @@ class SignInActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //setContentView(R.layout.activity_sign_in)                     deprecated
         binding = ActivitySignInBinding.inflate(layoutInflater)
         setContentView(binding.root);
 
@@ -53,9 +52,9 @@ class SignInActivity : BaseActivity() {
             auth.signInWithEmailAndPassword(email,password).addOnCompleteListener{ task ->
                 hideProgressDialog();
                 if(task.isSuccessful){
-                   FirestoreClass().loadUserData(this);
+                   Firestore().loadUserData(this);
                     val user = auth.currentUser;
-                    //startActivity(Intent(this,MainActivity::class.java))
+
                 }
                 else{
                     Log.d("TAG", "signInWithEmailFail")
