@@ -2,29 +2,53 @@ package com.plenart.organizeme.activities
 
 import android.content.Intent
 import android.os.Bundle
-import android.text.TextUtils
 import android.util.Log
-import android.widget.Toast
-import com.google.firebase.auth.FirebaseAuth
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.plenart.organizeme.R
 import com.plenart.organizeme.databinding.ActivitySignInBinding
-import com.plenart.organizeme.firebase.Firestore
-import com.plenart.organizeme.models.User
+import com.plenart.organizeme.viewModels.SignInViewModel
 
 class SignInActivity : BaseActivity() {
     private lateinit var binding: ActivitySignInBinding;
-    private lateinit var auth: FirebaseAuth;
+    private lateinit var viewModel: SignInViewModel;
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivitySignInBinding.inflate(layoutInflater)
+        super.onCreate(savedInstanceState);
+        binding = ActivitySignInBinding.inflate(layoutInflater);
         setContentView(binding.root);
 
-        setUpActionBar()
+        setUpActionBar();
+
+        Log.i("SignInActivity", "Called ViewModelProvider");
+        viewModel = ViewModelProvider(this).get(SignInViewModel::class.java); // not working?
+
+        viewModel.emailLiveData?.observe(this, Observer { newEmail ->
+            if(newEmail == null || !newEmail.contains('@') || !newEmail.contains(".com")){
+                showErrorSnackBar("Please enter email");
+            }
+        });
+
+        viewModel.passwordLiveData?.observe(this, Observer { newPassword ->
+            if(newPassword == null){
+                showErrorSnackBar("Please enter a password");
+            }
+        })
 
         binding.btnSignInSignInActivity.setOnClickListener{
-            singInUser();
+            viewModel.singInUser();
         }
+
+        viewModel.userLiveData?.observe(this, Observer { newUser ->
+            if(newUser != null){
+                signInSuccess();
+            }
+            else{
+                showProgressDialog(resources.getString(R.string.please_wait));
+            }
+        } )
+
     }
 
     private fun setUpActionBar(){
@@ -39,50 +63,13 @@ class SignInActivity : BaseActivity() {
 
     }
 
-
-    private fun singInUser(){
-
-        auth = FirebaseAuth.getInstance();
-
-        val email: String = binding.etEmailSignInActivity.text.toString().trim();
-        val password: String = binding.etPasswordSignInActivity.text.toString();
-
-        if(validateForm(email,password)){
-            showProgressDialog(resources.getString(R.string.please_wait));
-            auth.signInWithEmailAndPassword(email,password).addOnCompleteListener{ task ->
-                hideProgressDialog();
-                if(task.isSuccessful){
-                   Firestore().loadUserData(this);
-                    val user = auth.currentUser;
-
-                }
-                else{
-                    Log.d("TAG", "signInWithEmailFail")
-                    Toast.makeText(this, "Auth for login failed", Toast.LENGTH_SHORT).show();
-                }
-            }
-        }
-    }
-
-    fun signInSuccess(loggedInUser: User) {
+    fun signInSuccess() {
         hideProgressDialog();
         startActivity(Intent(this, MainActivity::class.java))
         finish();
     }
 
-    private fun validateForm(email: String,password: String): Boolean {
-        return when{
-            TextUtils.isEmpty(email)->{
-                showErrorSnackBar("Please enter email");
-                false;
-            }
-            TextUtils.isEmpty(password)->{
-                showErrorSnackBar("Please enter a password");
-                false;
-            }
-            else -> {true}
-        }
 
-    }
+
 
 }

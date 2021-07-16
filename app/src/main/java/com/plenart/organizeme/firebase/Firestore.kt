@@ -4,7 +4,8 @@ import android.app.Activity
 import android.util.Log
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.*
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import com.plenart.organizeme.activities.*
 import com.plenart.organizeme.models.Board
 import com.plenart.organizeme.models.User
@@ -60,7 +61,7 @@ class Firestore {
                 when(activity){
                     is SignInActivity ->{
                         if (loggedInUser != null) {
-                            activity.signInSuccess(loggedInUser)
+                            activity.signInSuccess()            //deleted fun parameter
                         };
                     }
                     is MainActivity ->{
@@ -88,6 +89,23 @@ class Firestore {
                     }
                 }
             }
+    }
+
+    fun loadUserDataNEW(): User?{
+        var loggedInUser: User? = null;
+
+        mFirestore.collection(Constants.USERS)
+            .document(getCurrentUserID())
+            .get()
+            .addOnSuccessListener {document ->
+                loggedInUser = document.toObject(User::class.java)
+
+            }.addOnFailureListener {
+                    e ->
+                Log.e("FirestoreSignInUser", "Error writing document", e);
+
+            }
+        return loggedInUser;
     }
 
     fun createBoard(activity: CreateBoardActivity, board:Board){
