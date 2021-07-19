@@ -25,7 +25,7 @@ class SignInActivity : BaseActivity() {
         viewModel = ViewModelProvider(this).get(SignInViewModel::class.java); // not working?
 
         viewModel.emailLiveData?.observe(this, Observer { newEmail ->
-            if(newEmail == null || !newEmail.contains('@') || !newEmail.contains(".com")){
+            if(newEmail == null || !newEmail.contains('@')){
                 showErrorSnackBar("Please enter email");
             }
         });
