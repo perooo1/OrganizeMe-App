@@ -22,33 +22,15 @@ class SignInActivity : BaseActivity() {
         setUpActionBar();
 
         Log.i("SignInActivity", "Called ViewModelProvider");
-        viewModel = ViewModelProvider(this).get(SignInViewModel::class.java); // not working?
+        viewModel = ViewModelProvider(this).get(SignInViewModel::class.java);
 
-        viewModel.emailLiveData?.observe(this, Observer { newEmail ->
-            if(newEmail == null || !newEmail.contains('@')){
-                showErrorSnackBar("Please enter email");
-            }
-        });
-
-        viewModel.passwordLiveData?.observe(this, Observer { newPassword ->
-            if(newPassword == null){
-                showErrorSnackBar("Please enter a password");
-            }
-        })
+        emailObserver();
+        passwordObserver();
+        userObserver();
 
         binding.btnSignInSignInActivity.setOnClickListener{
             viewModel.singInUser();
         }
-
-        viewModel.userLiveData?.observe(this, Observer { newUser ->
-            if(newUser != null){
-                signInSuccess();
-            }
-            else{
-                showProgressDialog(resources.getString(R.string.please_wait));
-            }
-        } )
-
     }
 
     private fun setUpActionBar(){
@@ -63,13 +45,37 @@ class SignInActivity : BaseActivity() {
 
     }
 
+    private fun emailObserver(){
+        viewModel.email?.observe(this, Observer { newEmail ->
+            if(newEmail == null || !newEmail.contains('@')){
+                showErrorSnackBar("Please enter email");
+            }
+        });
+    }
+
+    private fun passwordObserver(){
+        viewModel.password?.observe(this, Observer { newPassword ->
+            if(newPassword == null){
+                showErrorSnackBar("Please enter a password");
+            }
+        })
+    }
+
+    private fun userObserver(){
+        viewModel.user?.observe(this, Observer { newUser ->
+            if(newUser != null){
+                signInSuccess();
+            }
+            else{
+                showProgressDialog(resources.getString(R.string.please_wait));
+            }
+        } )
+    }
+
     fun signInSuccess() {
         hideProgressDialog();
         startActivity(Intent(this, MainActivity::class.java))
         finish();
     }
-
-
-
 
 }

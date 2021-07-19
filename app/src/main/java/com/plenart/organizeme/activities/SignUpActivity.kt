@@ -1,17 +1,18 @@
 package com.plenart.organizeme.activities
 
 import android.os.Bundle
-import android.text.TextUtils
+import android.util.Log
 import android.widget.Toast
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.plenart.organizeme.R
 import com.plenart.organizeme.databinding.ActivitySignUpBinding
-import com.plenart.organizeme.firebase.Firestore
-import com.plenart.organizeme.models.User
+import com.plenart.organizeme.viewModels.SignUpViewModel
 
 class SignUpActivity : BaseActivity() {
     private lateinit var binding: ActivitySignUpBinding;
+    private lateinit var viewModel: SignUpViewModel;
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -20,10 +21,61 @@ class SignUpActivity : BaseActivity() {
 
         setUpActionBar();
 
-        binding.btnSignUpSignUpActivity.setOnClickListener{
-            registerUser();
-        }
+        Log.i("SignUpActivity", "Called ViewModelProvider");
+        viewModel = ViewModelProvider(this).get(SignUpViewModel::class.java);
 
+        nameObserver();
+        emailObserver();
+        passwordObserver();
+        registerObserver();
+
+        binding.btnSignUpSignUpActivity.setOnClickListener{
+            viewModel.registerUser();
+        }
+    }
+
+    private fun registerObserver() {
+        viewModel.userRegisterSuccess.observe(this, Observer {
+            if(it){
+                userRegisteredSuccess();
+            }
+            else{
+                Toast.makeText(this,"registration failed", Toast.LENGTH_SHORT).show();
+            }
+        })
+    }
+
+    private fun passwordObserver() {
+        viewModel.password?.observe(this, Observer { newPassword ->
+            if(newPassword == null ){
+                showErrorSnackBar("Please enter a password");
+            }
+            else{
+                binding.etPasswordSignUpActivity.text.toString();       //does this make any sense?
+            }
+        })
+    }
+
+    private fun emailObserver() {
+        viewModel.email?.observe(this, Observer { newEmail ->
+            if(newEmail == null ){
+                showErrorSnackBar("Please enter a email");
+            }
+            else{
+                binding.etEmailSignUpActivity.text.toString().trim{it <=' '}
+            }
+        })
+    }
+
+    private fun nameObserver() {
+        viewModel.name?.observe(this, Observer { newName ->
+            if(newName == null ){
+                showErrorSnackBar("Please enter a name");
+            }
+            else{
+                binding.etNameSignUpActivity.text.toString().trim{it <=' '}
+            }
+        })
     }
 
     private fun setUpActionBar(){
@@ -38,55 +90,11 @@ class SignUpActivity : BaseActivity() {
 
     }
 
-    private fun registerUser(){
-        val name: String = binding.etNameSignUpActivity.text.toString().trim{it <=' '}
-        val email: String = binding.etEmailSignUpActivity.text.toString().trim{it <=' '}
-        val password: String = binding.etPasswordSignUpActivity.text.toString();
-
-        if(validateForm(name, email, password)){
-            showProgressDialog(resources.getString(R.string.please_wait));
-            FirebaseAuth.getInstance().createUserWithEmailAndPassword(email,password).addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val firebaseUser: FirebaseUser = task.result!!.user!!;
-                    val registeredEmail = firebaseUser.email!!;
-                    val user = User(firebaseUser.uid,name, registeredEmail);
-                    Firestore().registerUser(this,user);
-                    hideProgressDialog();
-                    finish();
-                }
-                else{
-                    Toast.makeText(this,"registration failed",Toast.LENGTH_SHORT).show();
-                }
-            }
-        }
-
-    }
-
     fun userRegisteredSuccess(){
-        Toast.makeText(this, " you have succesfully registered the email", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, " you have successfully registered the email", Toast.LENGTH_LONG).show();
         hideProgressDialog();
         FirebaseAuth.getInstance().signOut();
         finish();
-    }
-
-
-    private fun validateForm(name: String, email: String,password: String): Boolean {
-        return when{
-            TextUtils.isEmpty(name)->{
-                showErrorSnackBar("Please enter a name");
-                false;
-            }
-            TextUtils.isEmpty(email)->{
-                showErrorSnackBar("Please enter email");
-                false;
-            }
-            TextUtils.isEmpty(password)->{
-                showErrorSnackBar("Please enter a password");
-                false;
-            }
-            else -> {true}
-        }
-
     }
 
 }

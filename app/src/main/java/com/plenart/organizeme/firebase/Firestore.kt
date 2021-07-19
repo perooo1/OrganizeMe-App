@@ -24,6 +24,20 @@ class Firestore {
         }
     }
 
+    fun registerUserNEW(userInfo: User): Boolean{
+        var registerSuccess = false;
+
+        mFirestore.collection(Constants.USERS)
+            .document(getCurrentUserID())
+            .set(userInfo, SetOptions.merge()).addOnSuccessListener {
+                registerSuccess = true;
+            }
+            .addOnFailureListener {
+                registerSuccess = false;
+            }
+        return registerSuccess;
+    }
+
     fun getCurrentUserID(): String {
         var currentUser = FirebaseAuth.getInstance().currentUser;
         var currentUserID = "";

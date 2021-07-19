@@ -1,6 +1,7 @@
 package com.plenart.organizeme.viewModels
 
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -10,9 +11,18 @@ import com.plenart.organizeme.models.User
 class SignInViewModel: ViewModel() {
     private lateinit var auth: FirebaseAuth;
 
-    var emailLiveData: MutableLiveData<String>? = null;
-    var passwordLiveData: MutableLiveData<String>? = null;
-    var userLiveData: MutableLiveData<User>? = null;
+    private val _email: MutableLiveData<String>? = MutableLiveData();    // initalize with constructor!
+    private val _password: MutableLiveData<String>? = MutableLiveData();
+    private val _user: MutableLiveData<User>? = MutableLiveData();
+
+    val email: LiveData<String>?
+        get() = _email;
+
+    val password: LiveData<String>?
+        get() = _password;
+
+    val user: LiveData<User>?
+        get() = _user;
 
     init {
         Log.i("SignInViewModel", "SignInView model created!");
@@ -22,10 +32,10 @@ class SignInViewModel: ViewModel() {
 
         auth = FirebaseAuth.getInstance();
 
-        auth.signInWithEmailAndPassword(emailLiveData as String, passwordLiveData as String).addOnCompleteListener{ task ->
+        auth.signInWithEmailAndPassword(email as String, password as String).addOnCompleteListener{ task ->     //CAREFUL, SHOULD BE _EMAIL??
 
             if(task.isSuccessful){
-                userLiveData?.value = Firestore().loadUserDataNEW();
+                _user?.value = Firestore().loadUserDataNEW();
                 val user = auth.currentUser;
 
             }
