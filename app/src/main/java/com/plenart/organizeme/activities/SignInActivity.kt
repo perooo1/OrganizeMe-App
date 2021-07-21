@@ -49,6 +49,7 @@ class SignInActivity : BaseActivity() {
         viewModel.email?.observe(this, Observer { newEmail ->
             if(newEmail == null || !newEmail.contains('@')){
                 showErrorSnackBar("Please enter email");
+                Log.d("emailObserver","This has been called!")
             }
         });
     }

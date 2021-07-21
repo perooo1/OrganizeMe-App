@@ -15,18 +15,18 @@ import com.plenart.organizeme.models.User
 class SignUpViewModel: ViewModel() {
     private lateinit var auth: FirebaseAuth;
 
-    private val _name: MutableLiveData<String>? = null;         // initalize with constructor!
-    private val _email: MutableLiveData<String>? = null;
-    private val _password: MutableLiveData<String>? = null;
+    private val _name: MutableLiveData<String> = MutableLiveData();         // initalize with constructor!
+    private val _email: MutableLiveData<String> = MutableLiveData();
+    private val _password: MutableLiveData<String> = MutableLiveData();
     private val _userRegisterSuccess: MutableLiveData<Boolean> = MutableLiveData();
 
-    val name: LiveData<String>?
+    val name: LiveData<String>
         get() = _name;
 
-    val email: LiveData<String>?
+    val email: LiveData<String>
         get() = _email;
 
-    val password: LiveData<String>?
+    val password: LiveData<String>
         get() = _password;
 
     val userRegisterSuccess: LiveData<Boolean>
@@ -41,16 +41,18 @@ class SignUpViewModel: ViewModel() {
 
         auth = FirebaseAuth.getInstance();
 
-        auth.createUserWithEmailAndPassword(_email as String, _password as String).addOnCompleteListener { task ->
+        auth.createUserWithEmailAndPassword(_email.value.toString(), _password.value.toString()).addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 val firebaseUser: FirebaseUser = task.result!!.user!!;
                 val registeredEmail = firebaseUser.email!!;
                 val user = User(firebaseUser.uid,_name as String, registeredEmail);
                 _userRegisterSuccess.value = Firestore().registerUserNEW(user);
+                Log.d("registerUser","createUserWithEmailAndPassword Success")
                 //finish();
             }
             else{
                 //Toast.makeText(this,"registration failed", Toast.LENGTH_SHORT).show();
+                Log.d("registerUser","createUserWithEmailAndPassword Failed")
             }
         }
     }

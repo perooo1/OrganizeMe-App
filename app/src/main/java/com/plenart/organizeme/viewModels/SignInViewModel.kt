@@ -11,17 +11,17 @@ import com.plenart.organizeme.models.User
 class SignInViewModel: ViewModel() {
     private lateinit var auth: FirebaseAuth;
 
-    private val _email: MutableLiveData<String>? = MutableLiveData();    // initalize with constructor!
-    private val _password: MutableLiveData<String>? = MutableLiveData();
-    private val _user: MutableLiveData<User>? = MutableLiveData();
+    private val _email: MutableLiveData<String> = MutableLiveData()  // initalize with constructor!
+    private val _password: MutableLiveData<String> = MutableLiveData()
+    private val _user: MutableLiveData<User> = MutableLiveData()
 
-    val email: LiveData<String>?
+    val email: LiveData<String>
         get() = _email;
 
-    val password: LiveData<String>?
+    val password: LiveData<String>
         get() = _password;
 
-    val user: LiveData<User>?
+    val user: LiveData<User>
         get() = _user;
 
     init {
@@ -32,7 +32,7 @@ class SignInViewModel: ViewModel() {
 
         auth = FirebaseAuth.getInstance();
 
-        auth.signInWithEmailAndPassword(email as String, password as String).addOnCompleteListener{ task ->     //CAREFUL, SHOULD BE _EMAIL??
+        auth.signInWithEmailAndPassword(_email.value.toString(), _password.value.toString()).addOnCompleteListener{ task ->     //CAREFUL, SHOULD BE _EMAIL??
 
             if(task.isSuccessful){
                 _user?.value = Firestore().loadUserDataNEW();
@@ -40,7 +40,7 @@ class SignInViewModel: ViewModel() {
 
             }
             else{
-                Log.d("TAG", "signInWithEmailFail")
+                Log.d("signInUser", "signInWithEmailFail")
                 //Toast.makeText(context, "Auth for login failed", Toast.LENGTH_SHORT).show();
             }
         }
