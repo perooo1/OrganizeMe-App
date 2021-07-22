@@ -8,6 +8,8 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
 import androidx.core.view.GravityCompat
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.google.android.material.navigation.NavigationView
@@ -21,16 +23,18 @@ import com.plenart.organizeme.firebase.Firestore
 import com.plenart.organizeme.interfaces.BoardItemClickInterface
 import com.plenart.organizeme.models.Board
 import com.plenart.organizeme.utils.Constants
+import com.plenart.organizeme.viewModels.MainActivityViewModel
+import com.plenart.organizeme.viewModels.SignInViewModel
 import de.hdodenhof.circleimageview.CircleImageView
 
 class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
 
-    private lateinit var mainActivityBinding: ActivityMainBinding;
-    private lateinit var appBarMainBinding: AppBarMainBinding;
-    private lateinit var mainContentBinding: MainContentBinding;
+    private lateinit var mainActivityBinding: ActivityMainBinding
+    private lateinit var appBarMainBinding: AppBarMainBinding
+    private lateinit var mainContentBinding: MainContentBinding
+    private lateinit var viewModel: MainActivityViewModel
 
-    private lateinit var mUserName: String;
-
+    private lateinit var mUserName: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,9 +42,19 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         setContentView(mainActivityBinding.root)
 
         setUpActionBar();
-        mainActivityBinding.navView.setNavigationItemSelectedListener(this);
 
-        Firestore().loadUserData(this,true);
+        Log.i("MainActivity", "Called ViewModelProvider")
+        viewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
+
+        initObservers()
+
+        mainActivityBinding.navView.setNavigationItemSelectedListener(this);
+        /////////
+
+        viewModel.loadUserData();
+
+        ///////
+        //Firestore().loadUserData(this,true);        //this belongs in a viewModel
 
         appBarMainBinding.fabCreateBoard.setOnClickListener{
             val intent = Intent(this,CreateBoardActivity::class.java);
@@ -49,6 +63,22 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             startActivityForResult(intent, CREATE_BOARD_REQUEST_CODE);
         }
 
+    }
+
+    private fun initObservers() {
+        userObserver()
+    }
+
+    private fun userObserver() {
+
+        viewModel.user?.observe(this, Observer { newUser ->
+            if(newUser != null){
+                updateNavigationUserDetails(newUser,true)
+            }
+            else{
+                Log.i("MainActivityUsrObs","the else block")
+            }
+        } )
     }
 
 
@@ -98,14 +128,13 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                 startActivity(intent);
                 finish();
             }
-
         }
             mainActivityBinding.drawerLayout.closeDrawer(GravityCompat.START);
 
         return true;
     }
 
-    fun updateNavigationUserDetails(loggedInUser: com.plenart.organizeme.models.User, readBoardsList: Boolean) {
+    fun updateNavigationUserDetails(loggedInUser: com.plenart.organizeme.models.User, readBoardsList: Boolean = false) {
 
         val nav_user_img: CircleImageView = findViewById(R.id.nav_user_img);
         val tv_username: TextView = findViewById(R.id.tv_username);
@@ -122,7 +151,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
         if(readBoardsList){
             showProgressDialog(resources.getString(R.string.please_wait));
-            Firestore().getBoardsList(this);
+            Firestore().getBoardsList(this);        //this belongs in viewModel
         }
 
     }
@@ -130,10 +159,11 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if(resultCode == Activity.RESULT_OK && requestCode == MY_PROFILE_REQUEST_CODE){
-            Firestore().loadUserData(this);
+            viewModel.loadUserData();
+            //Firestore().loadUserData(this);                     //this belongs in viewModel
         }
         else if(resultCode == Activity.RESULT_OK && requestCode == CREATE_BOARD_REQUEST_CODE){
-            Firestore().getBoardsList(this)
+            Firestore().getBoardsList(this)                     //this belongs in viewModel
         }
         else{
             Log.e("MainOnActivityResultErr", "error")
@@ -179,7 +209,6 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             mainContentBinding.tvTip.visibility = View.VISIBLE;
             mainContentBinding.ivNoBoardsIllustration.visibility = View.VISIBLE;
         }
-
     }
 
     companion object {

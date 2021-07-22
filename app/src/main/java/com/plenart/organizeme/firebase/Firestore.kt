@@ -25,16 +25,16 @@ class Firestore {
     }
 
     fun registerUserNEW(userInfo: User): Boolean{
-        var registerSuccess = false;
+        var registerSuccess = false
 
         mFirestore.collection(Constants.USERS)
             .document(getCurrentUserID())
             .set(userInfo, SetOptions.merge()).addOnSuccessListener {
-                registerSuccess = true;
+                registerSuccess = true
                 Log.d("registerUserFirestore","onSuccessListener called")
             }
             .addOnFailureListener {
-                registerSuccess = false;
+                registerSuccess = false
                 Log.d("registerUserFirestore","onFailureListener called")
             }
         return registerSuccess;
@@ -108,7 +108,7 @@ class Firestore {
     }
 
     fun loadUserDataNEW(): User?{
-        var loggedInUser: User? = null;
+        var loggedInUser: User? = null
 
         mFirestore.collection(Constants.USERS)
             .document(getCurrentUserID())
@@ -118,9 +118,10 @@ class Firestore {
 
             }.addOnFailureListener {
                     e ->
-                Log.e("FirestoreSignInUser", "Error writing document", e);
+                Log.e("FirestoreSignInUser", "Error writing document", e)
 
             }
+
         return loggedInUser;
     }
 
@@ -165,6 +166,10 @@ class Firestore {
                 Log.e(activity.javaClass.simpleName,"Error while creatng a board",e);
             }
 
+    }
+
+    fun getBoardsListNEW(){
+        //TODO refactor function above
     }
 
     fun getBoardDetails(activity: TaskListActivity, documentID: String) {

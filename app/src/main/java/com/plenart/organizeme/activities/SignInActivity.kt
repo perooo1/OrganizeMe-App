@@ -11,66 +11,66 @@ import com.plenart.organizeme.databinding.ActivitySignInBinding
 import com.plenart.organizeme.viewModels.SignInViewModel
 
 class SignInActivity : BaseActivity() {
-    private lateinit var binding: ActivitySignInBinding;
-    private lateinit var viewModel: SignInViewModel;
+    private lateinit var binding: ActivitySignInBinding
+    private lateinit var viewModel: SignInViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState);
-        binding = ActivitySignInBinding.inflate(layoutInflater);
-        setContentView(binding.root);
+        super.onCreate(savedInstanceState)
+        binding = ActivitySignInBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        setUpActionBar();
+        setUpActionBar()
 
-        Log.i("SignInActivity", "Called ViewModelProvider");
-        viewModel = ViewModelProvider(this).get(SignInViewModel::class.java);
+        Log.i("SignInActivity", "Called ViewModelProvider")
+        viewModel = ViewModelProvider(this).get(SignInViewModel::class.java)
 
-        initObservers();
-        getEmail();
-        getPassword();
+        initObservers()
+        getEmail()
+        getPassword()
 
         binding.btnSignInSignInActivity.setOnClickListener{
-            viewModel.singInUser();
+            viewModel.singInUser()
         }
     }
 
     private fun getEmail() {
         binding.etEmailSignInActivity.doAfterTextChanged {
-            viewModel.setEmail(it.toString());
+            viewModel.setEmail(it.toString())
         }
     }
 
     private fun getPassword() {
         binding.etPasswordSignInActivity.doAfterTextChanged {
-            viewModel.setPassword(it.toString());
+            viewModel.setPassword(it.toString())
         }
     }
 
     private fun checkUser(): Boolean{
-        return viewModel.user == null;
+        return viewModel.user == null
     }
 
     private fun initObservers() {
-        emailObserver();
-        passwordObserver();
-        userObserver();
+        emailObserver()             //initEmail
+        passwordObserver()          //initPassword
+        userObserver()              //initUser
     }
 
     private fun setUpActionBar(){
-        setSupportActionBar(binding.toolbarSignInActivity);
-        val actionBar = supportActionBar;
+        setSupportActionBar(binding.toolbarSignInActivity)
+        val actionBar = supportActionBar
         if(actionBar != null){
             actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_black_color_back_24dp);
+            actionBar.setHomeAsUpIndicator(R.drawable.ic_black_color_back_24dp)
         }
 
-        binding.toolbarSignInActivity.setNavigationOnClickListener{onBackPressed();}
+        binding.toolbarSignInActivity.setNavigationOnClickListener{onBackPressed()}
 
     }
 
     private fun emailObserver(){
         viewModel.email?.observe(this, Observer { newEmail ->
             if(newEmail == null || !newEmail.contains('@')){
-                showErrorSnackBar("Please enter email");
+                showErrorSnackBar("Please enter email")
                 Log.d("emailObserver","This has been called!")
             }
         });
@@ -79,35 +79,35 @@ class SignInActivity : BaseActivity() {
     private fun passwordObserver(){
         viewModel.password?.observe(this, Observer { newPassword ->
             if(newPassword == null){
-                showErrorSnackBar("Please enter a password");
+                showErrorSnackBar("Please enter a password")
             }
         })
     }
 
     private fun userObserver(){
-        var isNull = true;
+        var isNull = true
         //TODO PLEASE SLIGHTLY FIX THE LOGIC
         viewModel.user?.observe(this, Observer { newUser ->
             if(newUser != null){
-                signInSuccess();
+                signInSuccess()
             }
             else{
-                showProgressDialog(resources.getString(R.string.please_wait));
-                isNull = checkUser();
+                showProgressDialog(resources.getString(R.string.please_wait))
+                isNull = checkUser()
                 if(isNull){
-                    showProgressDialog(resources.getString(R.string.please_wait));
+                    showProgressDialog(resources.getString(R.string.please_wait))
                 }
                 else{
-                    signInSuccess();
+                    signInSuccess()
                 }
             }
         } )
     }
 
     fun signInSuccess() {
-        hideProgressDialog();
+        hideProgressDialog()
         startActivity(Intent(this, MainActivity::class.java))
-        finish();
+        finish()
     }
 
 }

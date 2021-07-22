@@ -12,61 +12,61 @@ import com.plenart.organizeme.databinding.ActivitySignUpBinding
 import com.plenart.organizeme.viewModels.SignUpViewModel
 
 class SignUpActivity : BaseActivity() {
-    private lateinit var binding: ActivitySignUpBinding;
-    private lateinit var viewModel: SignUpViewModel;
+    private lateinit var binding: ActivitySignUpBinding
+    private lateinit var viewModel: SignUpViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivitySignUpBinding.inflate(layoutInflater);
-        setContentView(binding.root);
+        binding = ActivitySignUpBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         setUpActionBar();
 
-        Log.i("SignUpActivity", "Called ViewModelProvider");
-        viewModel = ViewModelProvider(this).get(SignUpViewModel::class.java);
+        Log.i("SignUpActivity", "Called ViewModelProvider")
+        viewModel = ViewModelProvider(this).get(SignUpViewModel::class.java)
 
         initObservers()
-        getName();
-        getEmail();
-        getPassword();
+        getName()
+        getEmail()
+        getPassword()
 
         binding.btnSignUpSignUpActivity.setOnClickListener{
-            viewModel.registerUser();
+            viewModel.registerUser()
         }
     }
 
     private fun initObservers() {
-        nameObserver();
-        emailObserver();
-        passwordObserver();
-        registerObserver();
+        nameObserver()
+        emailObserver()
+        passwordObserver()
+        registerObserver()
     }
 
     private fun getName(){
         binding.etNameSignUpActivity.doAfterTextChanged {
-            viewModel.setName(it.toString());
+            viewModel.setName(it.toString())
         }
     }
 
     private fun getEmail() {
         binding.etEmailSignUpActivity.doAfterTextChanged {
-            viewModel.setEmail(it.toString());
+            viewModel.setEmail(it.toString())
         }
     }
 
     private fun getPassword() {
         binding.etEmailSignUpActivity.doAfterTextChanged {
-            viewModel.setPassword(it.toString());
+            viewModel.setPassword(it.toString())
         }
     }
 
     private fun registerObserver() {
         viewModel.userRegisterSuccess.observe(this, Observer {
             if(it){
-                userRegisteredSuccess();
+                userRegisteredSuccess()
             }
             else{
-                Toast.makeText(this,"registration failed", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this,"registration failed", Toast.LENGTH_SHORT).show()
             }
         })
     }
@@ -74,10 +74,10 @@ class SignUpActivity : BaseActivity() {
     private fun passwordObserver() {
         viewModel.password?.observe(this, Observer { newPassword ->
             if(newPassword == null ){
-                showErrorSnackBar("Please enter a password");
+                showErrorSnackBar("Please enter a password")
             }
             else{
-                binding.etPasswordSignUpActivity.text.toString();       //does this make any sense?
+                binding.etPasswordSignUpActivity.text.toString()       //does this make any sense?
             }
         })
     }
@@ -85,7 +85,7 @@ class SignUpActivity : BaseActivity() {
     private fun emailObserver() {
         viewModel.email?.observe(this, Observer { newEmail ->
             if(newEmail == null ){
-                showErrorSnackBar("Please enter a email");
+                showErrorSnackBar("Please enter a email")
             }
             else{
                 binding.etEmailSignUpActivity.text.toString().trim{it <=' '}
@@ -96,7 +96,7 @@ class SignUpActivity : BaseActivity() {
     private fun nameObserver() {
         viewModel.name?.observe(this, Observer { newName ->
             if(newName == null ){
-                showErrorSnackBar("Please enter a name");
+                showErrorSnackBar("Please enter a name")
             }
             else{
                 binding.etNameSignUpActivity.text.toString().trim{it <=' '}
@@ -105,22 +105,22 @@ class SignUpActivity : BaseActivity() {
     }
 
     private fun setUpActionBar(){
-        setSupportActionBar(binding.toolbarSignUpActivity);
-        val actionBar = supportActionBar;
+        setSupportActionBar(binding.toolbarSignUpActivity)
+        val actionBar = supportActionBar
         if(actionBar != null){
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_black_color_back_24dp);
+            actionBar.setDisplayHomeAsUpEnabled(true)
+            actionBar.setHomeAsUpIndicator(R.drawable.ic_black_color_back_24dp)
         }
 
-        binding.toolbarSignUpActivity.setNavigationOnClickListener{onBackPressed();}
+        binding.toolbarSignUpActivity.setNavigationOnClickListener{onBackPressed()}
 
     }
 
     fun userRegisteredSuccess(){
-        Toast.makeText(this, " you have successfully registered the email", Toast.LENGTH_LONG).show();
-        hideProgressDialog();
-        FirebaseAuth.getInstance().signOut();
-        finish();
+        Toast.makeText(this, " you have successfully registered the email", Toast.LENGTH_LONG).show()
+        hideProgressDialog()
+        FirebaseAuth.getInstance().signOut()
+        finish()
     }
 
 }
