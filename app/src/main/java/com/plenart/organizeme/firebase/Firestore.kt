@@ -31,9 +31,11 @@ class Firestore {
             .document(getCurrentUserID())
             .set(userInfo, SetOptions.merge()).addOnSuccessListener {
                 registerSuccess = true;
+                Log.d("registerUserFirestore","onSuccessListener called")
             }
             .addOnFailureListener {
                 registerSuccess = false;
+                Log.d("registerUserFirestore","onFailureListener called")
             }
         return registerSuccess;
     }

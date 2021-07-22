@@ -3,6 +3,7 @@ package com.plenart.organizeme.activities
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.firebase.auth.FirebaseAuth
@@ -24,13 +25,38 @@ class SignUpActivity : BaseActivity() {
         Log.i("SignUpActivity", "Called ViewModelProvider");
         viewModel = ViewModelProvider(this).get(SignUpViewModel::class.java);
 
+        initObservers()
+        getName();
+        getEmail();
+        getPassword();
+
+        binding.btnSignUpSignUpActivity.setOnClickListener{
+            viewModel.registerUser();
+        }
+    }
+
+    private fun initObservers() {
         nameObserver();
         emailObserver();
         passwordObserver();
         registerObserver();
+    }
 
-        binding.btnSignUpSignUpActivity.setOnClickListener{
-            viewModel.registerUser();
+    private fun getName(){
+        binding.etNameSignUpActivity.doAfterTextChanged {
+            viewModel.setName(it.toString());
+        }
+    }
+
+    private fun getEmail() {
+        binding.etEmailSignUpActivity.doAfterTextChanged {
+            viewModel.setEmail(it.toString());
+        }
+    }
+
+    private fun getPassword() {
+        binding.etEmailSignUpActivity.doAfterTextChanged {
+            viewModel.setPassword(it.toString());
         }
     }
 
