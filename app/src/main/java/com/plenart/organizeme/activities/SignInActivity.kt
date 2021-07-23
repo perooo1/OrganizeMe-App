@@ -6,9 +6,11 @@ import android.util.Log
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.plenart.organizeme.R
 import com.plenart.organizeme.databinding.ActivitySignInBinding
 import com.plenart.organizeme.viewModels.SignInViewModel
+import kotlinx.coroutines.launch
 
 class SignInActivity : BaseActivity() {
     private lateinit var binding: ActivitySignInBinding
@@ -29,7 +31,9 @@ class SignInActivity : BaseActivity() {
         getPassword()
 
         binding.btnSignInSignInActivity.setOnClickListener{
-            viewModel.singInUser()
+            lifecycleScope.launch {
+                viewModel.singInUser()
+            }
         }
     }
 
@@ -44,11 +48,11 @@ class SignInActivity : BaseActivity() {
             viewModel.setPassword(it.toString())
         }
     }
-
+/*
     private fun checkUser(): Boolean{
         return viewModel.user == null
     }
-
+*/
     private fun initObservers() {
         emailObserver()             //initEmail
         passwordObserver()          //initPassword
@@ -93,7 +97,7 @@ class SignInActivity : BaseActivity() {
             }
             else{
                 showProgressDialog(resources.getString(R.string.please_wait))
-                isNull = checkUser()
+                isNull = viewModel.checkUser();
                 if(isNull){
                     showProgressDialog(resources.getString(R.string.please_wait))
                 }

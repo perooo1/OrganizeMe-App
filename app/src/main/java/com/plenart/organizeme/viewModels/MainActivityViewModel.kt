@@ -25,12 +25,21 @@ class MainActivityViewModel: ViewModel() {
         Log.i("MainActivity", "MainActivityViewModel created!")
     }
 
-    fun loadUserData(){
+    suspend fun loadUserData(){
         _user.value = firestore.loadUserDataNEW()
     }
 
     fun getBoardsList(){
-        //TODO implement
+        _boardsList.value = firestore.getBoardsListNEW();
+    }
+
+
+    fun checkBoardsList(): Boolean {
+        return boardsList == null
+    }
+
+    fun checkUser(): Boolean{
+        return user == null
     }
 
     override fun onCleared() {

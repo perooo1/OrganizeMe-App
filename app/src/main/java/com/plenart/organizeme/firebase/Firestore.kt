@@ -4,12 +4,16 @@ import android.app.Activity
 import android.util.Log
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.plenart.organizeme.activities.*
 import com.plenart.organizeme.models.Board
 import com.plenart.organizeme.models.User
 import com.plenart.organizeme.utils.Constants
+import com.plenart.organizeme.viewModels.MainActivityViewModel
+import kotlinx.coroutines.tasks.await
+import java.lang.Exception
 
 class Firestore {
 
@@ -107,22 +111,56 @@ class Firestore {
             }
     }
 
-    fun loadUserDataNEW(): User?{
-        var loggedInUser: User? = null
 
-        mFirestore.collection(Constants.USERS)
+/*
+    fun loadUserDataNEW2(): User?{
+        var loggedInUser: User? = null
+        Log.i("loadUserDataNEW","First log - user is: $loggedInUser")
+
+        val task = mFirestore.collection(Constants.USERS)
             .document(getCurrentUserID())
             .get()
-            .addOnSuccessListener {document ->
-                loggedInUser = document.toObject(User::class.java)
 
-            }.addOnFailureListener {
-                    e ->
-                Log.e("FirestoreSignInUser", "Error writing document", e)
+        task.addOnSuccessListener { document ->
+            Log.i("loadUserDataNEW", " document(user) tostring: ${document.toString()}");
+            loggedInUser = document.toObject(User::class.java);
+            Log.i("loadUserDataNEW","user object after joining: $loggedInUser")
+        }.addOnFailureListener { e ->
+            Log.e("loadUserDataNEW", "Error loading user data", e)
+        }
 
-            }
 
+
+        Log.i("loadUserDataNEW","last log - user is: $loggedInUser")
         return loggedInUser;
+    }
+*/
+
+    suspend fun loadUserDataNEW(): User?{
+        var loggedInUser: User? = null
+        Log.i("loadUserDataNEW","First log - user is: $loggedInUser")
+
+        try{
+            val user = getUserFirestore()
+            Log.i("loadUserDataNEW", " document(user) tostring: ${user.toString()}");
+            loggedInUser = user.toObject(User::class.java);
+            Log.i("loadUserDataNEW","user object after joining: $loggedInUser")
+        }
+        catch(e: Exception){
+            Log.e("loadUserDataNEW", "Error loading user data", e)
+        }
+
+        Log.i("loadUserDataNEW","last log - user is: $loggedInUser")
+        return loggedInUser;
+    }
+
+    private suspend fun getUserFirestore(): DocumentSnapshot{
+        val snapshot = mFirestore.collection(Constants.USERS)
+            .document(getCurrentUserID())
+            .get()
+            .await()
+
+        return snapshot
     }
 
     fun createBoard(activity: CreateBoardActivity, board:Board){
@@ -168,8 +206,33 @@ class Firestore {
 
     }
 
-    fun getBoardsListNEW(){
-        //TODO refactor function above
+    fun getBoardsListNEW(): ArrayList<Board>{
+        val boardsList = ArrayList<Board>();
+
+        mFirestore.collection(Constants.BOARDS)
+            .whereArrayContains(Constants.ASSIGNED_TO, getCurrentUserID())
+            .get()
+            .addOnSuccessListener {
+                    document ->
+                Log.i("getBoardsListNEW","onSuccListener")
+                Log.i("getBoardsListNEW", document.documents.toString()); //logs correct data
+                //val boardList: ArrayList<Board> = ArrayList();
+
+                for(i in document.documents){
+                    val board = i.toObject(Board::class.java)!!;
+                    board.documentID = i.id;
+                    boardsList.add(board);
+
+                }
+                //activity.displayBoards(boardList);
+
+            }.addOnFailureListener {
+                    e ->
+                //activity.hideProgressDialog();
+                Log.e("getBoardsListNEW","Error while creatng a board",e);
+            }
+        return boardsList;
+
     }
 
     fun getBoardDetails(activity: TaskListActivity, documentID: String) {

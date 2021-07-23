@@ -7,9 +7,11 @@ import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.view.GravityCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.google.android.material.navigation.NavigationView
@@ -26,6 +28,7 @@ import com.plenart.organizeme.utils.Constants
 import com.plenart.organizeme.viewModels.MainActivityViewModel
 import com.plenart.organizeme.viewModels.SignInViewModel
 import de.hdodenhof.circleimageview.CircleImageView
+import kotlinx.coroutines.launch
 
 class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -49,9 +52,11 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         initObservers()
 
         mainActivityBinding.navView.setNavigationItemSelectedListener(this);
-        /////////
 
-        viewModel.loadUserData();
+        lifecycleScope.launch {
+            viewModel.loadUserData();
+        }
+
 
         ///////
         //Firestore().loadUserData(this,true);        //this belongs in a viewModel
@@ -65,20 +70,70 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     }
 
+
     private fun initObservers() {
         userObserver()
+        boardsListObserver()
+    }
+
+    private fun boardsListObserver() {
+        var isNull = true;
+        viewModel.boardsList.observe(this, Observer { boardsList ->
+            if(boardsList != null && boardsList.isNotEmpty()){
+                displayBoards(boardsList);
+            }
+            else{
+                isNull = viewModel.checkBoardsList()
+                if(isNull){
+                    Toast.makeText(this, "boadsList is empty or null!", Toast.LENGTH_SHORT).show()
+                    Log.i("boardsListObserver","boardsList is empty or null")
+                }
+                else{
+                    displayBoards(boardsList);
+                }
+
+            }
+
+        })
     }
 
     private fun userObserver() {
+        Log.i("UserObserver","user observer function triggered")
+        Log.i("UserObserver","user viewmodel object ${viewModel.user.value.toString()}")
 
+
+        var isNull = true;
         viewModel.user?.observe(this, Observer { newUser ->
             if(newUser != null){
                 updateNavigationUserDetails(newUser,true)
+                Log.i("UserObserver","user observer function triggered - first if call")
             }
             else{
-                Log.i("MainActivityUsrObs","the else block")
+                isNull = viewModel.checkUser()
+                if(isNull){
+                    Log.i("UserObserver","the else block")
+                }
+                else{
+                    if (newUser != null) {
+                        updateNavigationUserDetails(newUser,true)
+                    };
+                }
             }
         } )
+
+
+        /*
+        viewModel.user.observe(this, { newUser ->
+            if(newUser == null){
+                viewModel.loadUserData();
+                Log.i("UserObserver","user viewmodel object AFTER ${viewModel.user.value.toString()}")
+            }
+            else{
+                updateNavigationUserDetails(newUser);
+            }
+        })
+        */
+
     }
 
 
@@ -159,11 +214,14 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if(resultCode == Activity.RESULT_OK && requestCode == MY_PROFILE_REQUEST_CODE){
-            viewModel.loadUserData();
+            lifecycleScope.launch {
+                viewModel.loadUserData();
+            }
             //Firestore().loadUserData(this);                     //this belongs in viewModel
         }
         else if(resultCode == Activity.RESULT_OK && requestCode == CREATE_BOARD_REQUEST_CODE){
-            Firestore().getBoardsList(this)                     //this belongs in viewModel
+            //Firestore().getBoardsList(this)                     //this belongs in viewModel
+            viewModel.getBoardsList();
         }
         else{
             Log.e("MainOnActivityResultErr", "error")

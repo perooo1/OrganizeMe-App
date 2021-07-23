@@ -8,6 +8,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.plenart.organizeme.firebase.Firestore
 import com.plenart.organizeme.models.User
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlin.coroutines.suspendCoroutine
 
 class SignInViewModel: ViewModel() {
     private lateinit var auth: FirebaseAuth
@@ -29,14 +32,16 @@ class SignInViewModel: ViewModel() {
         Log.i("SignInViewModel", "SignInView model created!")
     }
 
-    fun singInUser(){
+    suspend fun singInUser(){
         auth = FirebaseAuth.getInstance()
         auth.signInWithEmailAndPassword(_email.value.toString(), _password.value.toString()).addOnCompleteListener{ task ->
             try{
                 if(task.isSuccessful){
-                    _user?.value = Firestore().loadUserDataNEW()
-                    val user = auth.currentUser
-                    Log.d("signInUser", "signInWithEmail Success")
+                    GlobalScope.launch {
+                        _user?.value = Firestore().loadUserDataNEW()
+                        val user = auth.currentUser
+                        Log.d("signInUser", "signInWithEmail Success")
+                    }
                 }
                 else{
                     Log.d("signInUser", "signInWithEmailFail")
@@ -57,6 +62,10 @@ class SignInViewModel: ViewModel() {
 
     fun setPassword(password: String){
         _password.value = password
+    }
+
+    fun checkUser(): Boolean{
+        return user == null
     }
 
     override fun onCleared() {
