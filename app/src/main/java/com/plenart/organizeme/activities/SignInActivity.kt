@@ -48,11 +48,7 @@ class SignInActivity : BaseActivity() {
             viewModel.setPassword(it.toString())
         }
     }
-/*
-    private fun checkUser(): Boolean{
-        return viewModel.user == null
-    }
-*/
+
     private fun initObservers() {
         emailObserver()             //initEmail
         passwordObserver()          //initPassword
@@ -93,6 +89,7 @@ class SignInActivity : BaseActivity() {
         //TODO PLEASE SLIGHTLY FIX THE LOGIC
         viewModel.user?.observe(this, Observer { newUser ->
             if(newUser != null){
+                showProgressDialog(resources.getString(R.string.please_wait))
                 signInSuccess()
             }
             else{

@@ -11,15 +11,19 @@ import com.plenart.organizeme.models.User
 class MainActivityViewModel: ViewModel() {
 
     private val _user: MutableLiveData<User> = MutableLiveData()
-    private val _boardsList: MutableLiveData<ArrayList<Board>> = MutableLiveData();
+    private val _userName: MutableLiveData<String> = MutableLiveData()
+    private val _boardsList: MutableLiveData<ArrayList<Board>> = MutableLiveData()
 
     val firestore = Firestore()
+
     val user: LiveData<User>
         get() = _user
 
+    val userName: LiveData<String>
+        get() = _userName
+
     val boardsList: LiveData<ArrayList<Board>>
         get() = _boardsList
-
 
     init {
         Log.i("MainActivity", "MainActivityViewModel created!")
@@ -27,12 +31,16 @@ class MainActivityViewModel: ViewModel() {
 
     suspend fun loadUserData(){
         _user.value = firestore.loadUserDataNEW()
+        setUserName()
     }
 
-    fun getBoardsList(){
-        _boardsList.value = firestore.getBoardsListNEW();
+    private fun setUserName(){
+        _userName.value = _user.value?.name
     }
 
+    suspend fun getBoardsList(){
+        _boardsList.value = firestore.getBoardsListNEW()
+    }
 
     fun checkBoardsList(): Boolean {
         return boardsList == null

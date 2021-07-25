@@ -4,16 +4,12 @@ import android.app.Activity
 import android.util.Log
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.SetOptions
+import com.google.firebase.firestore.*
 import com.plenart.organizeme.activities.*
 import com.plenart.organizeme.models.Board
 import com.plenart.organizeme.models.User
 import com.plenart.organizeme.utils.Constants
-import com.plenart.organizeme.viewModels.MainActivityViewModel
 import kotlinx.coroutines.tasks.await
-import java.lang.Exception
 
 class Firestore {
 
@@ -111,42 +107,17 @@ class Firestore {
             }
     }
 
-
-/*
-    fun loadUserDataNEW2(): User?{
-        var loggedInUser: User? = null
-        Log.i("loadUserDataNEW","First log - user is: $loggedInUser")
-
-        val task = mFirestore.collection(Constants.USERS)
-            .document(getCurrentUserID())
-            .get()
-
-        task.addOnSuccessListener { document ->
-            Log.i("loadUserDataNEW", " document(user) tostring: ${document.toString()}");
-            loggedInUser = document.toObject(User::class.java);
-            Log.i("loadUserDataNEW","user object after joining: $loggedInUser")
-        }.addOnFailureListener { e ->
-            Log.e("loadUserDataNEW", "Error loading user data", e)
-        }
-
-
-
-        Log.i("loadUserDataNEW","last log - user is: $loggedInUser")
-        return loggedInUser;
-    }
-*/
-
     suspend fun loadUserDataNEW(): User?{
         var loggedInUser: User? = null
         Log.i("loadUserDataNEW","First log - user is: $loggedInUser")
 
         try{
-            val user = getUserFirestore()
-            Log.i("loadUserDataNEW", " document(user) tostring: ${user.toString()}");
+            val user = getUserFirestore()       //user callback function
+            Log.i("loadUserDataNEW", " document(user) toString: ${user.toString()}");
             loggedInUser = user.toObject(User::class.java);
             Log.i("loadUserDataNEW","user object after joining: $loggedInUser")
         }
-        catch(e: Exception){
+        catch(e: FirebaseFirestoreException){
             Log.e("loadUserDataNEW", "Error loading user data", e)
         }
 
@@ -154,13 +125,11 @@ class Firestore {
         return loggedInUser;
     }
 
-    private suspend fun getUserFirestore(): DocumentSnapshot{
-        val snapshot = mFirestore.collection(Constants.USERS)
+    private suspend fun getUserFirestore(): DocumentSnapshot {
+        return mFirestore.collection(Constants.USERS)
             .document(getCurrentUserID())
             .get()
             .await()
-
-        return snapshot
     }
 
     fun createBoard(activity: CreateBoardActivity, board:Board){
@@ -206,33 +175,32 @@ class Firestore {
 
     }
 
-    fun getBoardsListNEW(): ArrayList<Board>{
+    suspend fun getBoardsListNEW(): ArrayList<Board>{
         val boardsList = ArrayList<Board>();
+        Log.i("getBoardsListNEW","first log call: $boardsList")
 
-        mFirestore.collection(Constants.BOARDS)
+        try{
+            val boards = getBoardsListCallback()
+            Log.i("getBoardsListNEW","query(boards) toString: ${boards.toString()}")
+            for(i in boards.documents){
+                val board = i.toObject(Board::class.java)!!
+                board.documentID = i.id;
+                boardsList.add(board);
+            }
+        }
+        catch (e: FirebaseFirestoreException){
+            Log.e("getBoardsListNEW", "Error loading boards List", e)
+        }
+
+        Log.i("getBoardsListNEW","last log call: $boardsList")
+        return boardsList;
+    }
+
+    private suspend fun getBoardsListCallback(): QuerySnapshot {
+        return mFirestore.collection(Constants.BOARDS)
             .whereArrayContains(Constants.ASSIGNED_TO, getCurrentUserID())
             .get()
-            .addOnSuccessListener {
-                    document ->
-                Log.i("getBoardsListNEW","onSuccListener")
-                Log.i("getBoardsListNEW", document.documents.toString()); //logs correct data
-                //val boardList: ArrayList<Board> = ArrayList();
-
-                for(i in document.documents){
-                    val board = i.toObject(Board::class.java)!!;
-                    board.documentID = i.id;
-                    boardsList.add(board);
-
-                }
-                //activity.displayBoards(boardList);
-
-            }.addOnFailureListener {
-                    e ->
-                //activity.hideProgressDialog();
-                Log.e("getBoardsListNEW","Error while creatng a board",e);
-            }
-        return boardsList;
-
+            .await();
     }
 
     fun getBoardDetails(activity: TaskListActivity, documentID: String) {
@@ -276,7 +244,6 @@ class Firestore {
                         activity.hideProgressDialog();
                 Log.e(activity.javaClass.simpleName, "Error while creating a board", exception);
             }
-
     }
 
     fun getAssignedMembersListDetails(activity: Activity, assignedTo: ArrayList<String>){
@@ -352,7 +319,6 @@ class Firestore {
                 activity.hideProgressDialog();
                 Log.e(activity.javaClass.simpleName,"Error while creating a board",e)
             }
-
     }
 
 }

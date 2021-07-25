@@ -26,7 +26,6 @@ import com.plenart.organizeme.interfaces.BoardItemClickInterface
 import com.plenart.organizeme.models.Board
 import com.plenart.organizeme.utils.Constants
 import com.plenart.organizeme.viewModels.MainActivityViewModel
-import com.plenart.organizeme.viewModels.SignInViewModel
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.coroutines.launch
 
@@ -36,8 +35,6 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     private lateinit var appBarMainBinding: AppBarMainBinding
     private lateinit var mainContentBinding: MainContentBinding
     private lateinit var viewModel: MainActivityViewModel
-
-    private lateinit var mUserName: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,24 +51,19 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         mainActivityBinding.navView.setNavigationItemSelectedListener(this);
 
         lifecycleScope.launch {
-            viewModel.loadUserData();
+            viewModel.loadUserData()
         }
-
-
-        ///////
-        //Firestore().loadUserData(this,true);        //this belongs in a viewModel
 
         appBarMainBinding.fabCreateBoard.setOnClickListener{
             val intent = Intent(this,CreateBoardActivity::class.java);
-            intent.putExtra(Constants.NAME, mUserName);
+            intent.putExtra(Constants.NAME, viewModel.userName.value);
 
             startActivityForResult(intent, CREATE_BOARD_REQUEST_CODE);
         }
 
     }
 
-
-    private fun initObservers() {
+    private fun initObservers() {       //do I need userName observer?
         userObserver()
         boardsListObserver()
     }
@@ -81,26 +73,24 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         viewModel.boardsList.observe(this, Observer { boardsList ->
             if(boardsList != null && boardsList.isNotEmpty()){
                 displayBoards(boardsList);
+                Log.i("boardsListObserver","boardListObserver function triggered - first if call")
             }
             else{
                 isNull = viewModel.checkBoardsList()
                 if(isNull){
-                    Toast.makeText(this, "boadsList is empty or null!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "boardsList is empty or null!", Toast.LENGTH_SHORT).show()
                     Log.i("boardsListObserver","boardsList is empty or null")
                 }
                 else{
                     displayBoards(boardsList);
                 }
-
             }
-
         })
     }
 
     private fun userObserver() {
         Log.i("UserObserver","user observer function triggered")
         Log.i("UserObserver","user viewmodel object ${viewModel.user.value.toString()}")
-
 
         var isNull = true;
         viewModel.user?.observe(this, Observer { newUser ->
@@ -120,22 +110,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                 }
             }
         } )
-
-
-        /*
-        viewModel.user.observe(this, { newUser ->
-            if(newUser == null){
-                viewModel.loadUserData();
-                Log.i("UserObserver","user viewmodel object AFTER ${viewModel.user.value.toString()}")
-            }
-            else{
-                updateNavigationUserDetails(newUser);
-            }
-        })
-        */
-
     }
-
 
     private fun setUpActionBar(){
         appBarMainBinding = mainActivityBinding.appBarMainIncluded;
@@ -146,7 +121,6 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         appBarMainBinding.toolbarMainActivity.setNavigationOnClickListener {
             toggleDrawer();
         }
-
     }
 
     private fun toggleDrawer(){
@@ -191,43 +165,42 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     fun updateNavigationUserDetails(loggedInUser: com.plenart.organizeme.models.User, readBoardsList: Boolean = false) {
 
-        val nav_user_img: CircleImageView = findViewById(R.id.nav_user_img);
-        val tv_username: TextView = findViewById(R.id.tv_username);
-
-        mUserName = loggedInUser.name;
+        val nav_user_img: CircleImageView = findViewById(R.id.nav_user_img)
+        val tv_username: TextView = findViewById(R.id.tv_username)
 
         Glide.with(this)
             .load(loggedInUser.image)
             .centerCrop()
             .placeholder(R.drawable.ic_user_place_holder)
-            .into(nav_user_img);
+            .into(nav_user_img)
 
         tv_username.text = loggedInUser.name;
 
         if(readBoardsList){
             showProgressDialog(resources.getString(R.string.please_wait));
-            Firestore().getBoardsList(this);        //this belongs in viewModel
-        }
 
+            lifecycleScope.launch {
+                viewModel.getBoardsList()
+            }
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if(resultCode == Activity.RESULT_OK && requestCode == MY_PROFILE_REQUEST_CODE){
             lifecycleScope.launch {
-                viewModel.loadUserData();
+                viewModel.loadUserData()
             }
-            //Firestore().loadUserData(this);                     //this belongs in viewModel
         }
         else if(resultCode == Activity.RESULT_OK && requestCode == CREATE_BOARD_REQUEST_CODE){
-            //Firestore().getBoardsList(this)                     //this belongs in viewModel
-            viewModel.getBoardsList();
+            lifecycleScope.launch {
+                viewModel.getBoardsList()
+            }
         }
         else{
             Log.e("MainOnActivityResultErr", "error")
         }
     }
-
 
     fun displayBoards(boardsList: ArrayList<Board>){
 
@@ -253,14 +226,11 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                     intent.putExtra(Constants.DOCUMENT_ID, model.documentID);
                     startActivity(intent);
                 }
-
             })
 
             Log.i("displayBoards","Board adapter size: ${adapter.itemCount}");
             adapter.notifyDataSetChanged();
-
         }
-
         else{
             mainContentBinding.rvBoards.visibility = View.GONE;
             mainContentBinding.tvNoBoardsAvailable.visibility = View.VISIBLE;

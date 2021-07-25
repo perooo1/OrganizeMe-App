@@ -38,7 +38,7 @@ class SignInViewModel: ViewModel() {
             try{
                 if(task.isSuccessful){
                     GlobalScope.launch {
-                        _user?.value = Firestore().loadUserDataNEW()
+                        _user?.postValue(Firestore().loadUserDataNEW())
                         val user = auth.currentUser
                         Log.d("signInUser", "signInWithEmail Success")
                     }
