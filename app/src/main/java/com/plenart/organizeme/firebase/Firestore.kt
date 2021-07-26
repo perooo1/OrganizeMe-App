@@ -66,6 +66,27 @@ class Firestore {
             }
     }
 
+    fun updateUserProfileDataNEW(userHashMap: HashMap<String, Any>): Boolean{       //potential new thread?
+        var updateSuccess = false;
+
+        mFirestore.collection(Constants.USERS)
+            .document(getCurrentUserID())
+            .update(userHashMap)
+            .addOnSuccessListener {
+                Log.i("updateProfileDataNEW","Profile data updated successfully");
+                //Toast.makeText(activity,"Profile updated!", Toast.LENGTH_SHORT).show();
+                updateSuccess = true;
+                //activity.profileUpdateSuccess();
+            }.addOnFailureListener {
+                    e ->
+                //activity.hideProgressDialog();
+                Log.e("updateProfileDataNEW","Error while updating user data",e);
+                //Toast.makeText(activity,"Error when updating user profile!", Toast.LENGTH_SHORT).show();
+            }
+
+        return updateSuccess;
+    }
+
 
     fun loadUserData(activity: Activity, readBoardsList: Boolean = false){
         mFirestore.collection(Constants.USERS)
@@ -87,7 +108,7 @@ class Firestore {
                     }
                     is MyProfileActivity ->{
                         if (loggedInUser != null) {
-                            activity.setUserDataInUI(loggedInUser)
+                            activity.setUserDataInUI()
                         };
                     }
                 }

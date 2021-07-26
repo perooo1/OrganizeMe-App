@@ -54,4 +54,5 @@ class MainActivityViewModel: ViewModel() {
         super.onCleared()
         Log.i("MainActivityViewModel", "MainActivityViewModel model destroyed!")
     }
+
 }
