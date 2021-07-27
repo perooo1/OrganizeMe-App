@@ -36,7 +36,7 @@ class SignInViewModel: ViewModel() {
         auth = FirebaseAuth.getInstance()
         auth.signInWithEmailAndPassword(_email.value.toString(), _password.value.toString()).addOnCompleteListener{ task ->
             try{
-                if(task.isSuccessful){
+                if(task.isSuccessful){                                  //not globalScope but viewModelScope
                     GlobalScope.launch {
                         _user?.postValue(Firestore().loadUserDataNEW())
                         val user = auth.currentUser

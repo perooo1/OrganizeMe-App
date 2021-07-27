@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.core.widget.addTextChangedListener
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -47,10 +48,11 @@ class MyProfileActivity : BaseActivity() {
         getValues();
 
         //Firestore().loadUserData(this);
+/*
         lifecycleScope.launch {
             viewModel.loadUserData()
         }
-
+*/
         myProfileBinding.ivUserImage.setOnClickListener {
             if(Constants.isReadExternalStorageAllowed(this)){
                 Constants.showImageChooser(this);
@@ -95,7 +97,7 @@ class MyProfileActivity : BaseActivity() {
                 profileUpdateSuccess()
             }
             else{
-                Log.i("successObserver","Update userprofile data not successful(false)");
+                Log.i("successObserver","Update userprofile data not successful(it==false)");
             }
         })
     }
@@ -138,6 +140,8 @@ class MyProfileActivity : BaseActivity() {
         var isNull = true;
         viewModel.user?.observe(this, Observer { newUser ->
             if(newUser != null){
+                Log.i("UserObserver","before setUserdataInUi : first if block")
+                Log.i("UserObserver","after setUserdataInUi : ${newUser.toString()}")
                 setUserDataInUI()
                 Log.i("UserObserver","user observer function triggered - first if call")
             }
@@ -156,13 +160,14 @@ class MyProfileActivity : BaseActivity() {
         } )
     }
 
-    private fun getName() {                                                     //potential change to on text changed Listener
-        myProfileBinding.etNameMyProfileActivity.doAfterTextChanged {
-            viewModel.setName(it.toString())
+    private fun getName() {
+        myProfileBinding.etNameMyProfileActivity.addTextChangedListener {
+            viewModel.setName(it.toString());
         }
+
     }
 
-    private fun getMobile() {                                                   //potential change to on text changed Listener
+    private fun getMobile() {
         myProfileBinding.etMobileMyProfileActivity.doAfterTextChanged {
             if(myProfileBinding.etMobileMyProfileActivity.text!!.isEmpty()){
                 Toast.makeText(this,"1Please provide a phone number1",Toast.LENGTH_SHORT).show();
@@ -171,6 +176,7 @@ class MyProfileActivity : BaseActivity() {
                 viewModel.setMobile(it.toString().toLong());
             }
         }
+
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -242,76 +248,10 @@ class MyProfileActivity : BaseActivity() {
         }
     }
 
-    /*
-    fun getFileExtension(){
-        Constants
-    }
-    */
-/*
-    private fun uploadUserImage(){
-        showProgressDialog(resources.getString(R.string.please_wait));
-        if(mSelectedImageFileUri != null){
-            val sRef: StorageReference = FirebaseStorage.getInstance()
-                .reference
-                .child("USER_IMAGE"+System.currentTimeMillis()
-                        +"."+Constants.getFileExtension(this,mSelectedImageFileUri))
-
-        sRef.putFile(mSelectedImageFileUri!!).addOnSuccessListener {
-            taskSnapshot ->
-            Log.i("Firebase Image URL",taskSnapshot.metadata!!.reference!!.downloadUrl.toString());
-
-            taskSnapshot.metadata!!.reference!!.downloadUrl.addOnSuccessListener {
-                uri ->
-                Log.i("Downloadable Image URL", uri.toString())
-                mProfileImageURL = uri.toString();
-
-                updateUserProfileData()
-
-            }
-
-        }.addOnFailureListener{
-            exception ->
-            Toast.makeText(this,exception.message,Toast.LENGTH_LONG).show();
-            hideProgressDialog();
-        }
-
-        }
-    }
-*/
-
     fun profileUpdateSuccess(){
         hideProgressDialog();
         setResult(Activity.RESULT_OK);
         finish();
     }
-
-    /*
-    private fun updateUserProfileData(){
-        val userHashMap = HashMap<String, Any>();
-        var changesMade: Boolean = false;
-
-        if(mProfileImageURL.isNotEmpty() && mProfileImageURL != mUserDetails.image){
-            userHashMap[Constants.IMAGE] = mProfileImageURL;
-            changesMade = true;
-        }
-
-        if(myProfileBinding.etNameMyProfileActivity.text.toString() != mUserDetails.name){
-            userHashMap[Constants.NAME] = myProfileBinding.etNameMyProfileActivity.text.toString();
-            changesMade = true;
-        }
-
-        if(myProfileBinding.etMobileMyProfileActivity.text.toString() != mUserDetails.mobile.toString()){
-            userHashMap[Constants.MOBILE] = myProfileBinding.etMobileMyProfileActivity.text.toString().toLong();
-            changesMade = true;
-        }
-
-        if(changesMade){
-            Firestore().updateUserProfileData(this, userHashMap);
-            hideProgressDialog();
-            changesMade = false;
-        }
-
-    }
-    */
 
 }

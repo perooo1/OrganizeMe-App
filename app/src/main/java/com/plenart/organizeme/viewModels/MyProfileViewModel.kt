@@ -6,10 +6,7 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.*
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.plenart.organizeme.R
@@ -17,6 +14,7 @@ import com.plenart.organizeme.activities.MyProfileActivity
 import com.plenart.organizeme.firebase.Firestore
 import com.plenart.organizeme.models.User
 import com.plenart.organizeme.utils.Constants
+import kotlinx.coroutines.launch
 
 class MyProfileViewModel(application: Application): AndroidViewModel(application) {
 
@@ -49,9 +47,12 @@ class MyProfileViewModel(application: Application): AndroidViewModel(application
 
     init {
         Log.i("MyProfileActivity", "MyProfileViewModel created!")
+        viewModelScope.launch {
+            loadUserData()
+        }
     }
 
-    suspend fun loadUserData(){
+    private suspend fun loadUserData(){
         _user.value = firestore.loadUserDataNEW()
     }
 
@@ -71,7 +72,7 @@ class MyProfileViewModel(application: Application): AndroidViewModel(application
         return user == null
     }
 
-    fun uploadUserImage(){      //potential new thread
+    fun uploadUserImage(){
         //showProgressDialog(resources.getString(R.string.please_wait));
         if(_selectedImageFileUri?.value != null){
             val sRef: StorageReference = FirebaseStorage.getInstance()
@@ -135,10 +136,5 @@ class MyProfileViewModel(application: Application): AndroidViewModel(application
         super.onCleared()
         Log.i("MyProfileActivity", "MyProfileViewModel model destroyed!")
     }
-
-
-
-
-
 
 }
