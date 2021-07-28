@@ -154,6 +154,7 @@ class Firestore {
     }
 
     fun createBoard(activity: CreateBoardActivity, board:Board){
+
         mFirestore.collection(Constants.BOARDS)
             .document()
             .set(board, SetOptions.merge())
@@ -166,6 +167,26 @@ class Firestore {
                 activity.hideProgressDialog();
                 Log.e(activity.javaClass.simpleName,"Error while creating a board",exception);
             }
+
+    }
+
+    fun createBoardNEW(board:Board): Boolean{            //needs to return boolean, analogue to register user
+        var boardCreated = false;
+
+        mFirestore.collection(Constants.BOARDS)
+            .document()
+            .set(board, SetOptions.merge())
+            .addOnSuccessListener {
+                Log.i("createBoardNEW", "Board created successfully!");
+                boardCreated = true
+            }.addOnFailureListener {
+                    exception ->
+                //activity.hideProgressDialog();
+                boardCreated = false
+                Log.i("createBoardNEW", "Board creation failed!");
+                //Log.e(activity.javaClass.simpleName,"Error while creating a board",exception);
+            }
+        return boardCreated;
     }
 
     fun getBoardsList(activity: MainActivity){

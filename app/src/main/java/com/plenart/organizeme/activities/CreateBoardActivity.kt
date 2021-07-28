@@ -3,66 +3,93 @@ package com.plenart.organizeme.activities
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.core.widget.doAfterTextChanged
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
-import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageReference
 import com.plenart.organizeme.R
 import com.plenart.organizeme.databinding.ActivityCreateBoardBinding
-import com.plenart.organizeme.firebase.Firestore
-import com.plenart.organizeme.models.Board
 import com.plenart.organizeme.utils.Constants
+import com.plenart.organizeme.viewModels.CreateBoardViewModel
 import java.io.IOException
 
 class CreateBoardActivity : BaseActivity() {
     private lateinit var createBoardBinding: ActivityCreateBoardBinding;
-
-    private var mSelectedImageFileUri: Uri? =null;
-    private var mUserName: String? = "";
-    private var mBoardImageURL: String = "";
-
+    private lateinit var viewModel: CreateBoardViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        createBoardBinding = ActivityCreateBoardBinding.inflate(layoutInflater);
-        setContentView(createBoardBinding.root);
+        createBoardBinding = ActivityCreateBoardBinding.inflate(layoutInflater)
+        setContentView(createBoardBinding.root)
 
-        setUpActionBar();
+        setUpActionBar()
+
+        Log.i("CreateBoardActivity", "Called ViewModelProvider")
+        viewModel = ViewModelProvider(this).get(CreateBoardViewModel::class.java)
+
+        initObservers()
+        getBoardName()
 
         if(intent.hasExtra(Constants.NAME)){
-            mUserName = intent.getStringExtra(Constants.NAME);
+            viewModel.setUserName(intent.getStringExtra(Constants.NAME)!!)
         }
 
         createBoardBinding.ivBoardImageCreateBoardActivity.setOnClickListener {
             if(Constants.isReadExternalStorageAllowed(this)){
-                Constants.showImageChooser(this);
+                Constants.showImageChooser(this)
             }
             else{
-                Constants.requestStoragePermission(this);
+                Constants.requestStoragePermission(this)
             }
         }
 
         createBoardBinding.btnCreateCreateBoardActivity.setOnClickListener{
-            Log.i("create brd btn","click create brd btn");
-            if(mSelectedImageFileUri != null){
-                uploadBoardImage();
+            if(viewModel.selectedImageFileUri?.value != null){
+                viewModel.uploadBoardImage()
             }
             else{
-                showProgressDialog(resources.getString(R.string.please_wait));
-                createBoard();
+                viewModel.createBoard()
             }
-
         }
+    }
 
+    private fun initObservers() {
+        boardNameObserver()
+        boardCreatedObserver()
+    }
+
+    private fun boardCreatedObserver() {
+        viewModel.boardCreated.observe(this, Observer {
+            if (it){
+                boardCreatedSuccessfully()
+            }
+            else{
+                Log.i("boardCreatedObserver","Board creation failed: it==false")
+            }
+        })
+    }
+
+    private fun boardNameObserver() {
+        viewModel.boardName.observe(this, Observer {
+            if(it == null || it.isEmpty()){
+                Toast.makeText(this, "please provide a board name", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun getBoardName(){
+        createBoardBinding.etBoardNameCreateBoardActivity.doAfterTextChanged {
+            viewModel.setBoardName(it.toString())
+        }
     }
 
     fun boardCreatedSuccessfully(){
-        hideProgressDialog();
-        setResult(Activity.RESULT_OK);
-        finish();
+        hideProgressDialog()
+        setResult(Activity.RESULT_OK)
+        finish()
     }
 
     private fun setUpActionBar(){
@@ -70,14 +97,14 @@ class CreateBoardActivity : BaseActivity() {
 
         createBoardBinding.toolbarCreateBoardActivity.setNavigationIcon(R.drawable.ic_action_navigation_menu)
 
-        val actionBar = supportActionBar;
+        val actionBar = supportActionBar
         if(actionBar != null){
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_white_color_back_24dp);
-            actionBar.title = resources.getString(R.string.create_board_title);
+            actionBar.setDisplayHomeAsUpEnabled(true)
+            actionBar.setHomeAsUpIndicator(R.drawable.ic_white_color_back_24dp)
+            actionBar.title = resources.getString(R.string.create_board_title)
         }
         createBoardBinding.toolbarCreateBoardActivity.setNavigationOnClickListener{
-            onBackPressed();
+            onBackPressed()
         }
     }
 
@@ -87,85 +114,34 @@ class CreateBoardActivity : BaseActivity() {
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if(requestCode == Constants.READ_STORAGE_PERMISSION_CODE){
             if(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                Constants.showImageChooser(this);
+                Constants.showImageChooser(this)
             }
         }
         else{
-            Toast.makeText(this,"permission denied. You can change it in settings", Toast.LENGTH_LONG).show();
+            Toast.makeText(this,"permission denied. You can change it in settings", Toast.LENGTH_LONG).show()
         }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if(resultCode == Activity.RESULT_OK && requestCode == Constants.PICK_IMAGE_REQUEST_CODE && data!!.data != null){
-            mSelectedImageFileUri = data.data;
+            viewModel.setSelectedImageFileUri(data.data);
+            viewModel.setFileExtension(Constants.getFileExtension(this,data.data))
 
             try{
                 Glide.with(this)
-                    .load(mSelectedImageFileUri)
+                    .load(viewModel.selectedImageFileUri?.value)
                     .centerCrop()
                     .placeholder(R.drawable.ic_board_place_holder)
-                    .into(createBoardBinding.ivBoardImageCreateBoardActivity);
+                    .into(createBoardBinding.ivBoardImageCreateBoardActivity)
 
             }
             catch (e: IOException){
-                e.printStackTrace();
+                e.printStackTrace()
             }
-        }
-    }
-
-    private fun createBoard(){
-        val assignedUserArrayList: ArrayList<String> = ArrayList();
-        assignedUserArrayList.add(getCurrentUserID());
-
-        val boardName = createBoardBinding.etBoardNameCreateBoardActivity.text.toString();
-        if(boardName.isEmpty()){
-            hideProgressDialog();
-            Toast.makeText(this, resources.getString(R.string.please_provide_a_board_name),Toast.LENGTH_SHORT).show();
-        }
-        else{
-            var board = Board(boardName,
-                mBoardImageURL,
-                mUserName!!,
-                assignedUserArrayList
-            )
-
-            Firestore().createBoard(this,board);
-
-        }
-
-    }
-
-    private fun uploadBoardImage(){
-        showProgressDialog(resources.getString(R.string.please_wait));
-        if(mSelectedImageFileUri != null){
-            val sRef: StorageReference = FirebaseStorage.getInstance()
-                .reference
-                .child("BOARD_IMAGE"+System.currentTimeMillis()
-                        +"."+Constants.getFileExtension(this,mSelectedImageFileUri))
-
-            sRef.putFile(mSelectedImageFileUri!!).addOnSuccessListener {
-                    taskSnapshot ->
-                Log.i("Firebase BoardImage URL",taskSnapshot.metadata!!.reference!!.downloadUrl.toString());
-
-                taskSnapshot.metadata!!.reference!!.downloadUrl.addOnSuccessListener {
-                        uri ->
-                    Log.i("Downdlbl BoardImage URL", uri.toString())
-                    mBoardImageURL = uri.toString();
-
-                    createBoard();
-
-                }
-
-            }.addOnFailureListener{
-                    exception ->
-                Toast.makeText(this,exception.message,Toast.LENGTH_LONG).show();
-                hideProgressDialog();
-            }
-
         }
     }
 

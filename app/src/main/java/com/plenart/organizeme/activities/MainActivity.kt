@@ -48,22 +48,22 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
         initObservers()
 
-        mainActivityBinding.navView.setNavigationItemSelectedListener(this);
+        mainActivityBinding.navView.setNavigationItemSelectedListener(this)
 
         lifecycleScope.launch {
             viewModel.loadUserData()
         }
 
         appBarMainBinding.fabCreateBoard.setOnClickListener{
-            val intent = Intent(this,CreateBoardActivity::class.java);
-            intent.putExtra(Constants.NAME, viewModel.userName.value);
+            val intent = Intent(this,CreateBoardActivity::class.java)
+            intent.putExtra(Constants.NAME, viewModel.userName.value)
 
-            startActivityForResult(intent, CREATE_BOARD_REQUEST_CODE);
+            startActivityForResult(intent, CREATE_BOARD_REQUEST_CODE)
         }
 
     }
 
-    private fun initObservers() {       //do I need userName observer?
+    private fun initObservers() {
         userObserver()
         boardsListObserver()
     }
@@ -82,7 +82,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                     Log.i("boardsListObserver","boardsList is empty or null")
                 }
                 else{
-                    displayBoards(boardsList);
+                    displayBoards(boardsList)
                 }
             }
         })
@@ -116,49 +116,49 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         appBarMainBinding = mainActivityBinding.appBarMainIncluded;
 
         setSupportActionBar(appBarMainBinding.toolbarMainActivity)
-        appBarMainBinding.toolbarMainActivity.setNavigationIcon(R.drawable.ic_action_navigation_menu);
+        appBarMainBinding.toolbarMainActivity.setNavigationIcon(R.drawable.ic_action_navigation_menu)
 
         appBarMainBinding.toolbarMainActivity.setNavigationOnClickListener {
-            toggleDrawer();
+            toggleDrawer()
         }
     }
 
     private fun toggleDrawer(){
         if(mainActivityBinding.drawerLayout.isDrawerOpen(GravityCompat.START)){
-            mainActivityBinding.drawerLayout.closeDrawer(GravityCompat.START);
+            mainActivityBinding.drawerLayout.closeDrawer(GravityCompat.START)
         }
         else{
-            mainActivityBinding.drawerLayout.openDrawer(GravityCompat.START);
+            mainActivityBinding.drawerLayout.openDrawer(GravityCompat.START)
         }
     }
 
     override fun onBackPressed() {
         if(mainActivityBinding.drawerLayout.isDrawerOpen(GravityCompat.START)){
-            mainActivityBinding.drawerLayout.closeDrawer(GravityCompat.START);
+            mainActivityBinding.drawerLayout.closeDrawer(GravityCompat.START)
         }
         else{
-           doubleBackToExit();
+           doubleBackToExit()
         }
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             R.id.nav_home ->{
-                toggleDrawer();
+                toggleDrawer()
             }
             R.id.nav_my_profile -> {
                 startActivityForResult(Intent(this, MyProfileActivity::class.java),
-                    MY_PROFILE_REQUEST_CODE);
+                    MY_PROFILE_REQUEST_CODE)
             }
             R.id.nav_sign_out ->{
-                FirebaseAuth.getInstance().signOut();
-                val intent = Intent(this, IntroActivity::class.java);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-                finish();
+                FirebaseAuth.getInstance().signOut()
+                val intent = Intent(this, IntroActivity::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(intent)
+                finish()
             }
         }
-            mainActivityBinding.drawerLayout.closeDrawer(GravityCompat.START);
+            mainActivityBinding.drawerLayout.closeDrawer(GravityCompat.START)
 
         return true;
     }
@@ -174,10 +174,10 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             .placeholder(R.drawable.ic_user_place_holder)
             .into(nav_user_img)
 
-        tv_username.text = loggedInUser.name;
+        tv_username.text = loggedInUser.name
 
         if(readBoardsList){
-            showProgressDialog(resources.getString(R.string.please_wait));
+            showProgressDialog(resources.getString(R.string.please_wait))
 
             lifecycleScope.launch {
                 viewModel.getBoardsList()
@@ -204,44 +204,44 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     fun displayBoards(boardsList: ArrayList<Board>){
 
-        mainContentBinding = appBarMainBinding.mainContentIncluded;
+        mainContentBinding = appBarMainBinding.mainContentIncluded
 
-        hideProgressDialog();
+        hideProgressDialog()
 
         if(boardsList.size > 0){
-            mainContentBinding.rvBoards.visibility = View.VISIBLE;
-            mainContentBinding.tvNoBoardsAvailable.visibility = View.GONE;
-            mainContentBinding.tvTip.visibility = View.GONE;
-            mainContentBinding.ivNoBoardsIllustration.visibility = View.GONE;
+            mainContentBinding.rvBoards.visibility = View.VISIBLE
+            mainContentBinding.tvNoBoardsAvailable.visibility = View.GONE
+            mainContentBinding.tvTip.visibility = View.GONE
+            mainContentBinding.ivNoBoardsIllustration.visibility = View.GONE
 
-            mainContentBinding.rvBoards.layoutManager = LinearLayoutManager(this@MainActivity);
-            mainContentBinding.rvBoards.setHasFixedSize(true);
+            mainContentBinding.rvBoards.layoutManager = LinearLayoutManager(this@MainActivity)
+            mainContentBinding.rvBoards.setHasFixedSize(true)
 
-            val adapter = BoardItemsAdapter(this@MainActivity, boardsList);
-            mainContentBinding.rvBoards.adapter = adapter;
+            val adapter = BoardItemsAdapter(this@MainActivity, boardsList)
+            mainContentBinding.rvBoards.adapter = adapter
 
             adapter.setOnClickListener(object: BoardItemClickInterface {
                 override fun onClick(position: Int, model: Board) {
                     val intent = Intent(this@MainActivity, TaskListActivity::class.java)
-                    intent.putExtra(Constants.DOCUMENT_ID, model.documentID);
-                    startActivity(intent);
+                    intent.putExtra(Constants.DOCUMENT_ID, model.documentID)
+                    startActivity(intent)
                 }
             })
 
-            Log.i("displayBoards","Board adapter size: ${adapter.itemCount}");
-            adapter.notifyDataSetChanged();
+            Log.i("displayBoards","Board adapter size: ${adapter.itemCount}")
+            adapter.notifyDataSetChanged()
         }
         else{
-            mainContentBinding.rvBoards.visibility = View.GONE;
-            mainContentBinding.tvNoBoardsAvailable.visibility = View.VISIBLE;
-            mainContentBinding.tvTip.visibility = View.VISIBLE;
-            mainContentBinding.ivNoBoardsIllustration.visibility = View.VISIBLE;
+            mainContentBinding.rvBoards.visibility = View.GONE
+            mainContentBinding.tvNoBoardsAvailable.visibility = View.VISIBLE
+            mainContentBinding.tvTip.visibility = View.VISIBLE
+            mainContentBinding.ivNoBoardsIllustration.visibility = View.VISIBLE
         }
     }
 
     companion object {
-        const val MY_PROFILE_REQUEST_CODE: Int = 11;
-        const val CREATE_BOARD_REQUEST_CODE: Int = 12;
+        const val MY_PROFILE_REQUEST_CODE: Int = 11
+        const val CREATE_BOARD_REQUEST_CODE: Int = 12
     }
 
 }

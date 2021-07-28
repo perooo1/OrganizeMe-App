@@ -1,14 +1,13 @@
 package com.plenart.organizeme.activities
 
 import android.app.Dialog
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.auth.FirebaseAuth
 import com.plenart.organizeme.R
 import com.plenart.organizeme.databinding.ActivityBaseBinding
 import com.plenart.organizeme.databinding.DialogProgressBinding
@@ -39,10 +38,6 @@ open class BaseActivity : AppCompatActivity() {
 
     fun hideProgressDialog(){
         mProgressDialog.dismiss();
-    }
-
-    fun getCurrentUserID(): String{
-        return FirebaseAuth.getInstance().currentUser!!.uid;
     }
 
     fun doubleBackToExit(){

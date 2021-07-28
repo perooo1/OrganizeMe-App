@@ -32,22 +32,22 @@ class MyProfileViewModel: ViewModel() {
         get() = _user
 
     val name: LiveData<String>
-        get() = _name;
+        get() = _name
 
     val mobile: LiveData<Long>
-        get() = _mobile;
+        get() = _mobile
 
     val selectedImageFileUri: LiveData<Uri>?
         get() = _selectedImageFileUri
 
     val profileImageURL: LiveData<String>
-        get() = _profileImageURL;
+        get() = _profileImageURL
 
     val updateUserProfileSuccess: LiveData<Boolean>
         get() = _updateUserProfileSuccess
 
     val fileExtension: LiveData<String>?
-        get() = _fileExtension;
+        get() = _fileExtension
 
     init {
         Log.i("MyProfileActivity", "MyProfileViewModel created!")
@@ -61,21 +61,21 @@ class MyProfileViewModel: ViewModel() {
     }
 
     fun setName(name: String){
-        _name.value = name;
+        _name.value = name
     }
 
     fun setFileExtension(extension: String?){
         Log.i("setFileExtension","setFileExtension called")
-        _fileExtension?.value = extension;
+        _fileExtension?.value = extension
         Log.i("setFileExtension","setFileExtension: ${_fileExtension?.value}")
     }
 
     fun setMobile(mobile: Long){
-        _mobile.value = mobile;
+        _mobile.value = mobile
     }
 
     fun setSelectedImageFileUri(uri: Uri?){
-       _selectedImageFileUri!!.value = uri;
+       _selectedImageFileUri!!.value = uri
     }
 
     fun checkUser(): Boolean{
@@ -91,15 +91,15 @@ class MyProfileViewModel: ViewModel() {
             try {
                 viewModelScope.launch {
                     Log.i("UploadUserImage", "inside viewModelScope, before callback")
-                    val uploadedImage = uploadUserImageCallback();
+                    val uploadedImage = uploadUserImageCallback()
 
                     Log.i("UploadUserImage", "uploadedImage is : ${uploadedImage.toString()}")
-                    Log.i("Firebase Image URL",uploadedImage.metadata!!.reference!!.downloadUrl.toString());
+                    Log.i("Firebase Image URL",uploadedImage.metadata!!.reference!!.downloadUrl.toString())
 
                     uploadedImage.metadata!!.reference!!.downloadUrl.addOnSuccessListener { uri ->
                         Log.i("UploadUserImage", "after second onSuccListener")
                         Log.i("UploadUserImage", "this is uri:$uri")
-                        _profileImageURL.value = uri.toString();
+                        _profileImageURL.value = uri.toString()
                         Log.i("UploadUserImage", "after setting URL value: ${_profileImageURL.value}")
 
                         updateUserProfileData()
@@ -107,7 +107,7 @@ class MyProfileViewModel: ViewModel() {
                 }
             }
             catch (e: StorageException){
-                Log.e("UploadUserImage","storage exception",e);
+                Log.e("UploadUserImage","storage exception",e)
             }
         }
 
@@ -127,33 +127,30 @@ class MyProfileViewModel: ViewModel() {
 
 
     fun updateUserProfileData(){
-        val userHashMap = HashMap<String, Any>();
-        var changesMade: Boolean = false;
+        val userHashMap = HashMap<String, Any>()
+        var changesMade: Boolean = false
         Log.i("updateUserProfileData","_profileImageUrl is ${_profileImageURL.value.toString()}")
         Log.i("updateUserProfileData","_name is ${_name.value.toString()}")
         Log.i("updateUserProfileData","_mobile is ${_mobile.value.toString()}")
 
-
         if(_profileImageURL.value?.isNotEmpty() == true && _profileImageURL.value != _user.value?.image){
-            userHashMap[Constants.IMAGE] = _profileImageURL.value!!;
-            changesMade = true;
+            userHashMap[Constants.IMAGE] = _profileImageURL.value!!
+            changesMade = true
         }
 
-
         if(_name.value != _user.value?.name){
-            userHashMap[Constants.NAME] = _name.value.toString();
-            changesMade = true;
+            userHashMap[Constants.NAME] = _name.value.toString()
+            changesMade = true
         }
 
         if(_mobile.value != _user.value?.mobile){
-            userHashMap[Constants.MOBILE] = _mobile.value.toString().toLong();
-            changesMade = true;
+            userHashMap[Constants.MOBILE] = _mobile.value.toString().toLong()
+            changesMade = true
         }
 
         if(changesMade){
             _updateUserProfileSuccess.value = firestore.updateUserProfileDataNEW(userHashMap)
             Log.i("updateUserProfileData","User profile data updates Successfully!")
-            //Firestore().updateUserProfileData(this, userHashMap);
             //hideProgressDialog();
             changesMade = false;
         }
