@@ -42,7 +42,7 @@ class MyProfileActivity : BaseActivity() {
         setUpActionBar();
 
         Log.i("MyProfileActivity", "Called ViewModelProvider")
-        viewModel = ViewModelProvider(this).get(MyProfileViewModel(Application())::class.java)      //should work?
+        viewModel = ViewModelProvider(this).get(MyProfileViewModel::class.java)      //should work?
 
         initObservers();
         getValues();
@@ -63,6 +63,7 @@ class MyProfileActivity : BaseActivity() {
         }
 
         myProfileBinding.btnUpdateMyProfileActivity.setOnClickListener{
+            Log.i("btnOnClick","First log: uri is: ${viewModel.selectedImageFileUri?.value.toString()}")
             if(viewModel.selectedImageFileUri?.value != null){
                 viewModel.uploadUserImage();
             }
@@ -108,9 +109,11 @@ class MyProfileActivity : BaseActivity() {
                 showErrorSnackBar("Please enter a mobile num")            //careful!
                 Log.i("mobileObserver","Update mobile not successful");
             }
+            /*
             else{
                 viewModel.setMobile(it);
             }
+            */
         })
     }
 
@@ -119,10 +122,12 @@ class MyProfileActivity : BaseActivity() {
             if(newName == null ){
                 showErrorSnackBar("Please enter a name")            //careful!
             }
+            /*
             else{
                 myProfileBinding.etNameMyProfileActivity.text.toString().trim{it <=' '}
                 viewModel.setName(newName);
             }
+            */
         })
     }
 
@@ -185,6 +190,7 @@ class MyProfileActivity : BaseActivity() {
             //mSelectedImageFileUri = data.data;
             //viewModel.selectedImageFileUri.value = data.data;
             viewModel.setSelectedImageFileUri(data.data)
+            viewModel.setFileExtension(Constants.getFileExtension(this,data.data))      //careful!
 
             try{
                 Glide.with(this@MyProfileActivity)
