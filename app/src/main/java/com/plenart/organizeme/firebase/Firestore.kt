@@ -246,7 +246,7 @@ class Firestore {
             .await();
     }
 
-    /*
+
     fun getBoardDetails(activity: TaskListActivity, documentID: String) {
         mFirestore.collection(Constants.BOARDS)
             .document(documentID)
@@ -256,7 +256,7 @@ class Firestore {
                 Log.i(activity.javaClass.simpleName, document.toString());
                 val board = document.toObject(Board::class.java)!!
                 board.documentID = document.id;
-                activity.boardDetails(board);
+                //activity.boardDetails(board);
 
             }.addOnFailureListener {
                     e ->
@@ -265,7 +265,7 @@ class Firestore {
             }
     }
 
-    */
+
 
     suspend fun getBoardDetailsNEW(documentID: String): Board? {
         var board: Board? = null
@@ -275,33 +275,15 @@ class Firestore {
             val b = getBoardDetailsCallback(documentID)
             Log.i("getBoardDetailsNEW","document(board) toString: $b")
             board = b.toObject(Board::class.java)
-            //board.documentID = document.id;                                           what about this line?
             if (board != null) {
                 board.documentID = b.id
-            }                                                   //NPE incoming!!!
+            }
             Log.i("getBoardDetailsNEW","document(board) toString: $b")
         }
         catch (e: FirebaseFirestoreException){
             Log.e("getBoardDetailsNEW","Error getting board details", e)
         }
 
-        /*
-        mFirestore.collection(Constants.BOARDS)
-            .document(documentID)
-            .get()
-            .addOnSuccessListener {
-                    document ->
-                Log.i(activity.javaClass.simpleName, document.toString());
-                val board = document.toObject(Board::class.java)!!
-                board.documentID = document.id;
-                activity.boardDetails(board);
-
-            }.addOnFailureListener {
-                    e ->
-                activity.hideProgressDialog();
-                Log.e(activity.javaClass.simpleName,"Error while creatng a board",e);
-            }
-        */
         Log.i("getBoardDetailsNEW","last log - board is: $board");
         return board;
     }
@@ -394,7 +376,7 @@ class Firestore {
                     if(activity is TaskListActivity){
                         activity.hideProgressDialog()
                     }
-                Log.e(activity.javaClass.simpleName, "error while getting assigned member",e);
+                Log.e(activity.javaClass.simpleName, "error while getting assigned member",e)
             }
     }
 
@@ -407,7 +389,7 @@ class Firestore {
             Log.i("getAssignedMem","query(members) toString $members")
             for(i in members.documents){
                 val member = i.toObject(User::class.java)
-                assignedMembers.add(member!!);                                                      //careful!
+                assignedMembers.add(member!!);
             }
 
         }
@@ -415,49 +397,13 @@ class Firestore {
             Log.e("getAssignedMem","error getting assigned mems",e)
         }
 
-        /*
-        mFirestore.collection(Constants.USERS)
-            .whereIn(Constants.ID, assignedTo)
-            .get()
-            .addOnSuccessListener {
-                    document ->
-                Log.e(activity.javaClass.simpleName, document.documents.toString());
-
-                val usersList: ArrayList<User> = ArrayList();
-
-                for(i in document.documents){
-                    val user = i.toObject(User::class.java)!!
-                    usersList.add(user);
-                }
-
-                if(activity is MembersActivity){
-                    activity.setUpMembersList(usersList);
-                }
-                else
-                    if(activity is TaskListActivity){
-                        activity.boardMembersDetailsList(usersList);
-                    }
-
-
-            }.addOnFailureListener {
-                    e ->
-                if(activity is MembersActivity){
-                    activity.hideProgressDialog()
-                }
-                else
-                    if(activity is TaskListActivity){
-                        activity.hideProgressDialog()
-                    }
-                Log.e(activity.javaClass.simpleName, "error while getting assigned member",e);
-            }
-        */
         Log.i("getAssignedMem","last log call: $assignedMembers")
         return assignedMembers
     }
 
     private suspend fun getAssignedMembersListDetailsCallback(assignedTo: ArrayList<String>): QuerySnapshot{
         return mFirestore.collection(Constants.USERS)
-            .whereIn(Constants.ID, assignedTo)            //TODO THROWS NPE
+            .whereIn(Constants.ID, assignedTo)
             .get()
             .await()
     }

@@ -4,11 +4,9 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.plenart.organizeme.firebase.Firestore
 import com.plenart.organizeme.models.Board
 import com.plenart.organizeme.models.User
-import kotlinx.coroutines.launch
 
 class TaskListViewModel: ViewModel() {
 
@@ -33,30 +31,29 @@ class TaskListViewModel: ViewModel() {
 
     init {
         Log.i("TaskListActivity", "TaskListViewModel created!")
-
-        viewModelScope.launch {
-           getBoardDetails()
-        }
-
     }
 
     fun setBoardDocumentID(id: String){
-        _boardDocumentID.value = id;
+        _boardDocumentID.value = id
     }
 
     suspend fun getBoardDetails(){
+        Log.i("getBoardDetails","_boardDocumentID jest: ${_boardDocumentID?.value.toString()}")
         _boardDetails?.value = firestore.getBoardDetailsNEW(_boardDocumentID.value.toString())
-        //showProgressDialog(resources.getString(R.string.please_wait));
+    }
 
-        //Firestore().getAssignedMembersListDetails(this, mBoardDetails.assignedTo);
-        _assignedMemberDetailList.value =
-            _boardDetails?.value?.assignedTo?.let { firestore.getAssignedMembersListDetailsNEW(it) }        //careful with null operators!
+    suspend fun getAssignedMembersListDetails(){
+        Log.i("getBoardDetails","_boardDetails jest: ${_boardDetails?.value.toString()}")
+        _assignedMemberDetailList.value = firestore.getAssignedMembersListDetailsNEW(_boardDetails?.value?.assignedTo!!)
+    }
+
+    fun checkBoardDetails(): Boolean{
+        return _boardDetails == null
     }
 
     fun checkAssignedMembers(): Boolean{
         return _assignedMemberDetailList.value.isNullOrEmpty()
     }
-
 
     override fun onCleared() {
         super.onCleared()
