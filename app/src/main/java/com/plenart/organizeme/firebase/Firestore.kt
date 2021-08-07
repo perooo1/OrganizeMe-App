@@ -3,7 +3,6 @@ package com.plenart.organizeme.firebase
 import android.app.Activity
 import android.util.Log
 import android.widget.Toast
-import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.*
 import com.plenart.organizeme.activities.*
@@ -171,7 +170,7 @@ class Firestore {
 
     }
 
-    fun createBoardNEW(board:Board): Boolean{            //needs to return boolean, analogue to register user
+    fun createBoardNEW(board:Board): Boolean{
         var boardCreated = false;
 
         mFirestore.collection(Constants.BOARDS)
@@ -358,7 +357,7 @@ class Firestore {
                 }
 
                 if(activity is MembersActivity){
-                    activity.setUpMembersList(usersList);
+                    //activity.setUpMembersList(usersList);
                 }
                 else
                     if(activity is TaskListActivity){
@@ -416,7 +415,7 @@ class Firestore {
                 document ->
                 if(document.documents.size > 0){
                     val user = document.documents[0].toObject(User::class.java)!!;
-                    activity.memberDetails(user);
+                    //activity.memberDetails(user);
                 }
                 else{
                     activity.hideProgressDialog();
@@ -429,6 +428,32 @@ class Firestore {
             }
     }
 
+    suspend fun getMemberDetailsNEW(email: String): User?{
+        var user: User? = null;
+        Log.i("getMemberDetailsNEW","first log - user is : $user")
+
+        try{
+            val u = getMemberDetailsCallback(email)
+            Log.i("getMemberDetailsNEW","document(user) is $u")
+            if(u.documents.size > 0 ){
+                user = u.documents[0].toObject(User::class.java)
+                Log.i("getMemberDetailsNEW","document(user) after joining is $user")
+            }
+        }
+        catch (e: FirebaseFirestoreException){
+            Log.e("getMemberDetailsNEW","error getting member details ", e)
+        }
+
+        return user
+    }
+
+    private suspend fun getMemberDetailsCallback(email: String): QuerySnapshot{
+        return mFirestore.collection(Constants.USERS)
+            .whereEqualTo(Constants.EMAIL, email)
+            .get()
+            .await()
+    }
+
     fun assignMemberToBoard(activity: MembersActivity, board: Board, user: User){
 
         val assignedToHashMap = HashMap<String,Any>();
@@ -438,12 +463,31 @@ class Firestore {
             .document(board.documentID)
             .update(assignedToHashMap)
             .addOnSuccessListener {
-                activity.memberAssignSuccess(user);
+                //activity.memberAssignSuccess(user);
             }.addOnFailureListener {
                 e ->
                 activity.hideProgressDialog();
                 Log.e(activity.javaClass.simpleName,"Error while creating a board",e)
             }
+    }
+
+    fun assignMemberToBoardNEW(board: Board): Boolean{
+        var success = false;
+
+        val assignedToHashMap = HashMap<String,Any>();
+        assignedToHashMap[Constants.ASSIGNED_TO] = board.assignedTo;
+
+        mFirestore.collection(Constants.BOARDS)
+            .document(board.documentID)
+            .update(assignedToHashMap)
+            .addOnSuccessListener {
+                success = true
+            }.addOnFailureListener {
+                    e ->
+                success = false
+                Log.e("assignMemberToBoardNEW","Error while creating a board", e)
+            }
+        return success
     }
 
 }

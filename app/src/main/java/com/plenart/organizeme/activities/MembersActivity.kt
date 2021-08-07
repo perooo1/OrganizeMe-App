@@ -5,24 +5,22 @@ import android.app.Dialog
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.plenart.organizeme.R
 import com.plenart.organizeme.adapters.MemberListItemAdapter
 import com.plenart.organizeme.databinding.ActivityMembersBinding
 import com.plenart.organizeme.databinding.DialogAddSearchMemberBinding
-import com.plenart.organizeme.firebase.Firestore
 import com.plenart.organizeme.models.Board
-import com.plenart.organizeme.models.User
 import com.plenart.organizeme.utils.Constants
+import com.plenart.organizeme.viewModels.MembersViewModel
+import kotlinx.coroutines.launch
 
 class MembersActivity : BaseActivity() {
-    private lateinit var activityMembersBinding: ActivityMembersBinding;
-    private lateinit var mBoardDetails: Board;
-
-    private lateinit var mAssignedMembersList: ArrayList<User>;
-
-    private var anyChangesMade: Boolean = false;
-
+    private lateinit var activityMembersBinding: ActivityMembersBinding
+    private lateinit var viewModel: MembersViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,19 +28,72 @@ class MembersActivity : BaseActivity() {
         activityMembersBinding = ActivityMembersBinding.inflate(layoutInflater)
         setContentView(activityMembersBinding.root)
 
+        Log.i("MembersActivity", "Called ViewModelProvider")
+        viewModel = ViewModelProvider(this).get(MembersViewModel::class.java)
+
+        setUpActionBar()
+        initObservers()
+
         if(intent.hasExtra(Constants.BOARD_DETAIL)){
-            mBoardDetails = intent.getParcelableExtra<Board>(Constants.BOARD_DETAIL)!!
+            viewModel.setBoardDetails(intent.getParcelableExtra<Board>(Constants.BOARD_DETAIL)!!)
         }
 
-        setUpActionBar();
-
-        showProgressDialog(resources.getString(R.string.please_wait));
-        Firestore().getAssignedMembersListDetails(this,mBoardDetails.assignedTo);
+        lifecycleScope.launch {
+            viewModel.getAssignedMembersListDetails()
+        }
 
         activityMembersBinding.fabMember.setOnClickListener {
-            Log.e("heh","fab click click clickity click");
+            Log.e("heh","fab click click clickity click")
             dialogAddSearchMember();
         }
+    }
+
+    private fun initObservers() {
+        assignedMembersObserver()
+        memberAssignedObserver()
+        memberObserver()
+        emailObserver()
+    }
+
+    private fun emailObserver() {
+        //TODO
+    }
+
+    private fun memberObserver() {
+        viewModel.member?.observe(this, Observer{
+            memberDetailsNEW()
+        })
+    }
+
+    private fun memberAssignedObserver() {
+        viewModel.memberAssignSuccess.observe(this, Observer {
+            if (it){
+                memberAssignSuccessNEW()
+            }
+            else{
+                Log.i("memberAssignedObserver","error assigning member; it == false")
+            }
+        })
+    }
+
+    private fun assignedMembersObserver() {
+        var isNull = true
+        viewModel.assignedMemberDetailList.observe(this, Observer { members ->
+            if(members != null && members.isNotEmpty()){
+                setUpMembersListNEW()
+                Log.i("assignedMembersObserverMembers","assignedMembersObserver function triggered - first if call")
+            }
+            else{
+                isNull = viewModel.checkAssignedMembers()
+                if(isNull){
+                    Toast.makeText(this, "assignedMembers is empty or null!", Toast.LENGTH_SHORT).show()
+                    Log.i("assignedMembersObserverMembers","assignedMembers is empty or null! ${viewModel.assignedMemberDetailList.value.toString()}")
+                }
+                else{
+                    setUpMembersListNEW()
+                }
+            }
+        })
     }
 
     private fun setUpActionBar(){
@@ -63,66 +114,54 @@ class MembersActivity : BaseActivity() {
     }
 
     override fun onBackPressed() {
-        if(anyChangesMade){
+        if(viewModel.anyChangesMade.value == true){
             setResult(Activity.RESULT_OK);
         }
         super.onBackPressed()
     }
 
-    fun setUpMembersList(list: ArrayList<User>){
+    private fun setUpMembersListNEW(){
+        activityMembersBinding.rvMembers.layoutManager = LinearLayoutManager(this)
+        activityMembersBinding.rvMembers.setHasFixedSize(true)
 
-        mAssignedMembersList = list;
-        hideProgressDialog();
-
-        activityMembersBinding.rvMembers.layoutManager = LinearLayoutManager(this);
-        activityMembersBinding.rvMembers.setHasFixedSize(true);
-
-        val adapter = MemberListItemAdapter(this, list);
-        activityMembersBinding.rvMembers.adapter = adapter;
-
+        val adapter = MemberListItemAdapter(this, viewModel.assignedMemberDetailList?.value!!)
+        activityMembersBinding.rvMembers.adapter = adapter
     }
 
-    fun memberDetails(user: User){
-        mBoardDetails.assignedTo.add(user.id);
-        Firestore().assignMemberToBoard(this,mBoardDetails,user);
-
+    private fun memberDetailsNEW(){
+        viewModel.boardDetails?.value?.assignedTo?.add(viewModel.member?.value?.id.toString())
+        viewModel.firestore.assignMemberToBoardNEW(viewModel.boardDetails?.value!!)
     }
 
-    fun memberAssignSuccess(user: User){
-        hideProgressDialog();
-        mAssignedMembersList.add(user);
-        anyChangesMade = true;
-        setUpMembersList(mAssignedMembersList);
-
+    private fun memberAssignSuccessNEW(){
+        viewModel.assignedMemberDetailList.value?.add(viewModel.member?.value!!)
+        viewModel.setAnyChangesMade(true)
+        setUpMembersListNEW()
     }
 
     private fun dialogAddSearchMember(){
 
-        val dialog = Dialog(this);
+        val dialog = Dialog(this)
 
-        var dialogBinding: DialogAddSearchMemberBinding = DialogAddSearchMemberBinding.inflate(layoutInflater);
-        dialog.setContentView(dialogBinding.root);
+        var dialogBinding: DialogAddSearchMemberBinding = DialogAddSearchMemberBinding.inflate(layoutInflater)
+        dialog.setContentView(dialogBinding.root)
 
         dialogBinding.tvAddMember.setOnClickListener {
-            val email = dialogBinding.etEmailSearchMember.text.toString();
-
-            if(email.isNotEmpty()){
+            viewModel.setEmail(dialogBinding.etEmailSearchMember.text.toString())
+            if(viewModel.email.value?.isNotEmpty() == true){
                 dialog.dismiss();
-                showProgressDialog(resources.getString(R.string.please_wait));
-
-                Firestore().getMemberDetails(this, email);
-
+                lifecycleScope.launchWhenCreated {
+                    viewModel.setMember(viewModel.firestore.getMemberDetailsNEW(viewModel.email.value!!))
+                }
             }
             else{
-                Toast.makeText(this, "Please enter members' email address",Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Please enter members' email address",Toast.LENGTH_SHORT).show()
             }
         }
         dialogBinding.tvCancel.setOnClickListener {
             dialog.dismiss();
         }
-
-        dialog.show();
-
+        dialog.show()
     }
 
 }
