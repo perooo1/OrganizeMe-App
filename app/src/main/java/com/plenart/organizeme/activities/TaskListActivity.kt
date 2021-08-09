@@ -48,13 +48,13 @@ class TaskListActivity : BaseActivity() {
     }
 
     private fun initObservers() {
-        assignedMembersObserver()
-        taskAddedUpdatedObserver()
-        boardDocumentIDObserver()
-        boardDetailsObserver()
+        initAssignedMembers()
+        initTaskAddedUpdated()
+        initBoardDocumentID()
+        initBoardDetails()
     }
 
-    private fun boardDetailsObserver() {
+    private fun initBoardDetails() {
         Log.i("boardDetailsObserver","boardDetails in viewmodel object ${viewModel.boardDetails?.value.toString()}")
 
         var isNull = true;
@@ -83,7 +83,7 @@ class TaskListActivity : BaseActivity() {
         } )
     }
 
-    private fun boardDocumentIDObserver() {
+    private fun initBoardDocumentID() {
         viewModel.boardDocumentID.observe(this, Observer {
             if(it.isNullOrEmpty()){
                 viewModel.setBoardDocumentID(intent.getStringExtra(Constants.DOCUMENT_ID)!!)
@@ -94,7 +94,7 @@ class TaskListActivity : BaseActivity() {
         })
     }
 
-    private fun taskAddedUpdatedObserver() {
+    private fun initTaskAddedUpdated() {
         viewModel.taskAddedUpdated.observe(this, Observer {
             if(it){
                 addUpdateTaskListSuccess()
@@ -105,7 +105,7 @@ class TaskListActivity : BaseActivity() {
         })
     }
 
-    private fun assignedMembersObserver() {
+    private fun initAssignedMembers() {
         var isNull = true;
         viewModel.assignedMemberDetailList.observe(this, Observer { members ->
             if(members != null && members.isNotEmpty()){
@@ -152,7 +152,7 @@ class TaskListActivity : BaseActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if(resultCode == Activity.RESULT_OK && requestCode == MEMBERS_REQUEST_CODE || requestCode == CARD_DETAILS_REQUEST_CODE){
                 lifecycleScope.launch {
-                    viewModel.firestore.getBoardDetailsNEW(viewModel.boardDocumentID.value.toString())
+                    viewModel.firestore.getBoardDetails(viewModel.boardDocumentID.value.toString())
                 }
         }
         else{
@@ -165,7 +165,7 @@ class TaskListActivity : BaseActivity() {
         viewModel.boardDetails?.value?.taskList?.add(0,task)
         viewModel.boardDetails?.value?.taskList?.removeAt(viewModel.boardDetails?.value?.taskList?.size!!.minus(1))
 
-        viewModel.firestore.addUpdateTaskListNEW(viewModel.boardDetails?.value!!)
+        viewModel.firestore.addUpdateTaskList(viewModel.boardDetails?.value!!)
     }
 
     fun updateTaskList(position: Int, listName: String, model: Task){
@@ -173,14 +173,14 @@ class TaskListActivity : BaseActivity() {
         viewModel.boardDetails?.value?.taskList?.set(position, task)
         viewModel.boardDetails?.value?.taskList?.removeAt(viewModel.boardDetails?.value?.taskList?.size!!.minus(1))
 
-        viewModel.firestore.addUpdateTaskListNEW(viewModel.boardDetails?.value!!)
+        viewModel.firestore.addUpdateTaskList(viewModel.boardDetails?.value!!)
     }
 
     fun deleteTaskList(position: Int){
         viewModel.boardDetails?.value?.taskList?.removeAt(position)
         viewModel.boardDetails?.value?.taskList?.removeAt(viewModel.boardDetails?.value?.taskList?.size!!.minus(1))
 
-        viewModel.firestore.addUpdateTaskListNEW(viewModel.boardDetails?.value!!)
+        viewModel.firestore.addUpdateTaskList(viewModel.boardDetails?.value!!)
     }
 
     fun addCardToTaskList(position: Int, cardName: String){
@@ -200,7 +200,7 @@ class TaskListActivity : BaseActivity() {
         )
 
         viewModel.boardDetails?.value?.taskList?.set(position, task)
-        viewModel.firestore.addUpdateTaskListNEW(viewModel.boardDetails?.value!!)
+        viewModel.firestore.addUpdateTaskList(viewModel.boardDetails?.value!!)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -246,7 +246,7 @@ class TaskListActivity : BaseActivity() {
         viewModel.boardDetails?.value?.taskList?.removeAt(viewModel.boardDetails?.value?.taskList?.size!!.minus(1))
         viewModel.boardDetails?.value?.taskList?.get(position)!!.cards = cards
 
-        viewModel.firestore.addUpdateTaskListNEW(viewModel.boardDetails?.value!!)
+        viewModel.firestore.addUpdateTaskList(viewModel.boardDetails?.value!!)
     }
 
     companion object{

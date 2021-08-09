@@ -46,7 +46,7 @@ class CreateBoardViewModel: ViewModel() {
         get() = _boardCreated
 
     init {
-        Log.i("MainActivity", "MainActivityViewModel created!")
+        Log.i("CreateBoard", "CreateBoardViewModel created!")
     }
 
     fun setUserName(userName: String){
@@ -82,7 +82,7 @@ class CreateBoardViewModel: ViewModel() {
                 _userName?.value.toString(),
                 assignedUserArrayList
             )
-            _boardCreated.value = firestore.createBoardNEW(board)
+            _boardCreated.value = firestore.createBoard(board)
         }
     }
 

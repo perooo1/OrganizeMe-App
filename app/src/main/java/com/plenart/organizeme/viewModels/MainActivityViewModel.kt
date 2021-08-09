@@ -30,7 +30,7 @@ class MainActivityViewModel: ViewModel() {
     }
 
     suspend fun loadUserData(){
-        _user.value = firestore.loadUserDataNEW()
+        _user.value = firestore.loadUserData()
         setUserName()
     }
 
@@ -39,7 +39,7 @@ class MainActivityViewModel: ViewModel() {
     }
 
     suspend fun getBoardsList(){
-        _boardsList.value = firestore.getBoardsListNEW()
+        _boardsList.value = firestore.getBoardsList()
     }
 
     fun checkBoardsList(): Boolean {

@@ -39,12 +39,12 @@ class TaskListViewModel: ViewModel() {
 
     suspend fun getBoardDetails(){
         Log.i("getBoardDetails","_boardDocumentID jest: ${_boardDocumentID?.value.toString()}")
-        _boardDetails?.value = firestore.getBoardDetailsNEW(_boardDocumentID.value.toString())
+        _boardDetails?.value = firestore.getBoardDetails(_boardDocumentID.value.toString())
     }
 
     suspend fun getAssignedMembersListDetails(){
         Log.i("getBoardDetails","_boardDetails jest: ${_boardDetails?.value.toString()}")
-        _assignedMemberDetailList.value = firestore.getAssignedMembersListDetailsNEW(_boardDetails?.value?.assignedTo!!)
+        _assignedMemberDetailList.value = firestore.getAssignedMembersListDetails(_boardDetails?.value?.assignedTo!!)
     }
 
     fun checkBoardDetails(): Boolean{

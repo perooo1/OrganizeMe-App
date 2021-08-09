@@ -49,23 +49,18 @@ class MembersActivity : BaseActivity() {
     }
 
     private fun initObservers() {
-        assignedMembersObserver()
-        memberAssignedObserver()
-        memberObserver()
-        emailObserver()
+        initAssignedMembers()
+        initMemberAssigned()
+        initMember()
     }
 
-    private fun emailObserver() {
-        //TODO
-    }
-
-    private fun memberObserver() {
+    private fun initMember() {
         viewModel.member?.observe(this, Observer{
             memberDetailsNEW()
         })
     }
 
-    private fun memberAssignedObserver() {
+    private fun initMemberAssigned() {
         viewModel.memberAssignSuccess.observe(this, Observer {
             if (it){
                 memberAssignSuccessNEW()
@@ -76,7 +71,7 @@ class MembersActivity : BaseActivity() {
         })
     }
 
-    private fun assignedMembersObserver() {
+    private fun initAssignedMembers() {
         var isNull = true
         viewModel.assignedMemberDetailList.observe(this, Observer { members ->
             if(members != null && members.isNotEmpty()){
@@ -130,7 +125,7 @@ class MembersActivity : BaseActivity() {
 
     private fun memberDetailsNEW(){
         viewModel.boardDetails?.value?.assignedTo?.add(viewModel.member?.value?.id.toString())
-        viewModel.firestore.assignMemberToBoardNEW(viewModel.boardDetails?.value!!)
+        viewModel.firestore.assignMemberToBoard(viewModel.boardDetails?.value!!)
     }
 
     private fun memberAssignSuccessNEW(){
@@ -151,7 +146,7 @@ class MembersActivity : BaseActivity() {
             if(viewModel.email.value?.isNotEmpty() == true){
                 dialog.dismiss();
                 lifecycleScope.launchWhenCreated {
-                    viewModel.setMember(viewModel.firestore.getMemberDetailsNEW(viewModel.email.value!!))
+                    viewModel.setMember(viewModel.firestore.getMemberDetails(viewModel.email.value!!))
                 }
             }
             else{

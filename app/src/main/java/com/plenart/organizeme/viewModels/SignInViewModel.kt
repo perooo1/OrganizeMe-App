@@ -4,13 +4,12 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.plenart.organizeme.firebase.Firestore
 import com.plenart.organizeme.models.User
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlin.coroutines.suspendCoroutine
 
 class SignInViewModel: ViewModel() {
     private lateinit var auth: FirebaseAuth
@@ -37,8 +36,8 @@ class SignInViewModel: ViewModel() {
         auth.signInWithEmailAndPassword(_email.value.toString(), _password.value.toString()).addOnCompleteListener{ task ->
             try{
                 if(task.isSuccessful){                                  //not globalScope but viewModelScope
-                    GlobalScope.launch {
-                        _user?.postValue(Firestore().loadUserDataNEW())
+                    viewModelScope.launch {
+                        _user?.postValue(Firestore().loadUserData())
                         val user = auth.currentUser
                         Log.d("signInUser", "signInWithEmail Success")
                     }

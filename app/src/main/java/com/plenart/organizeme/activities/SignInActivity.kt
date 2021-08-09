@@ -50,9 +50,9 @@ class SignInActivity : BaseActivity() {
     }
 
     private fun initObservers() {
-        emailObserver()             //initEmail
-        passwordObserver()          //initPassword
-        userObserver()              //initUser
+        initEmail()             //initEmail
+        initPassword()          //initPassword
+        initUser()              //initUser
     }
 
     private fun setUpActionBar(){
@@ -67,7 +67,7 @@ class SignInActivity : BaseActivity() {
 
     }
 
-    private fun emailObserver(){
+    private fun initEmail(){
         viewModel.email?.observe(this, Observer { newEmail ->
             if(newEmail == null || !newEmail.contains('@')){
                 showErrorSnackBar("Please enter email")
@@ -76,7 +76,7 @@ class SignInActivity : BaseActivity() {
         });
     }
 
-    private fun passwordObserver(){
+    private fun initPassword(){
         viewModel.password?.observe(this, Observer { newPassword ->
             if(newPassword == null){
                 showErrorSnackBar("Please enter a password")
@@ -84,9 +84,8 @@ class SignInActivity : BaseActivity() {
         })
     }
 
-    private fun userObserver(){
+    private fun initUser(){
         var isNull = true
-        //TODO PLEASE SLIGHTLY FIX THE LOGIC
         viewModel.user?.observe(this, Observer { newUser ->
             if(newUser != null){
                 showProgressDialog(resources.getString(R.string.please_wait))

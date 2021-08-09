@@ -1,15 +1,9 @@
 package com.plenart.organizeme.viewModels
 
-import android.app.Activity
-import android.app.Application
-import android.content.Context
 import android.net.Uri
 import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.*
 import com.google.firebase.storage.*
-import com.plenart.organizeme.R
-import com.plenart.organizeme.activities.MyProfileActivity
 import com.plenart.organizeme.firebase.Firestore
 import com.plenart.organizeme.models.User
 import com.plenart.organizeme.utils.Constants
@@ -57,7 +51,7 @@ class MyProfileViewModel: ViewModel() {
     }
 
     private suspend fun loadUserData(){
-        _user.value = firestore.loadUserDataNEW()
+        _user.value = firestore.loadUserData()
     }
 
     fun setName(name: String){
@@ -149,7 +143,7 @@ class MyProfileViewModel: ViewModel() {
         }
 
         if(changesMade){
-            _updateUserProfileSuccess.value = firestore.updateUserProfileDataNEW(userHashMap)
+            _updateUserProfileSuccess.value = firestore.updateUserProfileData(userHashMap)
             Log.i("updateUserProfileData","User profile data updates Successfully!")
             //hideProgressDialog();
             changesMade = false;

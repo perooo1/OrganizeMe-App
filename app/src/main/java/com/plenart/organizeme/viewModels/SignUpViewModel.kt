@@ -33,7 +33,6 @@ class SignUpViewModel: ViewModel() {
         Log.i("SignUpViewModel", "SignUpView model created!")
     }
 
-
     fun registerUser(){
 
         auth = FirebaseAuth.getInstance()
@@ -43,12 +42,10 @@ class SignUpViewModel: ViewModel() {
                 val firebaseUser: FirebaseUser = task.result!!.user!!
                 val registeredEmail = firebaseUser.email!!
                 val user = User(firebaseUser.uid,_name.value.toString(), registeredEmail)
-                _userRegisterSuccess.value = Firestore().registerUserNEW(user)
+                _userRegisterSuccess.value = Firestore().registerUser(user)
                 Log.d("registerUser","createUserWithEmailAndPassword Success")
-                //finish()
             }
             else{
-                //Toast.makeText(this,"registration failed", Toast.LENGTH_SHORT).show()
                 Log.d("registerUser","createUserWithEmailAndPassword Failed")
             }
         }

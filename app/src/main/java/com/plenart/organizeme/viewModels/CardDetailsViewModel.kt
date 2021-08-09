@@ -98,7 +98,7 @@ class CardDetailsViewModel: ViewModel() {
         taskList.removeAt(taskList.size -1);
 
         _boardDetails?.value?.taskList?.get(_taskListPosition.value!!)?.cards!![_cardPosition.value!!] = card
-        _taskListUpdated.value = firestore.addUpdateTaskListNEW(_boardDetails.value!!)
+        _taskListUpdated.value = firestore.addUpdateTaskList(_boardDetails.value!!)
     }
 
     fun deleteCard(){
@@ -109,7 +109,7 @@ class CardDetailsViewModel: ViewModel() {
         taskList.removeAt(taskList.size - 1)
 
         taskList[_taskListPosition.value!!].cards = cardsList
-        _taskListUpdated.value = firestore.addUpdateTaskListNEW(_boardDetails.value!!)
+        _taskListUpdated.value = firestore.addUpdateTaskList(_boardDetails.value!!)
     }
 
     override fun onCleared() {

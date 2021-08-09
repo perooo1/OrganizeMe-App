@@ -43,7 +43,7 @@ class MembersViewModel: ViewModel() {
     }
 
     suspend fun getAssignedMembersListDetails(){
-        _assignedMemberDetailList.value = firestore.getAssignedMembersListDetailsNEW(_boardDetails?.value?.assignedTo!!)
+        _assignedMemberDetailList.value = firestore.getAssignedMembersListDetails(_boardDetails?.value?.assignedTo!!)
     }
 
     fun setEmail(email: String){

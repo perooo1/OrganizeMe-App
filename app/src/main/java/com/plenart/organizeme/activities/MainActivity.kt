@@ -21,7 +21,6 @@ import com.plenart.organizeme.adapters.BoardItemsAdapter
 import com.plenart.organizeme.databinding.ActivityMainBinding
 import com.plenart.organizeme.databinding.AppBarMainBinding
 import com.plenart.organizeme.databinding.MainContentBinding
-import com.plenart.organizeme.firebase.Firestore
 import com.plenart.organizeme.interfaces.BoardItemClickInterface
 import com.plenart.organizeme.models.Board
 import com.plenart.organizeme.utils.Constants
@@ -64,11 +63,11 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     }
 
     private fun initObservers() {
-        userObserver()
-        boardsListObserver()
+        initUser()
+        initBoardsList()
     }
 
-    private fun boardsListObserver() {
+    private fun initBoardsList() {
         var isNull = true;
         viewModel.boardsList.observe(this, Observer { boardsList ->
             if(boardsList != null && boardsList.isNotEmpty()){
@@ -88,7 +87,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         })
     }
 
-    private fun userObserver() {
+    private fun initUser() {
         Log.i("UserObserver","user observer function triggered")
         Log.i("UserObserver","user viewmodel object ${viewModel.user.value.toString()}")
 

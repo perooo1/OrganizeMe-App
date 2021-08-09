@@ -1,10 +1,8 @@
 package com.plenart.organizeme.activities
 
 import android.app.Activity
-import android.app.Application
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -12,18 +10,11 @@ import androidx.core.widget.addTextChangedListener
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
-import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageReference
 import com.plenart.organizeme.R
 import com.plenart.organizeme.databinding.ActivityMyProfileBinding
-import com.plenart.organizeme.firebase.Firestore
-import com.plenart.organizeme.models.User
 import com.plenart.organizeme.utils.Constants
-import com.plenart.organizeme.viewModels.MainActivityViewModel
 import com.plenart.organizeme.viewModels.MyProfileViewModel
-import kotlinx.coroutines.launch
 import java.io.IOException
 
 class MyProfileActivity : BaseActivity() {
@@ -63,7 +54,6 @@ class MyProfileActivity : BaseActivity() {
                 Log.i("MyProfileActivity","please provide a phone number")
             }
             else{
-                //showProgressDialog(resources.getString(R.string.please_wait))                //careful!
                 viewModel.updateUserProfileData()
             }
         }
@@ -76,13 +66,13 @@ class MyProfileActivity : BaseActivity() {
     }
 
     private fun initObservers() {
-        userObserver()
-        nameObserver()
-        mobileObserver()
-        updateUserProfileDataSuccessObserver()
+        initUser()
+        initName()
+        initMobile()
+        initUpdateUserProfileDataSuccess()
     }
 
-    private fun updateUserProfileDataSuccessObserver() {
+    private fun initUpdateUserProfileDataSuccess() {
         viewModel.updateUserProfileSuccess.observe(this, Observer {
             if(it){
                 profileUpdateSuccess()
@@ -93,7 +83,7 @@ class MyProfileActivity : BaseActivity() {
         })
     }
 
-    private fun mobileObserver() {
+    private fun initMobile() {
         viewModel.mobile.observe(this, Observer {
             if(it == null){
                 showErrorSnackBar("Please enter a mobile num")
@@ -102,7 +92,7 @@ class MyProfileActivity : BaseActivity() {
         })
     }
 
-    private fun nameObserver() {
+    private fun initName() {
         viewModel.name.observe(this, Observer { newName ->
             if(newName == null ){
                 showErrorSnackBar("Please enter a name")
@@ -110,7 +100,7 @@ class MyProfileActivity : BaseActivity() {
         })
     }
 
-    private fun userObserver() {
+    private fun initUser() {
         Log.i("UserObserver","user observer function triggered")
         Log.i("UserObserver","user viewmodel object ${viewModel.user.value.toString()}")
 
@@ -224,7 +214,7 @@ class MyProfileActivity : BaseActivity() {
         }
     }
 
-    fun profileUpdateSuccess(){
+    private fun profileUpdateSuccess(){
         hideProgressDialog()
         setResult(Activity.RESULT_OK)
         finish()

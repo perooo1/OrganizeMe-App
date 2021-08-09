@@ -96,12 +96,12 @@ class CardDetailsActivity : BaseActivity() {
     }
 
     private fun initObservers() {
-        assignedMembersObserver()
-        taskListUpdatedObserver()
-        cardNameObserver()
+        initAssignedMembers()
+        initTaskListUpdated()
+        initCardName()
     }
 
-    private fun cardNameObserver() {
+    private fun initCardName() {
         viewModel.cardName.observe(this, androidx.lifecycle.Observer {
             if(it == null ){
                 showErrorSnackBar("Please enter a card name")
@@ -112,7 +112,7 @@ class CardDetailsActivity : BaseActivity() {
         })
     }
 
-    private fun taskListUpdatedObserver() {
+    private fun initTaskListUpdated() {
         viewModel.taskListUpdated.observe(this, androidx.lifecycle.Observer {
             if(it){
                 addUpdateTaskListSuccess()
@@ -123,7 +123,7 @@ class CardDetailsActivity : BaseActivity() {
         })
     }
 
-    private fun assignedMembersObserver() {
+    private fun initAssignedMembers() {
        var isNull = true;
         viewModel.assignedMemberDetailList.observe(this, androidx.lifecycle.Observer {
             if(it != null && it.isNotEmpty()){

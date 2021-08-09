@@ -57,11 +57,11 @@ class CreateBoardActivity : BaseActivity() {
     }
 
     private fun initObservers() {
-        boardNameObserver()
-        boardCreatedObserver()
+        initBoardName()
+        initBoardCreated()
     }
 
-    private fun boardCreatedObserver() {
+    private fun initBoardCreated() {
         viewModel.boardCreated.observe(this, Observer {
             if (it){
                 boardCreatedSuccessfully()
@@ -72,7 +72,7 @@ class CreateBoardActivity : BaseActivity() {
         })
     }
 
-    private fun boardNameObserver() {
+    private fun initBoardName() {
         viewModel.boardName.observe(this, Observer {
             if(it == null || it.isEmpty()){
                 Toast.makeText(this, "please provide a board name", Toast.LENGTH_SHORT).show()
@@ -86,7 +86,7 @@ class CreateBoardActivity : BaseActivity() {
         }
     }
 
-    fun boardCreatedSuccessfully(){
+    private fun boardCreatedSuccessfully(){
         hideProgressDialog()
         setResult(Activity.RESULT_OK)
         finish()

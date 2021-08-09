@@ -36,10 +36,10 @@ class SignUpActivity : BaseActivity() {
     }
 
     private fun initObservers() {
-        nameObserver()
-        emailObserver()
-        passwordObserver()
-        registerObserver()
+        initName()
+        initEmail()
+        initPassword()
+        initUserRegister()
     }
 
     private fun getName(){
@@ -60,7 +60,7 @@ class SignUpActivity : BaseActivity() {
         }
     }
 
-    private fun registerObserver() {
+    private fun initUserRegister() {
         viewModel.userRegisterSuccess.observe(this, Observer {
             if(it){
                 userRegisteredSuccess()
@@ -71,18 +71,18 @@ class SignUpActivity : BaseActivity() {
         })
     }
 
-    private fun passwordObserver() {
+    private fun initPassword() {
         viewModel.password?.observe(this, Observer { newPassword ->
             if(newPassword == null ){
                 showErrorSnackBar("Please enter a password")
             }
             else{
-                binding.etPasswordSignUpActivity.text.toString()       //does this make any sense?
+                binding.etPasswordSignUpActivity.text.toString()
             }
         })
     }
 
-    private fun emailObserver() {
+    private fun initEmail() {
         viewModel.email?.observe(this, Observer { newEmail ->
             if(newEmail == null ){
                 showErrorSnackBar("Please enter a email")
@@ -93,7 +93,7 @@ class SignUpActivity : BaseActivity() {
         })
     }
 
-    private fun nameObserver() {
+    private fun initName() {
         viewModel.name?.observe(this, Observer { newName ->
             if(newName == null ){
                 showErrorSnackBar("Please enter a name")
