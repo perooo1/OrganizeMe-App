@@ -4,9 +4,11 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.plenart.organizeme.firebase.Firestore
 import com.plenart.organizeme.models.Board
 import com.plenart.organizeme.models.User
+import kotlinx.coroutines.launch
 
 class MembersViewModel: ViewModel() {
 
@@ -42,8 +44,10 @@ class MembersViewModel: ViewModel() {
         _anyChangesMade.value = false;
     }
 
-    suspend fun getAssignedMembersListDetails(){
-        _assignedMemberDetailList.value = firestore.getAssignedMembersListDetails(_boardDetails?.value?.assignedTo!!)
+    fun getAssignedMembersListDetails(){
+        viewModelScope.launch {
+            _assignedMemberDetailList.value = firestore.getAssignedMembersListDetails(_boardDetails?.value?.assignedTo!!)
+        }
     }
 
     fun setEmail(email: String){
@@ -62,8 +66,11 @@ class MembersViewModel: ViewModel() {
         return _assignedMemberDetailList.value.isNullOrEmpty()
     }
 
-    fun setMember(member: User?){
-        _member?.value = member
+
+    fun setMemberFromDialog(){
+        viewModelScope.launch {
+            _member?.value = firestore.getMemberDetails(_email.value.toString())
+        }
     }
 
     override fun onCleared() {

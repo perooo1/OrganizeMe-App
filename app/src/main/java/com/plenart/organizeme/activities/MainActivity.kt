@@ -11,7 +11,6 @@ import android.widget.Toast
 import androidx.core.view.GravityCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.google.android.material.navigation.NavigationView
@@ -26,7 +25,6 @@ import com.plenart.organizeme.models.Board
 import com.plenart.organizeme.utils.Constants
 import com.plenart.organizeme.viewModels.MainActivityViewModel
 import de.hdodenhof.circleimageview.CircleImageView
-import kotlinx.coroutines.launch
 
 class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -49,9 +47,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
         mainActivityBinding.navView.setNavigationItemSelectedListener(this)
 
-        lifecycleScope.launch {
-            viewModel.loadUserData()
-        }
+        viewModel.loadUserData()
 
         appBarMainBinding.fabCreateBoard.setOnClickListener{
             val intent = Intent(this,CreateBoardActivity::class.java)
@@ -162,7 +158,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         return true;
     }
 
-    fun updateNavigationUserDetails(loggedInUser: com.plenart.organizeme.models.User, readBoardsList: Boolean = false) {
+    private fun updateNavigationUserDetails(loggedInUser: com.plenart.organizeme.models.User, readBoardsList: Boolean = false) {
 
         val nav_user_img: CircleImageView = findViewById(R.id.nav_user_img)
         val tv_username: TextView = findViewById(R.id.tv_username)
@@ -178,30 +174,26 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         if(readBoardsList){
             showProgressDialog(resources.getString(R.string.please_wait))
 
-            lifecycleScope.launch {
-                viewModel.getBoardsList()
-            }
+            viewModel.getBoardsList()
+
         }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if(resultCode == Activity.RESULT_OK && requestCode == MY_PROFILE_REQUEST_CODE){
-            lifecycleScope.launch {
-                viewModel.loadUserData()
-            }
+            viewModel.loadUserData()
+
         }
         else if(resultCode == Activity.RESULT_OK && requestCode == CREATE_BOARD_REQUEST_CODE){
-            lifecycleScope.launch {
-                viewModel.getBoardsList()
-            }
+            viewModel.getBoardsList()
         }
         else{
             Log.e("MainOnActivityResultErr", "error")
         }
     }
 
-    fun displayBoards(boardsList: ArrayList<Board>){
+    private fun displayBoards(boardsList: ArrayList<Board>){
 
         mainContentBinding = appBarMainBinding.mainContentIncluded
 

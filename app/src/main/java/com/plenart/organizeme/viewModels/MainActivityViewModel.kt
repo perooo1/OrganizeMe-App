@@ -4,9 +4,11 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.plenart.organizeme.firebase.Firestore
 import com.plenart.organizeme.models.Board
 import com.plenart.organizeme.models.User
+import kotlinx.coroutines.launch
 
 class MainActivityViewModel: ViewModel() {
 
@@ -29,17 +31,21 @@ class MainActivityViewModel: ViewModel() {
         Log.i("MainActivity", "MainActivityViewModel created!")
     }
 
-    suspend fun loadUserData(){
-        _user.value = firestore.loadUserData()
-        setUserName()
+    fun loadUserData(){
+        viewModelScope.launch {
+            _user.value = firestore.loadUserData()
+            setUserName()
+        }
     }
 
     private fun setUserName(){
         _userName.value = _user.value?.name
     }
 
-    suspend fun getBoardsList(){
-        _boardsList.value = firestore.getBoardsList()
+    fun getBoardsList(){
+        viewModelScope.launch {
+            _boardsList.value = firestore.getBoardsList()
+        }
     }
 
     fun checkBoardsList(): Boolean {

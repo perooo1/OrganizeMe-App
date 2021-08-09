@@ -6,11 +6,9 @@ import android.util.Log
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import com.plenart.organizeme.R
 import com.plenart.organizeme.databinding.ActivitySignInBinding
 import com.plenart.organizeme.viewModels.SignInViewModel
-import kotlinx.coroutines.launch
 
 class SignInActivity : BaseActivity() {
     private lateinit var binding: ActivitySignInBinding
@@ -31,9 +29,8 @@ class SignInActivity : BaseActivity() {
         getPassword()
 
         binding.btnSignInSignInActivity.setOnClickListener{
-            lifecycleScope.launch {
-                viewModel.singInUser()
-            }
+            viewModel.singInUser()
+
         }
     }
 
@@ -50,9 +47,9 @@ class SignInActivity : BaseActivity() {
     }
 
     private fun initObservers() {
-        initEmail()             //initEmail
-        initPassword()          //initPassword
-        initUser()              //initUser
+        initEmail()
+        initPassword()
+        initUser()
     }
 
     private fun setUpActionBar(){

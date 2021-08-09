@@ -31,11 +31,11 @@ class SignInViewModel: ViewModel() {
         Log.i("SignInViewModel", "SignInView model created!")
     }
 
-    suspend fun singInUser(){
+    fun singInUser(){
         auth = FirebaseAuth.getInstance()
         auth.signInWithEmailAndPassword(_email.value.toString(), _password.value.toString()).addOnCompleteListener{ task ->
             try{
-                if(task.isSuccessful){                                  //not globalScope but viewModelScope
+                if(task.isSuccessful){
                     viewModelScope.launch {
                         _user?.postValue(Firestore().loadUserData())
                         val user = auth.currentUser
@@ -44,7 +44,6 @@ class SignInViewModel: ViewModel() {
                 }
                 else{
                     Log.d("signInUser", "signInWithEmailFail")
-                    //Toast.makeText(context, "Auth for login failed", Toast.LENGTH_SHORT).show()
                     task.exception;
                 }
             }

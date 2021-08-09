@@ -200,7 +200,7 @@ class CardDetailsActivity : BaseActivity() {
         return super.onCreateOptionsMenu(menu)
     }
 
-    fun addUpdateTaskListSuccess(){
+    private fun addUpdateTaskListSuccess(){
         setResult(Activity.RESULT_OK);
         finish();
     }

@@ -7,7 +7,6 @@ import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.plenart.organizeme.R
 import com.plenart.organizeme.adapters.MemberListItemAdapter
@@ -16,7 +15,6 @@ import com.plenart.organizeme.databinding.DialogAddSearchMemberBinding
 import com.plenart.organizeme.models.Board
 import com.plenart.organizeme.utils.Constants
 import com.plenart.organizeme.viewModels.MembersViewModel
-import kotlinx.coroutines.launch
 
 class MembersActivity : BaseActivity() {
     private lateinit var activityMembersBinding: ActivityMembersBinding
@@ -38,9 +36,7 @@ class MembersActivity : BaseActivity() {
             viewModel.setBoardDetails(intent.getParcelableExtra<Board>(Constants.BOARD_DETAIL)!!)
         }
 
-        lifecycleScope.launch {
-            viewModel.getAssignedMembersListDetails()
-        }
+        viewModel.getAssignedMembersListDetails()
 
         activityMembersBinding.fabMember.setOnClickListener {
             Log.e("heh","fab click click clickity click")
@@ -56,14 +52,14 @@ class MembersActivity : BaseActivity() {
 
     private fun initMember() {
         viewModel.member?.observe(this, Observer{
-            memberDetailsNEW()
+            memberDetails()
         })
     }
 
     private fun initMemberAssigned() {
         viewModel.memberAssignSuccess.observe(this, Observer {
             if (it){
-                memberAssignSuccessNEW()
+                memberAssignSuccess()
             }
             else{
                 Log.i("memberAssignedObserver","error assigning member; it == false")
@@ -75,7 +71,7 @@ class MembersActivity : BaseActivity() {
         var isNull = true
         viewModel.assignedMemberDetailList.observe(this, Observer { members ->
             if(members != null && members.isNotEmpty()){
-                setUpMembersListNEW()
+                setUpMembersList()
                 Log.i("assignedMembersObserverMembers","assignedMembersObserver function triggered - first if call")
             }
             else{
@@ -85,7 +81,7 @@ class MembersActivity : BaseActivity() {
                     Log.i("assignedMembersObserverMembers","assignedMembers is empty or null! ${viewModel.assignedMemberDetailList.value.toString()}")
                 }
                 else{
-                    setUpMembersListNEW()
+                    setUpMembersList()
                 }
             }
         })
@@ -115,7 +111,7 @@ class MembersActivity : BaseActivity() {
         super.onBackPressed()
     }
 
-    private fun setUpMembersListNEW(){
+    private fun setUpMembersList(){
         activityMembersBinding.rvMembers.layoutManager = LinearLayoutManager(this)
         activityMembersBinding.rvMembers.setHasFixedSize(true)
 
@@ -123,15 +119,15 @@ class MembersActivity : BaseActivity() {
         activityMembersBinding.rvMembers.adapter = adapter
     }
 
-    private fun memberDetailsNEW(){
+    private fun memberDetails(){
         viewModel.boardDetails?.value?.assignedTo?.add(viewModel.member?.value?.id.toString())
         viewModel.firestore.assignMemberToBoard(viewModel.boardDetails?.value!!)
     }
 
-    private fun memberAssignSuccessNEW(){
+    private fun memberAssignSuccess(){
         viewModel.assignedMemberDetailList.value?.add(viewModel.member?.value!!)
         viewModel.setAnyChangesMade(true)
-        setUpMembersListNEW()
+        setUpMembersList()
     }
 
     private fun dialogAddSearchMember(){
@@ -145,9 +141,7 @@ class MembersActivity : BaseActivity() {
             viewModel.setEmail(dialogBinding.etEmailSearchMember.text.toString())
             if(viewModel.email.value?.isNotEmpty() == true){
                 dialog.dismiss();
-                lifecycleScope.launchWhenCreated {
-                    viewModel.setMember(viewModel.firestore.getMemberDetails(viewModel.email.value!!))
-                }
+                viewModel.setMemberFromDialog()
             }
             else{
                 Toast.makeText(this, "Please enter members' email address",Toast.LENGTH_SHORT).show()

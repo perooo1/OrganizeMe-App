@@ -9,7 +9,6 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.plenart.organizeme.R
 import com.plenart.organizeme.adapters.TaskListItemsAdapter
@@ -18,7 +17,6 @@ import com.plenart.organizeme.models.Card
 import com.plenart.organizeme.models.Task
 import com.plenart.organizeme.utils.Constants
 import com.plenart.organizeme.viewModels.TaskListViewModel
-import kotlinx.coroutines.launch
 
 class TaskListActivity : BaseActivity() {
 
@@ -36,13 +34,10 @@ class TaskListActivity : BaseActivity() {
         initObservers()
 
         if(intent.hasExtra(Constants.DOCUMENT_ID)){
-            Log.i("onCreateTaskList","board document ID before: ${viewModel.boardDocumentID.value.toString()}")
-            viewModel.setBoardDocumentID(intent.getStringExtra(Constants.DOCUMENT_ID)!!)
-            Log.i("onCreateTaskList","board document ID after: ${viewModel.boardDocumentID.value.toString()}")
-        }
-
-        lifecycleScope.launch {
-            viewModel.getBoardDetails()
+            Log.i("onCreateTaskList","board document ID before:")
+            //viewModel.setBoardDocumentID(intent.getStringExtra(Constants.DOCUMENT_ID)!!)
+            viewModel.getBoardDetails(intent.getStringExtra(Constants.DOCUMENT_ID)!!)
+            Log.i("onCreateTaskList","board document ID after:")
         }
 
     }
@@ -50,7 +45,6 @@ class TaskListActivity : BaseActivity() {
     private fun initObservers() {
         initAssignedMembers()
         initTaskAddedUpdated()
-        initBoardDocumentID()
         initBoardDetails()
     }
 
@@ -62,9 +56,7 @@ class TaskListActivity : BaseActivity() {
             if(newBoard != null){
                 Log.i("boardDetailsObserver","after setUserdataInUi : ${newBoard.toString()}")
                 setUpActionBar()
-                lifecycleScope.launch {
-                    viewModel.getAssignedMembersListDetails()
-                }
+                viewModel.getAssignedMembersListDetails()
             }
             else{
                 isNull = viewModel.checkBoardDetails()
@@ -74,24 +66,11 @@ class TaskListActivity : BaseActivity() {
                 else{
                     if (newBoard != null) {
                         setUpActionBar()
-                        lifecycleScope.launch {
-                            viewModel.getAssignedMembersListDetails()
-                        }
-                    };
+                        viewModel.getAssignedMembersListDetails()
+                    }
                 }
             }
         } )
-    }
-
-    private fun initBoardDocumentID() {
-        viewModel.boardDocumentID.observe(this, Observer {
-            if(it.isNullOrEmpty()){
-                viewModel.setBoardDocumentID(intent.getStringExtra(Constants.DOCUMENT_ID)!!)
-            }
-            else{
-                Log.i("boardDocumentIDObserver","it != null || empty")
-            }
-        })
     }
 
     private fun initTaskAddedUpdated() {
@@ -109,7 +88,7 @@ class TaskListActivity : BaseActivity() {
         var isNull = true;
         viewModel.assignedMemberDetailList.observe(this, Observer { members ->
             if(members != null && members.isNotEmpty()){
-                boardMembersDetailsListNEW()
+                boardMembersDetailsList()
                 Log.i("assignedMembersObserver","assignedMembersObserver function triggered - first if call")
             }
             else{
@@ -119,12 +98,11 @@ class TaskListActivity : BaseActivity() {
                     Log.i("assignedMembersObserver","assignedMembers is empty or null! ${viewModel.assignedMemberDetailList.value.toString()}")
                 }
                 else{
-                    boardMembersDetailsListNEW()
+                    boardMembersDetailsList()
                 }
             }
         })
     }
-
 
     private fun setUpActionBar(){
         setSupportActionBar(activityTaskListBinding.toolbarTaskListActivity)
@@ -142,18 +120,17 @@ class TaskListActivity : BaseActivity() {
         }
     }
 
-    fun addUpdateTaskListSuccess(){
-        lifecycleScope.launch {
-            viewModel.getBoardDetails()
-        }
+    private fun addUpdateTaskListSuccess(){
+        viewModel.getBoardDetails(intent.getStringExtra(Constants.DOCUMENT_ID)!!)
+
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if(resultCode == Activity.RESULT_OK && requestCode == MEMBERS_REQUEST_CODE || requestCode == CARD_DETAILS_REQUEST_CODE){
-                lifecycleScope.launch {
-                    viewModel.firestore.getBoardDetails(viewModel.boardDocumentID.value.toString())
-                }
+
+            //viewModel.getBoardDetailsNEW(intent.getStringExtra(Constants.DOCUMENT_ID)!!)      //careful! TODO
+
         }
         else{
             Log.e("cancelled","cancelled")
@@ -231,7 +208,7 @@ class TaskListActivity : BaseActivity() {
         startActivityForResult(intent, CARD_DETAILS_REQUEST_CODE)
     }
 
-    fun boardMembersDetailsListNEW(){
+    private fun boardMembersDetailsList(){
         val addTaskList = Task(resources.getString(R.string.add_list))
         viewModel.boardDetails?.value?.taskList?.add(addTaskList)
 

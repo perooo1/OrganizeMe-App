@@ -4,14 +4,15 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.plenart.organizeme.firebase.Firestore
 import com.plenart.organizeme.models.Board
 import com.plenart.organizeme.models.User
+import kotlinx.coroutines.launch
 
 class TaskListViewModel: ViewModel() {
 
     private val _boardDetails: MutableLiveData<Board>? = MutableLiveData()
-    private val _boardDocumentID: MutableLiveData<String> = MutableLiveData()
     private val _assignedMemberDetailList: MutableLiveData<ArrayList<User>> = MutableLiveData()
     private val _taskAddedUpdated: MutableLiveData<Boolean> = MutableLiveData()
 
@@ -19,9 +20,6 @@ class TaskListViewModel: ViewModel() {
 
     val boardDetails: LiveData<Board>?
         get() = _boardDetails
-
-    val boardDocumentID: LiveData<String>
-        get() = _boardDocumentID
 
     val assignedMemberDetailList: LiveData<ArrayList<User>>
         get() = _assignedMemberDetailList
@@ -31,20 +29,22 @@ class TaskListViewModel: ViewModel() {
 
     init {
         Log.i("TaskListActivity", "TaskListViewModel created!")
+
     }
 
-    fun setBoardDocumentID(id: String){
-        _boardDocumentID.value = id
+    fun getBoardDetails(docID: String){
+        Log.i("getBoardDetails","_boardDocumentID jest: $docID")
+
+        viewModelScope.launch {
+            _boardDetails?.value = firestore.getBoardDetails(docID)
+        }
     }
 
-    suspend fun getBoardDetails(){
-        Log.i("getBoardDetails","_boardDocumentID jest: ${_boardDocumentID?.value.toString()}")
-        _boardDetails?.value = firestore.getBoardDetails(_boardDocumentID.value.toString())
-    }
-
-    suspend fun getAssignedMembersListDetails(){
+    fun getAssignedMembersListDetails(){
         Log.i("getBoardDetails","_boardDetails jest: ${_boardDetails?.value.toString()}")
-        _assignedMemberDetailList.value = firestore.getAssignedMembersListDetails(_boardDetails?.value?.assignedTo!!)
+        viewModelScope.launch {
+            _assignedMemberDetailList.value = firestore.getAssignedMembersListDetails(_boardDetails?.value?.assignedTo!!)
+        }
     }
 
     fun checkBoardDetails(): Boolean{
