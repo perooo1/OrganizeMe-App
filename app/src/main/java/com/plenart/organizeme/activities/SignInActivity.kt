@@ -21,23 +21,26 @@ class SignInActivity : BaseActivity() {
 
         setUpActionBar()
 
-        Log.i("SignInActivity", "Called ViewModelProvider")
         viewModel = ViewModelProvider(this).get(SignInViewModel::class.java)
 
         initObservers()
+        initListeners()
         getEmail()
         getPassword()
 
-        binding.btnSignInSignInActivity.setOnClickListener{
-            viewModel.singInUser()
+    }
 
+    private fun initListeners(){
+        binding.btnSignInSignInActivity.setOnClickListener(){
+            viewModel.signInUser();
         }
     }
 
-    private fun getEmail() {
-        binding.etEmailSignInActivity.doAfterTextChanged {
+    private fun getEmail() = with(binding.etEmailSignInActivity) {
+        this.doAfterTextChanged {
             viewModel.setEmail(it.toString())
         }
+
     }
 
     private fun getPassword() {
@@ -68,7 +71,6 @@ class SignInActivity : BaseActivity() {
         viewModel.email?.observe(this, Observer { newEmail ->
             if(newEmail == null || !newEmail.contains('@')){
                 showErrorSnackBar("Please enter email")
-                Log.d("emailObserver","This has been called!")
             }
         });
     }
@@ -82,26 +84,18 @@ class SignInActivity : BaseActivity() {
     }
 
     private fun initUser(){
-        var isNull = true
         viewModel.user?.observe(this, Observer { newUser ->
             if(newUser != null){
                 showProgressDialog(resources.getString(R.string.please_wait))
                 signInSuccess()
             }
             else{
-                showProgressDialog(resources.getString(R.string.please_wait))
-                isNull = viewModel.checkUser();
-                if(isNull){
-                    showProgressDialog(resources.getString(R.string.please_wait))
-                }
-                else{
-                    signInSuccess()
-                }
+                Log.i("initUser","newUser == null");
             }
         } )
     }
 
-    fun signInSuccess() {
+    private fun signInSuccess() {
         hideProgressDialog()
         startActivity(Intent(this, MainActivity::class.java))
         finish()

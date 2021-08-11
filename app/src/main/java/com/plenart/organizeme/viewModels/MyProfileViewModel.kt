@@ -59,9 +59,7 @@ class MyProfileViewModel: ViewModel() {
     }
 
     fun setFileExtension(extension: String?){
-        Log.i("setFileExtension","setFileExtension called")
         _fileExtension?.value = extension
-        Log.i("setFileExtension","setFileExtension: ${_fileExtension?.value}")
     }
 
     fun setMobile(mobile: Long){
@@ -72,30 +70,13 @@ class MyProfileViewModel: ViewModel() {
        _selectedImageFileUri!!.value = uri
     }
 
-    fun checkUser(): Boolean{
-        return user == null
-    }
-
     fun uploadUserImage(){
-
-        Log.i("UploadUserImage", "First call of a function")
-
         if(_selectedImageFileUri?.value != null){
-            Log.i("UploadUserImage", "First if-log")
             try {
                 viewModelScope.launch {
-                    Log.i("UploadUserImage", "inside viewModelScope, before callback")
                     val uploadedImage = uploadUserImageCallback()
-
-                    Log.i("UploadUserImage", "uploadedImage is : ${uploadedImage.toString()}")
-                    Log.i("Firebase Image URL",uploadedImage.metadata!!.reference!!.downloadUrl.toString())
-
                     uploadedImage.metadata!!.reference!!.downloadUrl.addOnSuccessListener { uri ->
-                        Log.i("UploadUserImage", "after second onSuccListener")
-                        Log.i("UploadUserImage", "this is uri:$uri")
                         _profileImageURL.value = uri.toString()
-                        Log.i("UploadUserImage", "after setting URL value: ${_profileImageURL.value}")
-
                         updateUserProfileData()
                     }
                 }
@@ -107,25 +88,18 @@ class MyProfileViewModel: ViewModel() {
 
     }
 
-
     private suspend fun uploadUserImageCallback(): UploadTask.TaskSnapshot {
         val sRef: StorageReference = FirebaseStorage.getInstance()
             .reference
             .child("USER_IMAGE"+System.currentTimeMillis()
                     +"."+ _fileExtension?.value)
-        Log.i("UploadUserImage", "this is CALLBACK fun")
 
         return sRef.putFile(_selectedImageFileUri?.value!!).await()
-
     }
-
 
     fun updateUserProfileData(){
         val userHashMap = HashMap<String, Any>()
         var changesMade: Boolean = false
-        Log.i("updateUserProfileData","_profileImageUrl is ${_profileImageURL.value.toString()}")
-        Log.i("updateUserProfileData","_name is ${_name.value.toString()}")
-        Log.i("updateUserProfileData","_mobile is ${_mobile.value.toString()}")
 
         if(_profileImageURL.value?.isNotEmpty() == true && _profileImageURL.value != _user.value?.image){
             userHashMap[Constants.IMAGE] = _profileImageURL.value!!
@@ -144,11 +118,8 @@ class MyProfileViewModel: ViewModel() {
 
         if(changesMade){
             _updateUserProfileSuccess.value = firestore.updateUserProfileData(userHashMap)
-            Log.i("updateUserProfileData","User profile data updates Successfully!")
-            //hideProgressDialog();
             changesMade = false;
         }
-
     }
 
     override fun onCleared() {

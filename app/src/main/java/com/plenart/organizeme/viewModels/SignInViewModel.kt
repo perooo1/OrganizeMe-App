@@ -31,7 +31,7 @@ class SignInViewModel: ViewModel() {
         Log.i("SignInViewModel", "SignInView model created!")
     }
 
-    fun singInUser(){
+    fun signInUser(){
         auth = FirebaseAuth.getInstance()
         auth.signInWithEmailAndPassword(_email.value.toString(), _password.value.toString()).addOnCompleteListener{ task ->
             try{
@@ -39,17 +39,14 @@ class SignInViewModel: ViewModel() {
                     viewModelScope.launch {
                         _user?.postValue(Firestore().loadUserData())
                         val user = auth.currentUser
-                        Log.d("signInUser", "signInWithEmail Success")
                     }
                 }
                 else{
-                    Log.d("signInUser", "signInWithEmailFail")
                     task.exception;
                 }
             }
             catch (e: FirebaseAuthException){
                 e.errorCode
-                Log.d("signInUser","the error code is  ${e.errorCode}")
             }
         }
     }
@@ -60,10 +57,6 @@ class SignInViewModel: ViewModel() {
 
     fun setPassword(password: String){
         _password.value = password
-    }
-
-    fun checkUser(): Boolean{
-        return user == null
     }
 
     override fun onCleared() {

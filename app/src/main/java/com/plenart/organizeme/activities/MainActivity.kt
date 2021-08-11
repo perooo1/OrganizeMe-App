@@ -44,10 +44,14 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         viewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
 
         initObservers()
-
-        mainActivityBinding.navView.setNavigationItemSelectedListener(this)
+        initListeners()
 
         viewModel.loadUserData()
+
+    }
+
+    private fun initListeners() {
+        mainActivityBinding.navView.setNavigationItemSelectedListener(this)
 
         appBarMainBinding.fabCreateBoard.setOnClickListener{
             val intent = Intent(this,CreateBoardActivity::class.java)
@@ -64,46 +68,26 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     }
 
     private fun initBoardsList() {
-        var isNull = true;
         viewModel.boardsList.observe(this, Observer { boardsList ->
             if(boardsList != null && boardsList.isNotEmpty()){
                 displayBoards(boardsList);
-                Log.i("boardsListObserver","boardListObserver function triggered - first if call")
             }
             else{
-                isNull = viewModel.checkBoardsList()
-                if(isNull){
-                    Toast.makeText(this, "boardsList is empty or null!", Toast.LENGTH_SHORT).show()
-                    Log.i("boardsListObserver","boardsList is empty or null")
-                }
-                else{
-                    displayBoards(boardsList)
-                }
+                Log.i("boardsListObserver","boardListObserver: boardsList is empty or null!")
             }
+
         })
     }
 
     private fun initUser() {
-        Log.i("UserObserver","user observer function triggered")
-        Log.i("UserObserver","user viewmodel object ${viewModel.user.value.toString()}")
-
-        var isNull = true;
         viewModel.user?.observe(this, Observer { newUser ->
             if(newUser != null){
                 updateNavigationUserDetails(newUser,true)
-                Log.i("UserObserver","user observer function triggered - first if call")
             }
             else{
-                isNull = viewModel.checkUser()
-                if(isNull){
-                    Log.i("UserObserver","the else block")
-                }
-                else{
-                    if (newUser != null) {
-                        updateNavigationUserDetails(newUser,true)
-                    };
-                }
+                Log.i("UserObserver","user observer: user is null")
             }
+
         } )
     }
 
@@ -219,7 +203,6 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                 }
             })
 
-            Log.i("displayBoards","Board adapter size: ${adapter.itemCount}")
             adapter.notifyDataSetChanged()
         }
         else{

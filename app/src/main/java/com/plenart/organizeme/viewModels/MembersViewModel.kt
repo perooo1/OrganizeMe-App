@@ -62,11 +62,6 @@ class MembersViewModel: ViewModel() {
         _anyChangesMade.value = changesMade
     }
 
-    fun checkAssignedMembers(): Boolean{
-        return _assignedMemberDetailList.value.isNullOrEmpty()
-    }
-
-
     fun setMemberFromDialog(){
         viewModelScope.launch {
             _member?.value = firestore.getMemberDetails(_email.value.toString())

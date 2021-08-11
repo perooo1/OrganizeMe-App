@@ -33,8 +33,12 @@ class MyProfileActivity : BaseActivity() {
         viewModel = ViewModelProvider(this).get(MyProfileViewModel::class.java)
 
         initObservers()
+        initListeners()
         getValues()
 
+    }
+
+    private fun initListeners() {
         myProfileBinding.ivUserImage.setOnClickListener {
             if(Constants.isReadExternalStorageAllowed(this)){
                 Constants.showImageChooser(this)
@@ -45,19 +49,16 @@ class MyProfileActivity : BaseActivity() {
         }
 
         myProfileBinding.btnUpdateMyProfileActivity.setOnClickListener{
-            Log.i("btnOnClick","First log: uri is: ${viewModel.selectedImageFileUri?.value.toString()}")
             if(viewModel.selectedImageFileUri?.value != null){
                 viewModel.uploadUserImage()
             }
             if(viewModel.mobile.value.toString().isEmpty()){
                 Toast.makeText(this,"Please provide a phone number",Toast.LENGTH_SHORT).show()
-                Log.i("MyProfileActivity","please provide a phone number")
             }
             else{
                 viewModel.updateUserProfileData()
             }
         }
-
     }
 
     private fun getValues() {
@@ -87,7 +88,6 @@ class MyProfileActivity : BaseActivity() {
         viewModel.mobile.observe(this, Observer {
             if(it == null){
                 showErrorSnackBar("Please enter a mobile num")
-                Log.i("mobileObserver","Update mobile not successful")
             }
         })
     }
@@ -101,27 +101,12 @@ class MyProfileActivity : BaseActivity() {
     }
 
     private fun initUser() {
-        Log.i("UserObserver","user observer function triggered")
-        Log.i("UserObserver","user viewmodel object ${viewModel.user.value.toString()}")
-
-        var isNull = true;
         viewModel.user?.observe(this, Observer { newUser ->
             if(newUser != null){
-                Log.i("UserObserver","before setUserdataInUi : first if block")
-                Log.i("UserObserver","after setUserdataInUi : ${newUser.toString()}")
                 setUserDataInUI()
-                Log.i("UserObserver","user observer function triggered - first if call")
             }
             else{
-                isNull = viewModel.checkUser()
-                if(isNull){
-                    Log.i("UserObserver","the else block")
-                }
-                else{
-                    if (newUser != null) {
-                        setUserDataInUI()
-                    };
-                }
+                Log.i("UserObserver","error observing user")
             }
         } )
     }
@@ -130,13 +115,12 @@ class MyProfileActivity : BaseActivity() {
         myProfileBinding.etNameMyProfileActivity.addTextChangedListener {
             viewModel.setName(it.toString())
         }
-
     }
 
     private fun getMobile() {
         myProfileBinding.etMobileMyProfileActivity.doAfterTextChanged {
             if(myProfileBinding.etMobileMyProfileActivity.text!!.isEmpty()){
-                Toast.makeText(this,"1Please provide a phone number1",Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,"Please provide a phone number",Toast.LENGTH_SHORT).show()
             }
             else{
                 viewModel.setMobile(it.toString().toLong())
@@ -182,7 +166,7 @@ class MyProfileActivity : BaseActivity() {
         }
     }
 
-    fun setUserDataInUI(){
+    private fun setUserDataInUI(){
 
         Glide.with(this@MyProfileActivity)
             .load(viewModel.user.value?.image)

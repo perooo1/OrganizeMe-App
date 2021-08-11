@@ -19,11 +19,9 @@ class Firestore {
             .document(getCurrentUserID())
             .set(userInfo, SetOptions.merge()).addOnSuccessListener {
                 registerSuccess = true
-                Log.d("registerUserFirestore","onSuccessListener called")
             }
             .addOnFailureListener {
                 registerSuccess = false
-                Log.d("registerUserFirestore","onFailureListener called")
             }
         return registerSuccess
     }
@@ -45,7 +43,6 @@ class Firestore {
             .document(getCurrentUserID())
             .update(userHashMap)
             .addOnSuccessListener {
-                Log.i("updateProfileDataNEW","Profile data updated successfully")
                 updateSuccess = true
             }.addOnFailureListener {
                     e ->
@@ -57,19 +54,14 @@ class Firestore {
 
     suspend fun loadUserData(): User?{
         var loggedInUser: User? = null
-        Log.i("loadUserDataNEW","First log - user is: $loggedInUser")
 
         try{
             val user = getUserFirestore()       //user callback function
-            Log.i("loadUserDataNEW", " document(user) toString: ${user.toString()}")
             loggedInUser = user.toObject(User::class.java)
-            Log.i("loadUserDataNEW","user object after joining: $loggedInUser")
         }
         catch(e: FirebaseFirestoreException){
             Log.e("loadUserDataNEW", "Error loading user data", e)
         }
-
-        Log.i("loadUserDataNEW","last log - user is: $loggedInUser")
         return loggedInUser
     }
 
@@ -87,23 +79,21 @@ class Firestore {
             .document()
             .set(board, SetOptions.merge())
             .addOnSuccessListener {
-                Log.i("createBoardNEW", "Board created successfully!")
                 boardCreated = true
             }.addOnFailureListener {
                     exception ->
                 boardCreated = false
-                Log.i("createBoardNEW", "Board creation failed!")
+                Log.e("createBoardNEW", "Board creation failed!",exception)
             }
         return boardCreated
     }
 
     suspend fun getBoardsList(): ArrayList<Board>{
         val boardsList = ArrayList<Board>();
-        Log.i("getBoardsListNEW","first log call: $boardsList")
 
         try{
             val boards = getBoardsListCallback()
-            Log.i("getBoardsListNEW","query(boards) toString: ${boards.toString()}")
+
             for(i in boards.documents){
                 val board = i.toObject(Board::class.java)!!
                 board.documentID = i.id;
@@ -113,8 +103,6 @@ class Firestore {
         catch (e: FirebaseFirestoreException){
             Log.e("getBoardsListNEW", "Error loading boards List", e)
         }
-
-        Log.i("getBoardsListNEW","last log call: $boardsList")
         return boardsList
     }
 
@@ -127,22 +115,17 @@ class Firestore {
 
     suspend fun getBoardDetails(documentID: String): Board? {
         var board: Board? = null
-        Log.i("getBoardDetailsNEW","First log - board is : $board")
 
         try{
             val b = getBoardDetailsCallback(documentID)
-            Log.i("getBoardDetailsNEW","document(board) toString: $b")
             board = b.toObject(Board::class.java)
             if (board != null) {
                 board.documentID = b.id
             }
-            Log.i("getBoardDetailsNEW","document(board) toString: $b")
         }
         catch (e: FirebaseFirestoreException){
             Log.e("getBoardDetailsNEW","Error getting board details", e)
         }
-
-        Log.i("getBoardDetailsNEW","last log - board is: $board")
         return board
     }
 
@@ -163,7 +146,6 @@ class Firestore {
             .document(board.documentID)
             .update(taskListHashMap)
             .addOnSuccessListener {
-                Log.i("addUpdateTaskListNEW", "TaskList updated successfully")
                 addedUpdated = true
             }.addOnFailureListener {
                     exception ->
@@ -176,22 +158,17 @@ class Firestore {
 
     suspend fun getAssignedMembersListDetails(assignedTo: ArrayList<String>): ArrayList<User>{
         val assignedMembers = ArrayList<User>()
-        Log.i("getAssignedMem","first log call: $assignedMembers")
 
         try {
             val members = getAssignedMembersListDetailsCallback(assignedTo)
-            Log.i("getAssignedMem","query(members) toString $members")
             for(i in members.documents){
                 val member = i.toObject(User::class.java)
                 assignedMembers.add(member!!);
             }
-
         }
         catch (e: FirebaseFirestoreException){
             Log.e("getAssignedMem","error getting assigned mems",e)
         }
-
-        Log.i("getAssignedMem","last log call: $assignedMembers")
         return assignedMembers
     }
 
@@ -204,20 +181,16 @@ class Firestore {
 
     suspend fun getMemberDetails(email: String): User?{
         var user: User? = null;
-        Log.i("getMemberDetailsNEW","first log - user is : $user")
 
         try{
             val u = getMemberDetailsCallback(email)
-            Log.i("getMemberDetailsNEW","document(user) is $u")
             if(u.documents.size > 0 ){
                 user = u.documents[0].toObject(User::class.java)
-                Log.i("getMemberDetailsNEW","document(user) after joining is $user")
             }
         }
         catch (e: FirebaseFirestoreException){
             Log.e("getMemberDetailsNEW","error getting member details ", e)
         }
-
         return user
     }
 

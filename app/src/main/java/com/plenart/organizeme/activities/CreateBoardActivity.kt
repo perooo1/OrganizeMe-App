@@ -27,16 +27,23 @@ class CreateBoardActivity : BaseActivity() {
 
         setUpActionBar()
 
-        Log.i("CreateBoardActivity", "Called ViewModelProvider")
         viewModel = ViewModelProvider(this).get(CreateBoardViewModel::class.java)
 
         initObservers()
+        initListeners()
+
+        getIntentData()
         getBoardName()
 
+    }
+
+    private fun getIntentData() {
         if(intent.hasExtra(Constants.NAME)){
             viewModel.setUserName(intent.getStringExtra(Constants.NAME)!!)
         }
+    }
 
+    private fun initListeners() {
         createBoardBinding.ivBoardImageCreateBoardActivity.setOnClickListener {
             if(Constants.isReadExternalStorageAllowed(this)){
                 Constants.showImageChooser(this)

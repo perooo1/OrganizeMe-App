@@ -82,10 +82,6 @@ class CardDetailsViewModel: ViewModel() {
        _selectedDueDateMilis.value = dueDate
    }
 
-   fun checkAssignedMembers(): Boolean{
-        return _assignedMemberDetailList.value.isNullOrEmpty()
-   }
-
     fun updateCardDetails(){
         val card = Card(_cardName.value.toString(),
             _boardDetails?.value?.taskList?.get(_taskListPosition.value!!)?.cards?.get(_cardPosition.value!!)?.createdBy!!,

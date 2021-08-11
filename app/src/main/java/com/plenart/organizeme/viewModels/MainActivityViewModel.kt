@@ -48,14 +48,6 @@ class MainActivityViewModel: ViewModel() {
         }
     }
 
-    fun checkBoardsList(): Boolean {
-        return boardsList == null
-    }
-
-    fun checkUser(): Boolean{
-        return user == null
-    }
-
     override fun onCleared() {
         super.onCleared()
         Log.i("MainActivityViewModel", "MainActivityViewModel model destroyed!")

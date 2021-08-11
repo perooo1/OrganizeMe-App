@@ -22,7 +22,6 @@ class SignUpActivity : BaseActivity() {
 
         setUpActionBar();
 
-        Log.i("SignUpActivity", "Called ViewModelProvider")
         viewModel = ViewModelProvider(this).get(SignUpViewModel::class.java)
 
         initObservers()
@@ -116,7 +115,7 @@ class SignUpActivity : BaseActivity() {
 
     }
 
-    fun userRegisteredSuccess(){
+    private fun userRegisteredSuccess(){
         Toast.makeText(this, " you have successfully registered the email", Toast.LENGTH_LONG).show()
         hideProgressDialog()
         FirebaseAuth.getInstance().signOut()

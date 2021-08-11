@@ -38,18 +38,38 @@ class CardDetailsActivity : BaseActivity() {
         activityCardDetailsBinding = ActivityCardDetailsBinding.inflate(layoutInflater);
         setContentView(activityCardDetailsBinding.root);
 
-        Log.i("CardDetailsActivity", "Called ViewModelProvider")
         viewModel = ViewModelProvider(this).get(CardDetailsViewModel::class.java)
 
         getIntentData()
         setUpActionBar()
+
         initObservers()
+        initListeners()
 
         setUpCardNameEt()
         setUpSelectedColor()
+        setUpDueDate()
 
         getCardName()
 
+    }
+
+    private fun setUpDueDate() {
+        viewModel.setSelectedDueDate(viewModel.boardDetails?.value?.taskList
+            ?.get(viewModel.taskListPosition.value!!)
+            ?.cards!![viewModel.cardPosition.value!!]
+            .dueDate
+        )
+
+        if(viewModel.selectedDueDateMilis.value!! > 0 ){
+            val simpleDateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH)
+            val selectedDate = simpleDateFormat.format(Date(viewModel.selectedDueDateMilis.value!!))
+            activityCardDetailsBinding.tvSelectDueDate.text = selectedDate
+
+        }
+    }
+
+    private fun initListeners() {
         activityCardDetailsBinding.btnUpdateCardDetails.setOnClickListener {
             if(activityCardDetailsBinding.etNameCardDetails.text.toString().isNotEmpty()){
                 viewModel.updateCardDetails()
@@ -67,19 +87,9 @@ class CardDetailsActivity : BaseActivity() {
             membersListDialog();
         }
 
-        viewModel.setSelectedDueDate(viewModel.boardDetails?.value?.taskList?.get(viewModel.taskListPosition.value!!)?.cards!![viewModel.cardPosition.value!!].dueDate)
-
-        if(viewModel.selectedDueDateMilis.value!! > 0 ){
-            val simpleDateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH)
-            val selectedDate = simpleDateFormat.format(Date(viewModel.selectedDueDateMilis.value!!))
-            activityCardDetailsBinding.tvSelectDueDate.text = selectedDate
-
-        }
-
         activityCardDetailsBinding.tvSelectDueDate.setOnClickListener {
             showDatePicker();
         }
-
     }
 
     private fun getCardName() {
@@ -89,7 +99,12 @@ class CardDetailsActivity : BaseActivity() {
     }
 
     private fun setUpSelectedColor() {
-        viewModel.setSelectedColor(viewModel.boardDetails?.value?.taskList?.get(viewModel.taskListPosition.value!!)?.cards!![viewModel.cardPosition.value!!].labelColor)
+        viewModel.setSelectedColor(viewModel.boardDetails?.value?.taskList
+            ?.get(viewModel.taskListPosition.value!!)
+            ?.cards!![viewModel.cardPosition.value!!]
+            .labelColor
+        )
+
         if(viewModel.selectedColor.value?.isNotEmpty() == true){
             setColor()
         }
@@ -124,21 +139,14 @@ class CardDetailsActivity : BaseActivity() {
     }
 
     private fun initAssignedMembers() {
-       var isNull = true;
         viewModel.assignedMemberDetailList.observe(this, androidx.lifecycle.Observer {
             if(it != null && it.isNotEmpty()){
                 setUpSelectedMembersList()
-                Log.i("assignedMembersObserver","first if call")
             }
             else{
-                isNull = viewModel.checkAssignedMembers()
-                if(isNull){
-                    Log.i("assignedMembersObserver","assigned mems is empty or null ${viewModel.assignedMemberDetailList.value.toString()}")
-                }
-                else{
-                    setUpSelectedMembersList()
-                }
+                Log.i("assignedMembersObserver","assigned mems is empty or null")
             }
+
         })
     }
 
@@ -181,7 +189,6 @@ class CardDetailsActivity : BaseActivity() {
     private fun getIntentData(){
         if(intent.hasExtra(Constants.BOARD_DETAIL)){
             viewModel.setBoardDetails(intent.getParcelableExtra<Board>(Constants.BOARD_DETAIL)!!)
-            Log.e("tag","boardDetails: ${viewModel.boardDetails.toString()}")
         }
         if(intent.hasExtra(Constants.BOARD_MEMBERS_LIST)){
             viewModel.setAssignedMembers(intent.getParcelableArrayListExtra<User>(Constants.BOARD_MEMBERS_LIST)!!)
@@ -192,7 +199,6 @@ class CardDetailsActivity : BaseActivity() {
         if(intent.hasExtra(Constants.CARD_LIST_ITEM_POSITION)){
             viewModel.setCardPosition(intent.getIntExtra(Constants.CARD_LIST_ITEM_POSITION, -1))
         }
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -270,7 +276,6 @@ class CardDetailsActivity : BaseActivity() {
 
                 }
                 else{
-
                     viewModel.boardDetails?.value
                         ?.taskList
                         ?.get(viewModel.taskListPosition.value!!)
@@ -284,14 +289,11 @@ class CardDetailsActivity : BaseActivity() {
                             viewModel.assignedMemberDetailList.value!![i].selected = false
                         }
                     }
-
                 }
                 setUpSelectedMembersList()
             }
-
         }
         listDialog.show()
-
     }
 
     private fun setUpSelectedMembersList(){
@@ -378,7 +380,9 @@ class CardDetailsActivity : BaseActivity() {
 
     private fun setColor(){
         activityCardDetailsBinding.tvSelectLabelColor.text = ""
-        activityCardDetailsBinding.tvSelectLabelColor.setBackgroundColor(Color.parseColor(viewModel.selectedColor.value.toString()))
+        activityCardDetailsBinding.tvSelectLabelColor.setBackgroundColor(
+            Color.parseColor(viewModel.selectedColor.value.toString())
+        )
 
     }
 
@@ -391,11 +395,8 @@ class CardDetailsActivity : BaseActivity() {
                 viewModel.setSelectedColor(color)
                 setColor()
             }
-
         }
-
         listDialog.show()
-
     }
 
     private fun showDatePicker(){

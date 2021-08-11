@@ -29,30 +29,18 @@ class TaskListViewModel: ViewModel() {
 
     init {
         Log.i("TaskListActivity", "TaskListViewModel created!")
-
     }
 
     fun getBoardDetails(docID: String){
-        Log.i("getBoardDetails","_boardDocumentID jest: $docID")
-
         viewModelScope.launch {
             _boardDetails?.value = firestore.getBoardDetails(docID)
         }
     }
 
     fun getAssignedMembersListDetails(){
-        Log.i("getBoardDetails","_boardDetails jest: ${_boardDetails?.value.toString()}")
         viewModelScope.launch {
             _assignedMemberDetailList.value = firestore.getAssignedMembersListDetails(_boardDetails?.value?.assignedTo!!)
         }
-    }
-
-    fun checkBoardDetails(): Boolean{
-        return _boardDetails == null
-    }
-
-    fun checkAssignedMembers(): Boolean{
-        return _assignedMemberDetailList.value.isNullOrEmpty()
     }
 
     override fun onCleared() {

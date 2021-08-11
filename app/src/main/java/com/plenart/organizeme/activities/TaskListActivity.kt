@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -28,18 +27,17 @@ class TaskListActivity : BaseActivity() {
         activityTaskListBinding = ActivityTaskListBinding.inflate(layoutInflater)
         setContentView(activityTaskListBinding.root)
 
-        Log.i("TaskListActivity", "Called ViewModelProvider")
         viewModel = ViewModelProvider(this).get(TaskListViewModel::class.java)
 
         initObservers()
+        getIntentData()
 
+    }
+
+    private fun getIntentData(){
         if(intent.hasExtra(Constants.DOCUMENT_ID)){
-            Log.i("onCreateTaskList","board document ID before:")
-            //viewModel.setBoardDocumentID(intent.getStringExtra(Constants.DOCUMENT_ID)!!)
             viewModel.getBoardDetails(intent.getStringExtra(Constants.DOCUMENT_ID)!!)
-            Log.i("onCreateTaskList","board document ID after:")
         }
-
     }
 
     private fun initObservers() {
@@ -49,26 +47,13 @@ class TaskListActivity : BaseActivity() {
     }
 
     private fun initBoardDetails() {
-        Log.i("boardDetailsObserver","boardDetails in viewmodel object ${viewModel.boardDetails?.value.toString()}")
-
-        var isNull = true;
         viewModel.boardDetails?.observe(this, Observer { newBoard ->
             if(newBoard != null){
-                Log.i("boardDetailsObserver","after setUserdataInUi : ${newBoard.toString()}")
                 setUpActionBar()
                 viewModel.getAssignedMembersListDetails()
             }
             else{
-                isNull = viewModel.checkBoardDetails()
-                if(isNull){
-                    Log.i("boardDetailsObserver","the else block")
-                }
-                else{
-                    if (newBoard != null) {
-                        setUpActionBar()
-                        viewModel.getAssignedMembersListDetails()
-                    }
-                }
+                Log.i("boardDetailsObserver","error observing boardDetails ")
             }
         } )
     }
@@ -85,21 +70,12 @@ class TaskListActivity : BaseActivity() {
     }
 
     private fun initAssignedMembers() {
-        var isNull = true;
         viewModel.assignedMemberDetailList.observe(this, Observer { members ->
             if(members != null && members.isNotEmpty()){
                 boardMembersDetailsList()
-                Log.i("assignedMembersObserver","assignedMembersObserver function triggered - first if call")
             }
             else{
-                isNull = viewModel.checkAssignedMembers()
-                if(isNull){
-                    Toast.makeText(this, "assignedMembers is empty or null!", Toast.LENGTH_SHORT).show()
-                    Log.i("assignedMembersObserver","assignedMembers is empty or null! ${viewModel.assignedMemberDetailList.value.toString()}")
-                }
-                else{
-                    boardMembersDetailsList()
-                }
+                Log.i("assignedMembersObserver","assignedMembers is empty or null! ${viewModel.assignedMemberDetailList.value.toString()}")
             }
         })
     }
@@ -129,7 +105,7 @@ class TaskListActivity : BaseActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if(resultCode == Activity.RESULT_OK && requestCode == MEMBERS_REQUEST_CODE || requestCode == CARD_DETAILS_REQUEST_CODE){
 
-            //viewModel.getBoardDetailsNEW(intent.getStringExtra(Constants.DOCUMENT_ID)!!)      //careful! TODO
+            //viewModel.getBoardDetails(intent.getStringExtra(Constants.DOCUMENT_ID)!!)
 
         }
         else{

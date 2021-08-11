@@ -62,9 +62,7 @@ class CreateBoardViewModel: ViewModel() {
     }
 
     fun setFileExtension(extension: String?){
-        Log.i("setFileExtension","setFileExtension called")
         _fileExtension?.value = extension
-        Log.i("setFileExtension","setFileExtension: ${_fileExtension?.value}")
     }
 
     fun createBoard(){
@@ -110,7 +108,6 @@ class CreateBoardViewModel: ViewModel() {
             .reference
             .child("BOARD_IMAGE"+System.currentTimeMillis()
                     +"."+ _fileExtension?.value)
-        Log.i("uploadBoardCallback", "this is CALLBACK fun")
 
         return sRef.putFile(_selectedImageFileUri?.value!!).await()
     }

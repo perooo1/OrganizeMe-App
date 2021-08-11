@@ -31,18 +31,25 @@ class MembersActivity : BaseActivity() {
 
         setUpActionBar()
         initObservers()
-
-        if(intent.hasExtra(Constants.BOARD_DETAIL)){
-            viewModel.setBoardDetails(intent.getParcelableExtra<Board>(Constants.BOARD_DETAIL)!!)
-        }
+        initListeners()
+        getIntentData()
 
         viewModel.getAssignedMembersListDetails()
 
+    }
+
+    private fun getIntentData() {
+        if(intent.hasExtra(Constants.BOARD_DETAIL)){
+            viewModel.setBoardDetails(intent.getParcelableExtra<Board>(Constants.BOARD_DETAIL)!!)
+        }
+    }
+
+    private fun initListeners() {
         activityMembersBinding.fabMember.setOnClickListener {
-            Log.e("heh","fab click click clickity click")
             dialogAddSearchMember();
         }
     }
+
 
     private fun initObservers() {
         initAssignedMembers()
@@ -68,22 +75,14 @@ class MembersActivity : BaseActivity() {
     }
 
     private fun initAssignedMembers() {
-        var isNull = true
         viewModel.assignedMemberDetailList.observe(this, Observer { members ->
             if(members != null && members.isNotEmpty()){
                 setUpMembersList()
-                Log.i("assignedMembersObserverMembers","assignedMembersObserver function triggered - first if call")
             }
             else{
-                isNull = viewModel.checkAssignedMembers()
-                if(isNull){
-                    Toast.makeText(this, "assignedMembers is empty or null!", Toast.LENGTH_SHORT).show()
-                    Log.i("assignedMembersObserverMembers","assignedMembers is empty or null! ${viewModel.assignedMemberDetailList.value.toString()}")
-                }
-                else{
-                    setUpMembersList()
-                }
+                Log.i("assignedMembersObserverMembers","assignedMembers is empty or null")
             }
+
         })
     }
 
