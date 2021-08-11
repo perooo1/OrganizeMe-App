@@ -12,11 +12,13 @@ class IntroActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityIntroBinding.inflate(layoutInflater);
+        binding = ActivityIntroBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        //setContentView(R.layout.activity_intro)
 
+        initListeners()
+   }
 
+    private fun initListeners() {
         binding.btnSignUpIntro.setOnClickListener{
             startActivity(Intent(this, SignUpActivity::class.java))
         }
@@ -24,6 +26,7 @@ class IntroActivity : BaseActivity() {
         binding.btnSignInIntro.setOnClickListener{
             startActivity(Intent(this, SignInActivity::class.java))
         }
+    }
 
-   }
+
 }

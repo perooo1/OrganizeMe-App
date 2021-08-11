@@ -39,23 +39,24 @@ class CardListItemsAdapter(private val context: Context, private var list: Array
             
             holder.binding.tvCardName.text = model.name;
 
-            if((context as TaskListActivity).mAssignedMemberDetailList.size > 0){
+            if((context as TaskListActivity).viewModel.assignedMemberDetailList.value?.size!! > 0){
                 val selectedMembersList: ArrayList<SelectedMembers> = ArrayList();
 
-                for(i in context.mAssignedMemberDetailList.indices){
+                for(i in context.viewModel.assignedMemberDetailList.value?.indices!!){
                     for(j in model.assignedTo){
-                        if(context.mAssignedMemberDetailList[i].id == j){
+                        if(context.viewModel.assignedMemberDetailList.value!![i].id == j){
 
                             val selectedMembers = SelectedMembers(
-                                context.mAssignedMemberDetailList[i].id,
-                                context.mAssignedMemberDetailList[i].image
+                                context.viewModel.assignedMemberDetailList.value!![i].id,
+                                context.viewModel.assignedMemberDetailList.value!![i].image
                             );
 
                             selectedMembersList.add(selectedMembers);
 
                         }
                     }
-                }
+
+            }
 
                 if(selectedMembersList.size > 0){
                     if(selectedMembersList.size == 1 && selectedMembersList[0].id == model.createdBy){

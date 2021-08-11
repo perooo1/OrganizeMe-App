@@ -3,11 +3,13 @@ package com.plenart.organizeme.adapters
 import android.app.AlertDialog
 import android.content.Context
 import android.content.res.Resources
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -17,11 +19,11 @@ import com.plenart.organizeme.activities.TaskListActivity
 import com.plenart.organizeme.databinding.ItemTaskBinding
 import com.plenart.organizeme.interfaces.CardItemClickInterface
 import com.plenart.organizeme.models.Task
+import com.plenart.organizeme.viewModels.TaskListViewModel
 import java.util.*
 import kotlin.collections.ArrayList
 
 class TaskListItemsAdapter(private val context: Context, private var list: ArrayList<Task>):RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-
    private var mPositionDraggedFrom = -1;
    private var mPositionDraggedTo = -1;
 

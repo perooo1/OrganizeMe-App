@@ -10,16 +10,20 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import androidx.core.widget.doAfterTextChanged
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import com.plenart.organizeme.R
 import com.plenart.organizeme.adapters.CardMembersListItemAdapter
 import com.plenart.organizeme.databinding.ActivityCardDetailsBinding
 import com.plenart.organizeme.dialogs.LabelColorListDialog
 import com.plenart.organizeme.dialogs.MembersListDialog
-import com.plenart.organizeme.firebase.Firestore
 import com.plenart.organizeme.interfaces.MemberItemClickInterface
-import com.plenart.organizeme.models.*
+import com.plenart.organizeme.models.Board
+import com.plenart.organizeme.models.SelectedMembers
+import com.plenart.organizeme.models.User
 import com.plenart.organizeme.utils.Constants
+import com.plenart.organizeme.viewModels.CardDetailsViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -27,44 +31,51 @@ import kotlin.collections.ArrayList
 class CardDetailsActivity : BaseActivity() {
 
     private lateinit var activityCardDetailsBinding: ActivityCardDetailsBinding;
-    private lateinit var mBoardDetails : Board;
-    private lateinit var mMembersDetailList: ArrayList<User>;
-    private var mTaskListPosition = -1;
-    private var mCardPosition = -1;
-    private var mSelectedColor = "";
-    private var mSelectedDueDateMilis: Long = 0L;
-
+    private lateinit var viewModel: CardDetailsViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         activityCardDetailsBinding = ActivityCardDetailsBinding.inflate(layoutInflater);
         setContentView(activityCardDetailsBinding.root);
 
-        getIntentData();
-        setUpActionBar();
+        viewModel = ViewModelProvider(this).get(CardDetailsViewModel::class.java)
 
-        activityCardDetailsBinding.etNameCardDetails.setText(mBoardDetails
-            .taskList[mTaskListPosition]
-            .cards[mCardPosition]
-            .name)
+        getIntentData()
+        setUpActionBar()
 
-        activityCardDetailsBinding.etNameCardDetails.setSelection(activityCardDetailsBinding
-            .etNameCardDetails
-            .text
-            .toString()
-            .length);
+        initObservers()
+        initListeners()
 
-        mSelectedColor = mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].labelColor;
-        if(mSelectedColor.isNotEmpty()){
-            setColor();
+        setUpCardNameEt()
+        setUpSelectedColor()
+        setUpDueDate()
+
+        getCardName()
+
+    }
+
+    private fun setUpDueDate() {
+        viewModel.setSelectedDueDate(viewModel.boardDetails?.value?.taskList
+            ?.get(viewModel.taskListPosition.value!!)
+            ?.cards!![viewModel.cardPosition.value!!]
+            .dueDate
+        )
+
+        if(viewModel.selectedDueDateMilis.value!! > 0 ){
+            val simpleDateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH)
+            val selectedDate = simpleDateFormat.format(Date(viewModel.selectedDueDateMilis.value!!))
+            activityCardDetailsBinding.tvSelectDueDate.text = selectedDate
+
         }
+    }
 
+    private fun initListeners() {
         activityCardDetailsBinding.btnUpdateCardDetails.setOnClickListener {
             if(activityCardDetailsBinding.etNameCardDetails.text.toString().isNotEmpty()){
-                updateCardDetails();
+                viewModel.updateCardDetails()
             }
             else{
-                Toast.makeText(this,"Please enter a card name", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this,"Please enter a card name", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -76,26 +87,86 @@ class CardDetailsActivity : BaseActivity() {
             membersListDialog();
         }
 
-        setUpSelectedMembersList();
-
-        mSelectedDueDateMilis = mBoardDetails
-            .taskList[mTaskListPosition]
-            .cards[mCardPosition]
-            .dueDate;
-
-        if(mSelectedDueDateMilis > 0 ){
-            val simpleDateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
-            val selectedDate = simpleDateFormat.format(Date(mSelectedDueDateMilis));
-            activityCardDetailsBinding.tvSelectDueDate.text = selectedDate;
-
-        }
-
         activityCardDetailsBinding.tvSelectDueDate.setOnClickListener {
             showDatePicker();
         }
-
     }
 
+    private fun getCardName() {
+        activityCardDetailsBinding.etNameCardDetails.doAfterTextChanged {
+            viewModel.setCardName(it.toString())
+        }
+    }
+
+    private fun setUpSelectedColor() {
+        viewModel.setSelectedColor(viewModel.boardDetails?.value?.taskList
+            ?.get(viewModel.taskListPosition.value!!)
+            ?.cards!![viewModel.cardPosition.value!!]
+            .labelColor
+        )
+
+        if(viewModel.selectedColor.value?.isNotEmpty() == true){
+            setColor()
+        }
+    }
+
+    private fun initObservers() {
+        initAssignedMembers()
+        initTaskListUpdated()
+        initCardName()
+    }
+
+    private fun initCardName() {
+        viewModel.cardName.observe(this, androidx.lifecycle.Observer {
+            if(it == null ){
+                showErrorSnackBar("Please enter a card name")
+            }
+            else{
+            Log.i("cardNameObserver","log log")
+            }
+        })
+    }
+
+    private fun initTaskListUpdated() {
+        viewModel.taskListUpdated.observe(this, androidx.lifecycle.Observer {
+            if(it){
+                addUpdateTaskListSuccess()
+            }
+            else{
+                Log.i("taskListUpdatedObserver","it == false")
+            }
+        })
+    }
+
+    private fun initAssignedMembers() {
+        viewModel.assignedMemberDetailList.observe(this, androidx.lifecycle.Observer {
+            if(it != null && it.isNotEmpty()){
+                setUpSelectedMembersList()
+            }
+            else{
+                Log.i("assignedMembersObserver","assigned mems is empty or null")
+            }
+
+        })
+    }
+
+    private fun setUpCardNameEt() {
+
+        activityCardDetailsBinding.etNameCardDetails.setText(
+            viewModel.boardDetails?.value
+                ?.taskList?.get(viewModel.taskListPosition.value!!)
+                ?.cards?.get(viewModel.cardPosition.value!!)
+                ?.name
+        )
+
+        activityCardDetailsBinding.etNameCardDetails.setSelection(activityCardDetailsBinding
+            .etNameCardDetails
+            .text
+            .toString()
+            .length
+        )
+
+    }
 
 
     private fun setUpActionBar(){
@@ -107,7 +178,7 @@ class CardDetailsActivity : BaseActivity() {
         if(actionBar != null){
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setHomeAsUpIndicator(R.drawable.ic_white_color_back_24dp);
-            actionBar.title = mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].name;
+            actionBar.title = viewModel.boardDetails?.value?.taskList?.get(viewModel.taskListPosition.value!!)?.cards?.get(viewModel.cardPosition.value!!)?.name
         }
 
         activityCardDetailsBinding.toolbarCardDetailsActivity.setNavigationOnClickListener{
@@ -117,19 +188,17 @@ class CardDetailsActivity : BaseActivity() {
 
     private fun getIntentData(){
         if(intent.hasExtra(Constants.BOARD_DETAIL)){
-            mBoardDetails = intent.getParcelableExtra<Board>(Constants.BOARD_DETAIL)!!;        //careful!
-            Log.e("tag","mBoardDetails: ${mBoardDetails.toString()}")
+            viewModel.setBoardDetails(intent.getParcelableExtra<Board>(Constants.BOARD_DETAIL)!!)
         }
         if(intent.hasExtra(Constants.BOARD_MEMBERS_LIST)){
-            mMembersDetailList = intent.getParcelableArrayListExtra<User>(Constants.BOARD_MEMBERS_LIST)!!;
+            viewModel.setAssignedMembers(intent.getParcelableArrayListExtra<User>(Constants.BOARD_MEMBERS_LIST)!!)
         }
         if(intent.hasExtra(Constants.TASK_LIST_ITEM_POSITION)){
-            mTaskListPosition = intent.getIntExtra(Constants.TASK_LIST_ITEM_POSITION, -1);
+            viewModel.setTaskListPosition(intent.getIntExtra(Constants.TASK_LIST_ITEM_POSITION, -1))
         }
         if(intent.hasExtra(Constants.CARD_LIST_ITEM_POSITION)){
-            mCardPosition = intent.getIntExtra(Constants.CARD_LIST_ITEM_POSITION, -1);
+            viewModel.setCardPosition(intent.getIntExtra(Constants.CARD_LIST_ITEM_POSITION, -1))
         }
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -137,33 +206,20 @@ class CardDetailsActivity : BaseActivity() {
         return super.onCreateOptionsMenu(menu)
     }
 
-    fun addUpdateTaskListSuccess(){
-        hideProgressDialog();
-
+    private fun addUpdateTaskListSuccess(){
         setResult(Activity.RESULT_OK);
         finish();
-    }
-
-    private fun updateCardDetails(){
-        val card = Card(activityCardDetailsBinding.etNameCardDetails.text.toString(),
-            mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].createdBy,
-            mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].assignedTo,
-            mSelectedColor,
-            mSelectedDueDateMilis
-        )
-
-        val taskList: ArrayList<Task> = mBoardDetails.taskList;
-        taskList.removeAt(taskList.size -1);
-
-        mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition] = card;
-        showProgressDialog(resources.getString(R.string.please_wait))
-        Firestore().addUpdateTaskList(this@CardDetailsActivity, mBoardDetails);
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             R.id.action_delete_card ->{
-                alertDialogForDeleteCard(mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].name);
+                alertDialogForDeleteCard(
+                    viewModel.boardDetails?.value
+                        ?.taskList?.get(viewModel.taskListPosition.value!!)
+                        ?.cards?.get(viewModel.cardPosition.value!!)
+                        ?.name!!
+                );
                 return true;
             }
         }
@@ -171,113 +227,108 @@ class CardDetailsActivity : BaseActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    private fun deleteCard(){
-        val cardsList: ArrayList<Card> = mBoardDetails.taskList[mTaskListPosition].cards;
-        cardsList.removeAt(mCardPosition);
-
-        val taskList: ArrayList<Task> = mBoardDetails.taskList;
-        taskList.removeAt(taskList.size - 1);
-
-        taskList[mTaskListPosition].cards = cardsList;
-        showProgressDialog(resources.getString(R.string.please_wait))
-        Firestore().addUpdateTaskList(this@CardDetailsActivity, mBoardDetails);
-    }
-
     private fun membersListDialog(){
-        var cardAssignedMembersList = mBoardDetails
-            .taskList[mTaskListPosition]
-            .cards[mCardPosition]
-            .assignedTo;
 
-        if(cardAssignedMembersList.size > 0){
-            for(i in mMembersDetailList.indices){
+        var cardAssignedMembersList = viewModel.boardDetails?.value
+            ?.taskList
+            ?.get(viewModel.taskListPosition.value!!)
+            ?.cards
+            ?.get(viewModel.cardPosition.value!!)
+            ?.assignedTo
+
+        if(cardAssignedMembersList!!.size > 0){
+            for(i in viewModel.assignedMemberDetailList.value?.indices!!){
                 for(j in cardAssignedMembersList){
-                    if(mMembersDetailList[i].id == j){
-                        mMembersDetailList[i].selected = true;
+                    if(viewModel.assignedMemberDetailList.value?.get(i)!!.id == j){
+                        viewModel.assignedMemberDetailList.value?.get(i)!!.selected = true
                     }
                 }
             }
         }
         else{
-            for(i in mMembersDetailList.indices){
-                mMembersDetailList[i].selected = false;
+            for(i in viewModel.assignedMemberDetailList.value?.indices!!){
+                viewModel.assignedMemberDetailList.value?.get(i)!!.selected = false
             }
         }
 
         val listDialog = object: MembersListDialog(this,
-            mMembersDetailList,
+            viewModel.assignedMemberDetailList.value!!,
             resources.getString(R.string.str_select_member)
         ){
             override fun onItemSelected(user: User, action: String) {
                 if(action == Constants.SELECT){
-                    if(!mBoardDetails
-                            .taskList[mTaskListPosition]
-                            .cards[mCardPosition]
-                            .assignedTo
-                            .contains(user.id)){
-                        mBoardDetails
-                            .taskList[mTaskListPosition]
-                            .cards[mCardPosition]
-                            .assignedTo.add(user.id);
+
+                    if(!viewModel.boardDetails?.value
+                            ?.taskList
+                            ?.get(viewModel.taskListPosition.value!!)
+                            ?.cards
+                            ?.get(viewModel.cardPosition.value!!)
+                            ?.assignedTo
+                            ?.contains(user.id)!!
+                    ){
+                        viewModel.boardDetails?.value
+                            ?.taskList
+                            ?.get(viewModel.taskListPosition.value!!)
+                            ?.cards
+                            ?.get(viewModel.cardPosition.value!!)
+                            ?.assignedTo!!.add(user.id)
                     }
 
                 }
                 else{
-                    mBoardDetails
-                        .taskList[mTaskListPosition]
-                        .cards[mCardPosition]
-                        .assignedTo
-                        .remove(user.id);
+                    viewModel.boardDetails?.value
+                        ?.taskList
+                        ?.get(viewModel.taskListPosition.value!!)
+                        ?.cards
+                        ?.get(viewModel.cardPosition.value!!)
+                        ?.assignedTo
+                        ?.remove(user.id)
 
-                    for(i in mMembersDetailList.indices){
-                        if(mMembersDetailList[i].id == user.id ){
-                            mMembersDetailList[i].selected = false;
+                    for(i in viewModel.assignedMemberDetailList.value?.indices!!){
+                        if(viewModel.assignedMemberDetailList.value!![i].id == user.id){
+                            viewModel.assignedMemberDetailList.value!![i].selected = false
                         }
                     }
-
                 }
-
-                setUpSelectedMembersList();
+                setUpSelectedMembersList()
             }
-
         }
-        listDialog.show();
-
-
+        listDialog.show()
     }
 
     private fun setUpSelectedMembersList(){
-        val cardAssignedMemberList = mBoardDetails
-            .taskList[mTaskListPosition]
-            .cards[mCardPosition]
-            .assignedTo;
+        val cardAssignedMemberList = viewModel.boardDetails?.value
+            ?.taskList
+            ?.get(viewModel.taskListPosition.value!!)
+            ?.cards
+            ?.get(viewModel.cardPosition.value!!)
+            ?.assignedTo
 
-        val selectedMembersList: ArrayList<SelectedMembers> = ArrayList();
+        val selectedMembersList: ArrayList<SelectedMembers> = ArrayList()
 
-        for(i in mMembersDetailList.indices){
-            for(j in cardAssignedMemberList){
-                if(mMembersDetailList[i].id == j){
+        for(i in viewModel.assignedMemberDetailList.value?.indices!!){
+            for(j in cardAssignedMemberList!!){
+                if(viewModel.assignedMemberDetailList.value!![i].id == j){
                     val selectedMember = SelectedMembers(
-                        mMembersDetailList[i].id,
-                        mMembersDetailList[i].image
-                    );
-                    selectedMembersList.add(selectedMember);
-
+                        viewModel.assignedMemberDetailList.value!![i].id,
+                        viewModel.assignedMemberDetailList.value!![i].image
+                    )
+                    selectedMembersList.add(selectedMember)
                 }
             }
         }
 
         if(selectedMembersList.size > 0){
-            selectedMembersList.add(SelectedMembers("",""));
+            selectedMembersList.add(SelectedMembers("",""))
             activityCardDetailsBinding.tvSelectMembers.visibility = View.GONE
-            activityCardDetailsBinding.rvSelectedMembers.visibility = View.VISIBLE;
+            activityCardDetailsBinding.rvSelectedMembers.visibility = View.VISIBLE
 
-            activityCardDetailsBinding.rvSelectedMembers.layoutManager = GridLayoutManager(this,6);
-            val adapter = CardMembersListItemAdapter(this,selectedMembersList,true);
-            activityCardDetailsBinding.rvSelectedMembers.adapter = adapter;
+            activityCardDetailsBinding.rvSelectedMembers.layoutManager = GridLayoutManager(this,6)
+            val adapter = CardMembersListItemAdapter(this,selectedMembersList,true)
+            activityCardDetailsBinding.rvSelectedMembers.adapter = adapter
             adapter.setOnClickListener(object : MemberItemClickInterface{
                 override fun onClick() {
-                    membersListDialog();
+                    membersListDialog()
                 }
 
             })
@@ -300,7 +351,7 @@ class CardDetailsActivity : BaseActivity() {
 
         builder.setPositiveButton(resources.getString(R.string.yes)){dialogInterface, which ->
             dialogInterface.dismiss();
-            deleteCard();
+            viewModel.deleteCard();
 
         }
 
@@ -308,28 +359,30 @@ class CardDetailsActivity : BaseActivity() {
             dialogInterface.dismiss();
         }
 
-        val alertDialog: AlertDialog = builder.create();
-        alertDialog.setCancelable(false);
-        alertDialog.show();
+        val alertDialog: AlertDialog = builder.create()
+        alertDialog.setCancelable(false)
+        alertDialog.show()
 
     }
 
     private fun colorsList(): ArrayList<String>{
-        val colorsList: ArrayList<String> = ArrayList();
-        colorsList.add("#43C86F");
-        colorsList.add("#0C90F1");
-        colorsList.add("#F72400");
-        colorsList.add("#7A8089");
-        colorsList.add("#D57C1D");
-        colorsList.add("#770000");
-        colorsList.add("#0022F8");
+        val colorsList: ArrayList<String> = ArrayList()
+        colorsList.add("#43C86F")
+        colorsList.add("#0C90F1")
+        colorsList.add("#F72400")
+        colorsList.add("#7A8089")
+        colorsList.add("#D57C1D")
+        colorsList.add("#770000")
+        colorsList.add("#0022F8")
 
         return colorsList;
     }
 
     private fun setColor(){
-        activityCardDetailsBinding.tvSelectLabelColor.text = "";
-        activityCardDetailsBinding.tvSelectLabelColor.setBackgroundColor(Color.parseColor(mSelectedColor))
+        activityCardDetailsBinding.tvSelectLabelColor.text = ""
+        activityCardDetailsBinding.tvSelectLabelColor.setBackgroundColor(
+            Color.parseColor(viewModel.selectedColor.value.toString())
+        )
 
     }
 
@@ -337,45 +390,41 @@ class CardDetailsActivity : BaseActivity() {
         val colorsList : ArrayList<String> = colorsList();
         val listDialog = object: LabelColorListDialog(this,
             colorsList,resources.getString(R.string.str_select_label_color),
-            mSelectedColor){
+            viewModel.selectedColor.value.toString()){
             override fun onItemSelected(color: String) {
-                mSelectedColor = color;
-                setColor();
+                viewModel.setSelectedColor(color)
+                setColor()
             }
-
         }
-
-        listDialog.show();
-
+        listDialog.show()
     }
 
-
     private fun showDatePicker(){
-        val calendar = Calendar.getInstance();
-        val year = calendar.get(Calendar.YEAR);
-        val month = calendar.get(Calendar.MONTH);
-        val day = calendar.get(Calendar.DAY_OF_MONTH);
+        val calendar = Calendar.getInstance()
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
 
         val datePickerDialog = DatePickerDialog(
             this,
             DatePickerDialog.OnDateSetListener{ view, year, monthOfYear, dayOfMonth ->
-                val sDayOfMonth = if(dayOfMonth < 1) "0$dayOfMonth" else "$dayOfMonth";
-                val sMonthOfYear = if((monthOfYear + 1) < 10) "0${monthOfYear + 1}" else "${monthOfYear + 1}";
+                val sDayOfMonth = if(dayOfMonth < 1) "0$dayOfMonth" else "$dayOfMonth"
+                val sMonthOfYear = if((monthOfYear + 1) < 10) "0${monthOfYear + 1}" else "${monthOfYear + 1}"
 
-                val selectedDate = "$sDayOfMonth/$sMonthOfYear/$year";
-                activityCardDetailsBinding.tvSelectDueDate.text = selectedDate;
+                val selectedDate = "$sDayOfMonth/$sMonthOfYear/$year"
+                activityCardDetailsBinding.tvSelectDueDate.text = selectedDate
 
-                val sdf = SimpleDateFormat("dd/MM/yyy", Locale.ENGLISH);
-                val theDate = sdf.parse(selectedDate);
+                val sdf = SimpleDateFormat("dd/MM/yyy", Locale.ENGLISH)
+                val theDate = sdf.parse(selectedDate)
 
-                mSelectedDueDateMilis = theDate!!.time;
+                viewModel.setSelectedDueDate(theDate!!.time)
         },
             year,
             month,
             day
         );
 
-        datePickerDialog.show();
+        datePickerDialog.show()
 
     }
 

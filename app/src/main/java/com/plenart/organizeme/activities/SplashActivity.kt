@@ -14,12 +14,12 @@ class SplashActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivitySplashBinding.inflate(layoutInflater);
-        setContentView(binding.root);
+        binding = ActivitySplashBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
        Handler(Looper.getMainLooper()).postDelayed({
            
-           var currentUserID = Firestore().getCurrentUserID();
+           var currentUserID = Firestore().getCurrentUserID()
 
            if(currentUserID.isNotEmpty()){
                startActivity(Intent(this,MainActivity::class.java))
@@ -28,7 +28,7 @@ class SplashActivity : AppCompatActivity() {
                startActivity(Intent(this,IntroActivity::class.java))
            }
            
-           finish();
+           finish()
        },2500)
 
     }
