@@ -50,23 +50,6 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     }
 
-    private fun initListeners() {
-        mainActivityBinding.navView.setNavigationItemSelectedListener(this)
-
-        appBarMainBinding.fabCreateBoard.setOnClickListener{
-            val intent = Intent(this,CreateBoardActivity::class.java)
-            intent.putExtra(Constants.NAME, viewModel.userName.value)
-
-            startActivityForResult(intent, CREATE_BOARD_REQUEST_CODE)
-        }
-
-    }
-
-    private fun initObservers() {
-        initUser()
-        initBoardsList()
-    }
-
     private fun initBoardsList() {
         viewModel.boardsList.observe(this, Observer { boardsList ->
             if(boardsList != null && boardsList.isNotEmpty()){
@@ -109,6 +92,23 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         else{
             mainActivityBinding.drawerLayout.openDrawer(GravityCompat.START)
         }
+    }
+
+    private fun initListeners() {
+        mainActivityBinding.navView.setNavigationItemSelectedListener(this)
+
+        appBarMainBinding.fabCreateBoard.setOnClickListener{
+            val intent = Intent(this,CreateBoardActivity::class.java)
+            intent.putExtra(Constants.NAME, viewModel.userName.value)
+
+            startActivityForResult(intent, CREATE_BOARD_REQUEST_CODE)
+        }
+
+    }
+
+    private fun initObservers() {
+        initUser()
+        initBoardsList()
     }
 
     override fun onBackPressed() {
