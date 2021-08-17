@@ -4,20 +4,13 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.bumptech.glide.Glide
-import com.google.firebase.auth.FirebaseAuth
 import com.plenart.organizeme.R
 import com.plenart.organizeme.activities.*
 import com.plenart.organizeme.adapters.BoardItemsAdapter
@@ -26,14 +19,13 @@ import com.plenart.organizeme.interfaces.BoardItemClickInterface
 import com.plenart.organizeme.models.Board
 import com.plenart.organizeme.utils.Constants
 import com.plenart.organizeme.viewModels.MainActivityViewModel
-import de.hdodenhof.circleimageview.CircleImageView
 
 
 class MainFragment : Fragment() {
     private lateinit var fragmentMainBinding: FragmentMainBinding
     private lateinit var activitySplashBinding: ActivitySplashBinding
     private lateinit var mainContentBinding: MainContentBinding
-    private val viewModel: MainActivityViewModel by activityViewModels()
+    private val viewModel: MainActivityViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,17 +63,37 @@ class MainFragment : Fragment() {
         //fragmentMainBinding.navView.setNavigationItemSelectedListener(this)
 
         fragmentMainBinding.fabCreateBoard.setOnClickListener{
+
+            /*
             FirebaseAuth.getInstance().signOut()                        //for testing purposes only
             val fragment = IntroFragment()
             childFragmentManager.beginTransaction()
                 .replace(R.id.fragment_main, fragment)
                 .commit()
+            */
+
         /*
             val intent = Intent(activity, CreateBoardActivity::class.java)
             intent.putExtra(Constants.NAME, viewModel.userName.value)
 
             startActivityForResult(intent, MainActivity.CREATE_BOARD_REQUEST_CODE)
         */
+        /*
+            val fragment = CreateBoardFragment()
+            val bundle = Bundle()
+            bundle.putString(Constants.NAME,viewModel.userName.value)
+            //fragment2.arguments?.putString(Constants.NAME,viewModel.userName.value)
+            fragment.arguments = bundle
+            childFragmentManager.beginTransaction()
+                .replace(R.id.fragment_main,fragment)
+                .commit()
+        */
+            val fragment = MyProfileFragment()
+            childFragmentManager.beginTransaction()
+                .replace(R.id.fragment_main,fragment)
+                .commit()
+
+
         }
 
     }
@@ -92,14 +104,9 @@ class MainFragment : Fragment() {
     }
 
     private fun initBoardsList() {
-        Log.i("displayBoards","obards list observer!")
         viewModel.boardsList.observe(viewLifecycleOwner, Observer { boardsList ->
-            Log.i("displayBoards","obards list observer inside observe block!")
             if(boardsList != null && boardsList.isNotEmpty()){
-                Log.i("displayBoards","obards list observer inside if condition")
-                Log.i("displayBoards","obards list observer inside if condition: boardslist is: ${boardsList.toString()}")
                 displayBoards(boardsList);
-                Log.i("displayBoards","obards list observer inside condition, after needed function call")
             }
             else{
                 Log.i("boardsListObserver","boardListObserver: boardsList is empty or null!")
@@ -150,7 +157,8 @@ class MainFragment : Fragment() {
     }
 
     private fun updateNavigationUserDetails(loggedInUser: com.plenart.organizeme.models.User, readBoardsList: Boolean = false) {
-/*      TODO FIX NPE WITH requireView()
+        viewModel.getBoardsList()
+    /*      TODO FIX NPE WITH requireView()
         val nav_user_img: CircleImageView = requireView().findViewById(R.id.nav_user_img)
         val tv_username: TextView = requireView().findViewById(R.id.tv_username)
 
@@ -194,9 +202,21 @@ class MainFragment : Fragment() {
 
             adapter?.setOnClickListener(object: BoardItemClickInterface {
                 override fun onClick(position: Int, model: Board) {
+
+                    val bundle = Bundle()
+                    bundle.putString(Constants.DOCUMENT_ID,model.documentID)
+                    val fragment = TaskListFragment()
+                    fragment.arguments = bundle
+                    childFragmentManager.beginTransaction()
+                        .replace(R.id.fragment_main,fragment)
+                        .commit()
+
+                    /*
                     val intent = Intent(activity, TaskListActivity::class.java)        //either pass activity or context as first param
                     intent.putExtra(Constants.DOCUMENT_ID, model.documentID)
                     startActivity(intent)
+                    */
+
                 }
             })
 

@@ -7,15 +7,14 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.plenart.organizeme.activities.TaskListActivity
 import com.plenart.organizeme.databinding.ItemCardBinding
-import com.plenart.organizeme.interfaces.BoardItemClickInterface
+import com.plenart.organizeme.fragments.TaskListFragment
 import com.plenart.organizeme.interfaces.CardItemClickInterface
 import com.plenart.organizeme.interfaces.MemberItemClickInterface
 import com.plenart.organizeme.models.Card
 import com.plenart.organizeme.models.SelectedMembers
 
-class CardListItemsAdapter(private val context: Context, private var list: ArrayList<Card>): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class CardListItemsAdapter(private val context: Context, private var list: ArrayList<Card>, private val fragment: TaskListFragment ): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var onClickListener: CardItemClickInterface? = null;
 
@@ -39,6 +38,26 @@ class CardListItemsAdapter(private val context: Context, private var list: Array
             
             holder.binding.tvCardName.text = model.name;
 
+            if(fragment.viewModel.assignedMemberDetailList.value?.size!! > 0){
+                val selectedMembersList: ArrayList<SelectedMembers> = ArrayList();
+
+                for(i in fragment.viewModel.assignedMemberDetailList.value?.indices!!){
+                    for(j in model.assignedTo){
+                        if(fragment.viewModel.assignedMemberDetailList.value!![i].id == j){
+
+                            val selectedMembers = SelectedMembers(
+                                fragment.viewModel.assignedMemberDetailList.value!![i].id,
+                                fragment.viewModel.assignedMemberDetailList.value!![i].image
+                            );
+
+                            selectedMembersList.add(selectedMembers);
+
+                        }
+                    }
+
+                }
+
+            /*                                                                                              JUST A BACKUP
             if((context as TaskListActivity).viewModel.assignedMemberDetailList.value?.size!! > 0){
                 val selectedMembersList: ArrayList<SelectedMembers> = ArrayList();
 
@@ -57,6 +76,9 @@ class CardListItemsAdapter(private val context: Context, private var list: Array
                     }
 
             }
+
+             */
+
 
                 if(selectedMembersList.size > 0){
                     if(selectedMembersList.size == 1 && selectedMembersList[0].id == model.createdBy){

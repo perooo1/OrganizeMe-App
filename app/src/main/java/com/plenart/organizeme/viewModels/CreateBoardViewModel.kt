@@ -113,6 +113,7 @@ class CreateBoardViewModel: ViewModel() {
     }
 
     private fun getCurrentUserID(): String{
+        Log.i("getCurrentUserID","${FirebaseAuth.getInstance().currentUser!!.uid}")
         return FirebaseAuth.getInstance().currentUser!!.uid
     }
 

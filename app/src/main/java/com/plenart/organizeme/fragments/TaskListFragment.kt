@@ -1,33 +1,45 @@
-package com.plenart.organizeme.activities
+package com.plenart.organizeme.fragments
 
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
+import android.view.*
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.plenart.organizeme.R
+import com.plenart.organizeme.activities.CardDetailsActivity
+import com.plenart.organizeme.activities.MembersActivity
 import com.plenart.organizeme.adapters.TaskListItemsAdapter
-import com.plenart.organizeme.databinding.ActivityTaskListBinding
+import com.plenart.organizeme.databinding.FragmentTaskListBinding
 import com.plenart.organizeme.models.Card
 import com.plenart.organizeme.models.Task
 import com.plenart.organizeme.utils.Constants
 import com.plenart.organizeme.viewModels.TaskListViewModel
 
-class TaskListActivity : BaseActivity() {
 
-    private lateinit var activityTaskListBinding: ActivityTaskListBinding
-    lateinit var viewModel: TaskListViewModel
+class TaskListFragment : Fragment() {
+    private lateinit var binding: FragmentTaskListBinding
+    val viewModel: TaskListViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        activityTaskListBinding = ActivityTaskListBinding.inflate(layoutInflater)
-        setContentView(activityTaskListBinding.root)
 
-        viewModel = ViewModelProvider(this).get(TaskListViewModel::class.java)
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        // Inflate the layout for this fragment
+        binding = FragmentTaskListBinding.inflate(inflater,container,false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         initObservers()
         getIntentData()
@@ -35,9 +47,14 @@ class TaskListActivity : BaseActivity() {
     }
 
     private fun getIntentData(){
+        /*
         if(intent.hasExtra(Constants.DOCUMENT_ID)){
             viewModel.getBoardDetails(intent.getStringExtra(Constants.DOCUMENT_ID)!!)
         }
+        */
+        val data = requireArguments()
+        viewModel.getBoardDetails(data.getString(Constants.DOCUMENT_ID).toString())
+
     }
 
     private fun initObservers() {
@@ -47,7 +64,7 @@ class TaskListActivity : BaseActivity() {
     }
 
     private fun initBoardDetails() {
-        viewModel.boardDetails?.observe(this, Observer { newBoard ->
+        viewModel.boardDetails?.observe(viewLifecycleOwner, Observer { newBoard ->
             if(newBoard != null){
                 setUpActionBar()
                 viewModel.getAssignedMembersListDetails()
@@ -59,7 +76,7 @@ class TaskListActivity : BaseActivity() {
     }
 
     private fun initTaskAddedUpdated() {
-        viewModel.taskAddedUpdated.observe(this, Observer {
+        viewModel.taskAddedUpdated.observe(viewLifecycleOwner, Observer {
             if(it){
                 addUpdateTaskListSuccess()
             }
@@ -70,7 +87,7 @@ class TaskListActivity : BaseActivity() {
     }
 
     private fun initAssignedMembers() {
-        viewModel.assignedMemberDetailList.observe(this, Observer { members ->
+        viewModel.assignedMemberDetailList.observe(viewLifecycleOwner, Observer { members ->
             if(members != null && members.isNotEmpty()){
                 boardMembersDetailsList()
             }
@@ -81,9 +98,10 @@ class TaskListActivity : BaseActivity() {
     }
 
     private fun setUpActionBar(){
+        /*
         setSupportActionBar(activityTaskListBinding.toolbarTaskListActivity)
 
-        activityTaskListBinding.toolbarTaskListActivity.setNavigationIcon(R.drawable.ic_action_navigation_menu)
+        binding.toolbarTaskListActivity.setNavigationIcon(R.drawable.ic_action_navigation_menu)
 
         val actionBar = supportActionBar;
         if(actionBar != null){
@@ -94,10 +112,14 @@ class TaskListActivity : BaseActivity() {
         activityTaskListBinding.toolbarTaskListActivity.setNavigationOnClickListener{
             onBackPressed();
         }
+        */
+
     }
 
     private fun addUpdateTaskListSuccess(){
-        viewModel.getBoardDetails(intent.getStringExtra(Constants.DOCUMENT_ID)!!)
+        val data = requireArguments()
+        viewModel.getBoardDetails(data.getString(Constants.DOCUMENT_ID).toString())
+        //viewModel.getBoardDetails(intent.getStringExtra(Constants.DOCUMENT_ID)!!)
 
     }
 
@@ -156,15 +178,17 @@ class TaskListActivity : BaseActivity() {
         viewModel.firestore.addUpdateTaskList(viewModel.boardDetails?.value!!)
     }
 
+    /*
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_members,menu)
         return super.onCreateOptionsMenu(menu)
     }
+    */
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             R.id.action_members ->{
-                val intent = Intent(this, MembersActivity::class.java)
+                val intent = Intent(activity, MembersActivity::class.java)
                 intent.putExtra(Constants.BOARD_DETAIL, viewModel.boardDetails?.value)
                 startActivityForResult(intent, MEMBERS_REQUEST_CODE)
                 return true
@@ -172,7 +196,7 @@ class TaskListActivity : BaseActivity() {
         }
         return super.onOptionsItemSelected(item)
     }
-
+/*      //TODO
     fun cardDetails(taskListPosition: Int, cardPosition: Int){
 
         intent = Intent(this, CardDetailsActivity::class.java)
@@ -183,16 +207,16 @@ class TaskListActivity : BaseActivity() {
 
         startActivityForResult(intent, CARD_DETAILS_REQUEST_CODE)
     }
-
+*/
     private fun boardMembersDetailsList(){
         val addTaskList = Task(resources.getString(R.string.add_list))
         viewModel.boardDetails?.value?.taskList?.add(addTaskList)
 
-        activityTaskListBinding.rvTaskList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        activityTaskListBinding.rvTaskList.setHasFixedSize(true)
+        binding.rvTaskList.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        binding.rvTaskList.setHasFixedSize(true)
 
-        //val adapter = TaskListItemsAdapter(this,viewModel.boardDetails?.value?.taskList!!)
-        //activityTaskListBinding.rvTaskList.adapter = adapter
+        val adapter = TaskListItemsAdapter(requireActivity(),viewModel.boardDetails?.value?.taskList!!,this)
+        binding.rvTaskList.adapter = adapter
     }
 
     fun updateCardsInTaskList(position: Int, cards: ArrayList<Card>){

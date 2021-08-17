@@ -3,13 +3,10 @@ package com.plenart.organizeme.adapters
 import android.app.AlertDialog
 import android.content.Context
 import android.content.res.Resources
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import android.widget.Toast
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -17,13 +14,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.plenart.organizeme.R
 import com.plenart.organizeme.activities.TaskListActivity
 import com.plenart.organizeme.databinding.ItemTaskBinding
+import com.plenart.organizeme.fragments.TaskListFragment
 import com.plenart.organizeme.interfaces.CardItemClickInterface
 import com.plenart.organizeme.models.Task
-import com.plenart.organizeme.viewModels.TaskListViewModel
 import java.util.*
 import kotlin.collections.ArrayList
 
-class TaskListItemsAdapter(private val context: Context, private var list: ArrayList<Task>):RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class TaskListItemsAdapter(private val context: Context, private var list: ArrayList<Task>, private val fragment: TaskListFragment):RecyclerView.Adapter<RecyclerView.ViewHolder>() {
    private var mPositionDraggedFrom = -1;
    private var mPositionDraggedTo = -1;
 
@@ -66,12 +63,15 @@ class TaskListItemsAdapter(private val context: Context, private var list: Array
             holder.binding.ibDoneListName.setOnClickListener {
                 val listName = holder.binding.etTaskListName.text.toString();
                 if(listName.isNotEmpty()){
+                    fragment.createTaskList(listName)
+                    /*
                     if(context is TaskListActivity){
                         context.createTaskList(listName);
                     }
+                    */
                 }
                 else{
-                    Toast.makeText(context, "Please enter list name",Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(this, "Please enter list name",Toast.LENGTH_SHORT).show();
                 }
 
             }
@@ -91,12 +91,15 @@ class TaskListItemsAdapter(private val context: Context, private var list: Array
                 val listName = holder.binding.etEditTaskListName.text.toString();
 
                 if(listName.isNotEmpty()){
+                    fragment.updateTaskList(position,listName, model)
+                    /*
                     if(context is TaskListActivity){
                         context.updateTaskList(position, listName, model);
                     }
+                    */
                 }
                 else{
-                    Toast.makeText(context, "Please enter list name",Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(fragment, "Please enter list name",Toast.LENGTH_SHORT).show();
                 }
 
             }
@@ -119,12 +122,16 @@ class TaskListItemsAdapter(private val context: Context, private var list: Array
                 val cardName = holder.binding.etCardName.text.toString();
 
                 if(cardName.isNotEmpty()){
+                    fragment.addCardToTaskList(position,cardName)
+                    /*
                     if(context is TaskListActivity){
                        context.addCardToTaskList(position, cardName);
                     }
+                    */
+
                 }
                 else{
-                    Toast.makeText(context, "Please enter a card name!",Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(fragment, "Please enter a card name!",Toast.LENGTH_SHORT).show();
                 }
 
             }
@@ -133,7 +140,7 @@ class TaskListItemsAdapter(private val context: Context, private var list: Array
             holder.binding.rvCardList.layoutManager = LinearLayoutManager(context);
             holder.binding.rvCardList.setHasFixedSize(true);
 
-            val adapter = CardListItemsAdapter(context, model.cards);
+            val adapter = CardListItemsAdapter(context, model.cards, fragment);
             holder.binding.rvCardList.adapter = adapter;
 
             adapter.setOnClickListener(object : CardItemClickInterface{
