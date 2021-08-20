@@ -9,13 +9,23 @@
     android:fitsSystemWindows="true"
     tools:openDrawer="start"
     >
-    <include
-        android:id="@+id/appBarMain_included"
-        layout="@layout/app_bar_main"
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar_main_activity2"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:popupTheme="@style/AppTheme.PopupOverlay"
+        >
+    </androidx.appcompat.widget.Toolbar>
+
+    <androidx.fragment.app.FragmentContainerView
+        android:name="androidx.navigation.fragment.NavHostFragment"
+        android:id="@+id/main_content_navigation_component"
+        app:navGraph="@navigation/navigation_graph"
+        app:defaultNavHost="true"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         />
-
 
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/nav_view"

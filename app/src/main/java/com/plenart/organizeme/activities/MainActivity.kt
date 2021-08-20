@@ -3,86 +3,68 @@ package com.plenart.organizeme.activities
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.MenuItem
-import android.view.View
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.view.GravityCompat
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.drawerlayout.widget.DrawerLayout
+import androidx.navigation.NavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupActionBarWithNavController
+import androidx.navigation.ui.setupWithNavController
 import com.bumptech.glide.Glide
 import com.google.android.material.navigation.NavigationView
-import com.google.firebase.auth.FirebaseAuth
 import com.plenart.organizeme.R
-import com.plenart.organizeme.adapters.BoardItemsAdapter
 import com.plenart.organizeme.databinding.ActivityMainBinding
-import com.plenart.organizeme.databinding.AppBarMainBinding
-import com.plenart.organizeme.databinding.MainContentBinding
-import com.plenart.organizeme.interfaces.BoardItemClickInterface
-import com.plenart.organizeme.models.Board
-import com.plenart.organizeme.utils.Constants
+import com.plenart.organizeme.firebase.Firestore
 import com.plenart.organizeme.viewModels.MainActivityViewModel
 import de.hdodenhof.circleimageview.CircleImageView
 
 class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private lateinit var mainActivityBinding: ActivityMainBinding
-    private lateinit var appBarMainBinding: AppBarMainBinding
-    private lateinit var mainContentBinding: MainContentBinding
     private lateinit var viewModel: MainActivityViewModel
+
+    private lateinit var appBarConfiguration: AppBarConfiguration
+    private lateinit var drawerLayout: DrawerLayout
+    private lateinit var toolbar: androidx.appcompat.widget.Toolbar
+    private lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         mainActivityBinding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(mainActivityBinding.root)
+        val view = mainActivityBinding.root
+        setContentView(view)
 
-        setUpActionBar();
+        toolbar = mainActivityBinding.toolbarMainActivity2
+        setSupportActionBar(toolbar)
 
-        Log.i("MainActivity", "Called ViewModelProvider")
-        viewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
+        drawerLayout = mainActivityBinding.drawerLayout
+        val navView: NavigationView = mainActivityBinding.navView
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.main_content_navigation_component) as NavHostFragment
+        navController = navHostFragment.navController
+        appBarConfiguration = AppBarConfiguration(setOf(),drawerLayout)
 
-        initObservers()
-        initListeners()
+        setupActionBarWithNavController(navController,appBarConfiguration)
+        navView.setupWithNavController(navController)
 
-        viewModel.loadUserData()
 
-    }
+        Handler(Looper.getMainLooper()).postDelayed({
+            var currentUserID = Firestore().getCurrentUserID()
 
-    private fun initBoardsList() {
-        viewModel.boardsList.observe(this, Observer { boardsList ->
-            if(boardsList != null && boardsList.isNotEmpty()){
-                displayBoards(boardsList);
+            if(currentUserID.isNotEmpty()){
+                navController.navigate(R.id.action_splashFragment_to_mainFragment)
             }
             else{
-                Log.i("boardsListObserver","boardListObserver: boardsList is empty or null!")
+                navController.navigate(R.id.action_splashFragment_to_introFragment)
             }
 
-        })
-    }
+        },2500)
 
-    private fun initUser() {
-        viewModel.user?.observe(this, Observer { newUser ->
-            if(newUser != null){
-                updateNavigationUserDetails(newUser,true)
-            }
-            else{
-                Log.i("UserObserver","user observer: user is null")
-            }
-
-        } )
-    }
-
-    private fun setUpActionBar(){
-        appBarMainBinding = mainActivityBinding.appBarMainIncluded;
-
-        setSupportActionBar(appBarMainBinding.toolbarMainActivity)
-        appBarMainBinding.toolbarMainActivity.setNavigationIcon(R.drawable.ic_action_navigation_menu)
-
-        appBarMainBinding.toolbarMainActivity.setNavigationOnClickListener {
-            toggleDrawer()
-        }
     }
 
     private fun toggleDrawer(){
@@ -94,22 +76,6 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         }
     }
 
-    private fun initListeners() {
-        mainActivityBinding.navView.setNavigationItemSelectedListener(this)
-
-        appBarMainBinding.fabCreateBoard.setOnClickListener{
-            val intent = Intent(this,CreateBoardActivity::class.java)
-            intent.putExtra(Constants.NAME, viewModel.userName.value)
-
-            startActivityForResult(intent, CREATE_BOARD_REQUEST_CODE)
-        }
-
-    }
-
-    private fun initObservers() {
-        initUser()
-        initBoardsList()
-    }
 
     override fun onBackPressed() {
         if(mainActivityBinding.drawerLayout.isDrawerOpen(GravityCompat.START)){
@@ -121,6 +87,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        /*
         when(item.itemId){
             R.id.nav_home ->{
                 toggleDrawer()
@@ -138,8 +105,9 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             }
         }
             mainActivityBinding.drawerLayout.closeDrawer(GravityCompat.START)
-
+        */
         return true;
+
     }
 
     private fun updateNavigationUserDetails(loggedInUser: com.plenart.organizeme.models.User, readBoardsList: Boolean = false) {
@@ -174,42 +142,6 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         }
         else{
             Log.e("MainOnActivityResultErr", "error")
-        }
-    }
-
-    private fun displayBoards(boardsList: ArrayList<Board>){
-
-        mainContentBinding = appBarMainBinding.mainContentIncluded
-
-        hideProgressDialog()
-
-        if(boardsList.size > 0){
-            mainContentBinding.rvBoards.visibility = View.VISIBLE
-            mainContentBinding.tvNoBoardsAvailable.visibility = View.GONE
-            mainContentBinding.tvTip.visibility = View.GONE
-            mainContentBinding.ivNoBoardsIllustration.visibility = View.GONE
-
-            mainContentBinding.rvBoards.layoutManager = LinearLayoutManager(this@MainActivity)
-            mainContentBinding.rvBoards.setHasFixedSize(true)
-
-            val adapter = BoardItemsAdapter(this@MainActivity, boardsList)
-            mainContentBinding.rvBoards.adapter = adapter
-
-            adapter.setOnClickListener(object: BoardItemClickInterface {
-                override fun onClick(position: Int, model: Board) {
-                    val intent = Intent(this@MainActivity, TaskListActivity::class.java)
-                    intent.putExtra(Constants.DOCUMENT_ID, model.documentID)
-                    startActivity(intent)
-                }
-            })
-
-            adapter.notifyDataSetChanged()
-        }
-        else{
-            mainContentBinding.rvBoards.visibility = View.GONE
-            mainContentBinding.tvNoBoardsAvailable.visibility = View.VISIBLE
-            mainContentBinding.tvTip.visibility = View.VISIBLE
-            mainContentBinding.ivNoBoardsIllustration.visibility = View.VISIBLE
         }
     }
 

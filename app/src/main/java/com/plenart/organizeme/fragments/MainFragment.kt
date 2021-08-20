@@ -1,6 +1,5 @@
 package com.plenart.organizeme.fragments
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -12,9 +11,10 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.plenart.organizeme.R
-import com.plenart.organizeme.activities.*
 import com.plenart.organizeme.adapters.BoardItemsAdapter
-import com.plenart.organizeme.databinding.*
+import com.plenart.organizeme.databinding.ActivityMainBinding
+import com.plenart.organizeme.databinding.FragmentMainBinding
+import com.plenart.organizeme.databinding.MainContentBinding
 import com.plenart.organizeme.interfaces.BoardItemClickInterface
 import com.plenart.organizeme.models.Board
 import com.plenart.organizeme.utils.Constants
@@ -23,7 +23,7 @@ import com.plenart.organizeme.viewModels.MainActivityViewModel
 
 class MainFragment : Fragment() {
     private lateinit var fragmentMainBinding: FragmentMainBinding
-    private lateinit var activitySplashBinding: ActivitySplashBinding
+    private lateinit var activityMainBinding: ActivityMainBinding
     private lateinit var mainContentBinding: MainContentBinding
     private val viewModel: MainActivityViewModel by viewModels()
 
@@ -38,9 +38,9 @@ class MainFragment : Fragment() {
     ): View? {
 
         fragmentMainBinding = FragmentMainBinding.inflate(inflater,container,false)
-        return fragmentMainBinding.root
+        val view = fragmentMainBinding.root
+        return view
 
-        //return super.onCreateView(inflater, container, savedInstanceState)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -54,45 +54,16 @@ class MainFragment : Fragment() {
     }
 
     private fun initListeners() {
-        /*
-        activitySplashBinding = ActivitySplashBinding.inflate(layoutInflater)
-        activitySplashBinding.navView.setNavigationItemSelectedListener(this)
-        TODO check later
-         */
-
-        //fragmentMainBinding.navView.setNavigationItemSelectedListener(this)
 
         fragmentMainBinding.fabCreateBoard.setOnClickListener{
 
-            /*
-            FirebaseAuth.getInstance().signOut()                        //for testing purposes only
-            val fragment = IntroFragment()
-            childFragmentManager.beginTransaction()
-                .replace(R.id.fragment_main, fragment)
-                .commit()
-            */
-
-        /*
-            val intent = Intent(activity, CreateBoardActivity::class.java)
-            intent.putExtra(Constants.NAME, viewModel.userName.value)
-
-            startActivityForResult(intent, MainActivity.CREATE_BOARD_REQUEST_CODE)
-        */
-        /*
             val fragment = CreateBoardFragment()
             val bundle = Bundle()
             bundle.putString(Constants.NAME,viewModel.userName.value)
-            //fragment2.arguments?.putString(Constants.NAME,viewModel.userName.value)
             fragment.arguments = bundle
             childFragmentManager.beginTransaction()
                 .replace(R.id.fragment_main,fragment)
                 .commit()
-        */
-            val fragment = MyProfileFragment()
-            childFragmentManager.beginTransaction()
-                .replace(R.id.fragment_main,fragment)
-                .commit()
-
 
         }
 
@@ -128,11 +99,11 @@ class MainFragment : Fragment() {
     }
 
     private fun toggleDrawer(){
-        if(activitySplashBinding.drawerLayout.isDrawerOpen(GravityCompat.START)){
-            activitySplashBinding.drawerLayout.closeDrawer(GravityCompat.START)
+        if(activityMainBinding.drawerLayout.isDrawerOpen(GravityCompat.START)){
+            activityMainBinding.drawerLayout.closeDrawer(GravityCompat.START)
         }
         else{
-            activitySplashBinding.drawerLayout.openDrawer(GravityCompat.START)
+            activityMainBinding.drawerLayout.openDrawer(GravityCompat.START)
         }
     }
 
@@ -148,8 +119,8 @@ class MainFragment : Fragment() {
     }
 
     fun onBackPressed() {
-        if(activitySplashBinding.drawerLayout.isDrawerOpen(GravityCompat.START)){
-            activitySplashBinding.drawerLayout.closeDrawer(GravityCompat.START)
+        if(activityMainBinding.drawerLayout.isDrawerOpen(GravityCompat.START)){
+            activityMainBinding.drawerLayout.closeDrawer(GravityCompat.START)
         }
         else{
             //doubleBackToExit()
@@ -157,33 +128,13 @@ class MainFragment : Fragment() {
     }
 
     private fun updateNavigationUserDetails(loggedInUser: com.plenart.organizeme.models.User, readBoardsList: Boolean = false) {
+        //actual implementation of this function is currently in MainActivity
         viewModel.getBoardsList()
-    /*      TODO FIX NPE WITH requireView()
-        val nav_user_img: CircleImageView = requireView().findViewById(R.id.nav_user_img)
-        val tv_username: TextView = requireView().findViewById(R.id.tv_username)
-
-        Glide.with(this)
-            .load(loggedInUser.image)
-            .centerCrop()
-            .placeholder(R.drawable.ic_user_place_holder)
-            .into(nav_user_img)
-
-        tv_username.text = loggedInUser.name
-
-        if(readBoardsList){
-            //showProgressDialog(resources.getString(R.string.please_wait))
-
-            viewModel.getBoardsList()
-
-        }
-
- */
     }
 
     private fun displayBoards(boardsList: ArrayList<Board>){
         mainContentBinding = fragmentMainBinding.mainContentIncluded
         Log.i("displayBoards","functin triggered")
-        //hideProgressDialog()
 
         if(boardsList.size > 0){
             Log.i("displayBoards","inside if call ")
@@ -192,11 +143,10 @@ class MainFragment : Fragment() {
             mainContentBinding.tvTip.visibility = View.GONE
             mainContentBinding.ivNoBoardsIllustration.visibility = View.GONE
 
-            mainContentBinding.rvBoards.layoutManager = LinearLayoutManager(context)       //was context
+            mainContentBinding.rvBoards.layoutManager = LinearLayoutManager(context)
             mainContentBinding.rvBoards.setHasFixedSize(true)
 
             val adapter = context?.let { BoardItemsAdapter(it, boardsList) }
-            //val adapter = BoardItemsAdapter(context, boardsList)                  //backup for line above
             Log.i("displayBoards","adapter is ${adapter.toString()}")
             mainContentBinding.rvBoards.adapter = adapter
 
@@ -210,12 +160,6 @@ class MainFragment : Fragment() {
                     childFragmentManager.beginTransaction()
                         .replace(R.id.fragment_main,fragment)
                         .commit()
-
-                    /*
-                    val intent = Intent(activity, TaskListActivity::class.java)        //either pass activity or context as first param
-                    intent.putExtra(Constants.DOCUMENT_ID, model.documentID)
-                    startActivity(intent)
-                    */
 
                 }
             })

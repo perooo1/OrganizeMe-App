@@ -1,14 +1,11 @@
 package com.plenart.organizeme.fragments
 
-import android.content.Intent
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import com.plenart.organizeme.R
-import com.plenart.organizeme.activities.SignInActivity
-import com.plenart.organizeme.activities.SignUpActivity
 import com.plenart.organizeme.databinding.FragmentIntroBinding
 
 class IntroFragment : Fragment() {
@@ -39,7 +36,6 @@ class IntroFragment : Fragment() {
             childFragmentManager.beginTransaction()
                 .replace(R.id.fragment_intro,fragment)
                 .commit()
-            //startActivity(Intent(activity, SignUpActivity::class.java))
         }
 
         binding.btnSignInIntro.setOnClickListener{
@@ -49,7 +45,6 @@ class IntroFragment : Fragment() {
                 .replace(R.id.fragment_intro,fragment)
                 .commit()
 
-            //startActivity(Intent(activity, SignInActivity::class.java))
         }
     }
 

@@ -32,9 +32,9 @@ class SignUpFragment : Fragment() {
 
         initObservers()
         initListeners()
+        getName()
         getEmail()
         getPassword()
-
 
     }
 
@@ -42,7 +42,6 @@ class SignUpFragment : Fragment() {
         binding.btnSignUpSignUpActivity.setOnClickListener{
             viewModel.registerUser()
         }
-
     }
 
     private fun initObservers() {
@@ -131,7 +130,6 @@ class SignUpFragment : Fragment() {
         Toast.makeText(activity, " you have successfully registered the email", Toast.LENGTH_LONG).show()
         //hideProgressDialog()
         FirebaseAuth.getInstance().signOut()
-        //finish()
     }
 
 

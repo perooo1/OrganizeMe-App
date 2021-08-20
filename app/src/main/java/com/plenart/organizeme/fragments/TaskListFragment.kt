@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.clearFragmentResult
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -23,11 +24,6 @@ import com.plenart.organizeme.viewModels.TaskListViewModel
 class TaskListFragment : Fragment() {
     private lateinit var binding: FragmentTaskListBinding
     val viewModel: TaskListViewModel by viewModels()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -47,11 +43,6 @@ class TaskListFragment : Fragment() {
     }
 
     private fun getIntentData(){
-        /*
-        if(intent.hasExtra(Constants.DOCUMENT_ID)){
-            viewModel.getBoardDetails(intent.getStringExtra(Constants.DOCUMENT_ID)!!)
-        }
-        */
         val data = requireArguments()
         viewModel.getBoardDetails(data.getString(Constants.DOCUMENT_ID).toString())
 
@@ -119,7 +110,6 @@ class TaskListFragment : Fragment() {
     private fun addUpdateTaskListSuccess(){
         val data = requireArguments()
         viewModel.getBoardDetails(data.getString(Constants.DOCUMENT_ID).toString())
-        //viewModel.getBoardDetails(intent.getStringExtra(Constants.DOCUMENT_ID)!!)
 
     }
 
@@ -196,18 +186,23 @@ class TaskListFragment : Fragment() {
         }
         return super.onOptionsItemSelected(item)
     }
-/*      //TODO
+
     fun cardDetails(taskListPosition: Int, cardPosition: Int){
+        val bundle = Bundle()
+        bundle.putParcelable(Constants.BOARD_DETAIL,viewModel.boardDetails?.value)
+        bundle.putInt(Constants.TASK_LIST_ITEM_POSITION,taskListPosition)
+        bundle.putInt(Constants.CARD_LIST_ITEM_POSITION,cardPosition)
+        bundle.putParcelableArrayList(Constants.BOARD_MEMBERS_LIST,viewModel.assignedMemberDetailList.value)
 
-        intent = Intent(this, CardDetailsActivity::class.java)
-        intent.putExtra(Constants.BOARD_DETAIL, viewModel.boardDetails?.value)
-        intent.putExtra(Constants.TASK_LIST_ITEM_POSITION,taskListPosition)
-        intent.putExtra(Constants.CARD_LIST_ITEM_POSITION,cardPosition)
-        intent.putExtra(Constants.BOARD_MEMBERS_LIST,viewModel.assignedMemberDetailList.value)
+        val fragment = CardDetailsFragment()
+        fragment.arguments = bundle
 
-        startActivityForResult(intent, CARD_DETAILS_REQUEST_CODE)
+        childFragmentManager.beginTransaction()
+            .replace(R.id.fragment_task_list,fragment)
+            .commit()
+
     }
-*/
+
     private fun boardMembersDetailsList(){
         val addTaskList = Task(resources.getString(R.string.add_list))
         viewModel.boardDetails?.value?.taskList?.add(addTaskList)

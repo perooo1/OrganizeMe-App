@@ -1,6 +1,5 @@
 package com.plenart.organizeme.fragments
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -11,7 +10,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import com.plenart.organizeme.R
-import com.plenart.organizeme.activities.MainActivity
 import com.plenart.organizeme.databinding.FragmentSignInBinding
 import com.plenart.organizeme.viewModels.SignInViewModel
 
@@ -27,14 +25,12 @@ class SignInFragment : Fragment() {
         // Inflate the layout for this fragment
         binding = FragmentSignInBinding.inflate(inflater,container, false)
         return binding.root
-
-        //return inflater.inflate(R.layout.fragment_sign_in, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        //setUpActionBar()
+        setUpActionBar()
         initObservers()
         initListeners()
         getEmail()
@@ -114,8 +110,6 @@ class SignInFragment : Fragment() {
         childFragmentManager.beginTransaction()
             .replace(R.id.fragment_sign_in,fragment)
             .commit()
-        //startActivity(Intent(activity, MainActivity::class.java))
-        //finish()
     }
 
 }

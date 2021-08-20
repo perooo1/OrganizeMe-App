@@ -57,29 +57,6 @@ class CardListItemsAdapter(private val context: Context, private var list: Array
 
                 }
 
-            /*                                                                                              JUST A BACKUP
-            if((context as TaskListActivity).viewModel.assignedMemberDetailList.value?.size!! > 0){
-                val selectedMembersList: ArrayList<SelectedMembers> = ArrayList();
-
-                for(i in context.viewModel.assignedMemberDetailList.value?.indices!!){
-                    for(j in model.assignedTo){
-                        if(context.viewModel.assignedMemberDetailList.value!![i].id == j){
-
-                            val selectedMembers = SelectedMembers(
-                                context.viewModel.assignedMemberDetailList.value!![i].id,
-                                context.viewModel.assignedMemberDetailList.value!![i].image
-                            );
-
-                            selectedMembersList.add(selectedMembers);
-
-                        }
-                    }
-
-            }
-
-             */
-
-
                 if(selectedMembersList.size > 0){
                     if(selectedMembersList.size == 1 && selectedMembersList[0].id == model.createdBy){
                         holder.binding.rvCardSelectedMembersList.visibility = View.GONE;

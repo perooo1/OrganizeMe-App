@@ -16,12 +16,8 @@ class SplashFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-
-        binding = FragmentSplashBinding.inflate(inflater,container,false)
+        binding = FragmentSplashBinding.inflate(inflater, container, false)
         return binding.root
-
-        //return inflater.inflate(R.layout.fragment_splash, container, false)
     }
-
 
 }
