@@ -13,6 +13,7 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.plenart.organizeme.R
 import com.plenart.organizeme.databinding.FragmentCreateBoardBinding
@@ -42,16 +43,15 @@ class CreateBoardFragment : Fragment() {
         initObservers()
         initListeners()
 
-        getIntentData()
+        getArgs()
         getBoardName()
     }
 
 
-    private fun getIntentData() {
-        val arguments = requireArguments()
-        if(arguments.containsKey(Constants.NAME)){
-            viewModel.setUserName(arguments.getString(Constants.NAME).toString())
-        }
+    private fun getArgs() {
+        val args: CreateBoardFragmentArgs by navArgs()
+        viewModel.setUserName(args.userName)
+
     }
 
     private fun initListeners() {

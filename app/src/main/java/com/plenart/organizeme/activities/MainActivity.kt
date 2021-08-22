@@ -12,13 +12,16 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.bumptech.glide.Glide
 import com.google.android.material.navigation.NavigationView
 import com.plenart.organizeme.R
 import com.plenart.organizeme.databinding.ActivityMainBinding
+import com.plenart.organizeme.databinding.FragmentMainBinding
 import com.plenart.organizeme.firebase.Firestore
 import com.plenart.organizeme.viewModels.MainActivityViewModel
 import de.hdodenhof.circleimageview.CircleImageView
@@ -40,18 +43,17 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         val view = mainActivityBinding.root
         setContentView(view)
 
-        toolbar = mainActivityBinding.toolbarMainActivity2
+        toolbar = mainActivityBinding.toolbarMainActivity
         setSupportActionBar(toolbar)
 
-        drawerLayout = mainActivityBinding.drawerLayout
-        val navView: NavigationView = mainActivityBinding.navView
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.main_content_navigation_component) as NavHostFragment
         navController = navHostFragment.navController
-        appBarConfiguration = AppBarConfiguration(setOf(),drawerLayout)
+
+        drawerLayout = mainActivityBinding.drawerLayout
+        appBarConfiguration = AppBarConfiguration(setOf(R.id.fragment_main, R.id.myProfileFragment),drawerLayout)
 
         setupActionBarWithNavController(navController,appBarConfiguration)
-        navView.setupWithNavController(navController)
-
+        mainActivityBinding.navView.setupWithNavController(navController)
 
         Handler(Looper.getMainLooper()).postDelayed({
             var currentUserID = Firestore().getCurrentUserID()
@@ -65,6 +67,10 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
         },2500)
 
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 
     private fun toggleDrawer(){

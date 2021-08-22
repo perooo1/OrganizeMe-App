@@ -5,14 +5,12 @@ import android.app.DatePickerDialog
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Toast
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.GridLayoutManager
 import com.plenart.organizeme.R
 import com.plenart.organizeme.adapters.CardMembersListItemAdapter
@@ -46,7 +44,7 @@ class CardDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        getIntentData()
+        getArgs()
         setUpActionBar()
 
         initObservers()
@@ -194,23 +192,13 @@ class CardDetailsFragment : Fragment() {
         */
     }
 
-    private fun getIntentData(){
-        val data = requireArguments()
-
-        if(data.containsKey(Constants.BOARD_DETAIL)){
-            viewModel.setBoardDetails(data.getParcelable(Constants.BOARD_DETAIL)!!)
-        }
-        if (data.containsKey(Constants.BOARD_MEMBERS_LIST)){
-            viewModel.setAssignedMembers(data.getParcelableArrayList(Constants.BOARD_MEMBERS_LIST)!!)
-        }
-        if(data.containsKey(Constants.TASK_LIST_ITEM_POSITION)){
-            viewModel.setTaskListPosition(data.getInt(Constants.TASK_LIST_ITEM_POSITION, -1))
-        }
-        if(data.containsKey(Constants.CARD_LIST_ITEM_POSITION)){
-            viewModel.setCardPosition(data.getInt(Constants.CARD_LIST_ITEM_POSITION, -1))
-        }
-
-
+    private fun getArgs(){
+        val args: CardDetailsFragmentArgs by navArgs()
+        val assignedMembers = (args.assignedUsers).toList()
+        viewModel.setBoardDetails(args.boardDetails)
+        viewModel.setAssignedMembers(assignedMembers as ArrayList<User>)
+        viewModel.setTaskListPosition(args.taskListItemPosition)
+        viewModel.setCardPosition(args.cardListItemPositoni)
     }
 
     private fun addUpdateTaskListSuccess(){

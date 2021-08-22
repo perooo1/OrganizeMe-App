@@ -9,15 +9,14 @@ import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.plenart.organizeme.R
 import com.plenart.organizeme.adapters.BoardItemsAdapter
 import com.plenart.organizeme.databinding.ActivityMainBinding
 import com.plenart.organizeme.databinding.FragmentMainBinding
 import com.plenart.organizeme.databinding.MainContentBinding
 import com.plenart.organizeme.interfaces.BoardItemClickInterface
 import com.plenart.organizeme.models.Board
-import com.plenart.organizeme.utils.Constants
 import com.plenart.organizeme.viewModels.MainActivityViewModel
 
 
@@ -27,25 +26,19 @@ class MainFragment : Fragment() {
     private lateinit var mainContentBinding: MainContentBinding
     private val viewModel: MainActivityViewModel by viewModels()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
 
-        fragmentMainBinding = FragmentMainBinding.inflate(inflater,container,false)
-        val view = fragmentMainBinding.root
-        return view
+        fragmentMainBinding = FragmentMainBinding.inflate(inflater, container, false)
+        return fragmentMainBinding.root
 
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
 
         initObservers()
         initListeners()
@@ -56,15 +49,10 @@ class MainFragment : Fragment() {
     private fun initListeners() {
 
         fragmentMainBinding.fabCreateBoard.setOnClickListener{
-
-            val fragment = CreateBoardFragment()
-            val bundle = Bundle()
-            bundle.putString(Constants.NAME,viewModel.userName.value)
-            fragment.arguments = bundle
-            childFragmentManager.beginTransaction()
-                .replace(R.id.fragment_main,fragment)
-                .commit()
-
+            val directions = MainFragmentDirections.actionMainFragmentToCreateBoardFragment(
+                viewModel.userName.value.toString()
+            )
+            findNavController().navigate(directions)
         }
 
     }
@@ -153,13 +141,11 @@ class MainFragment : Fragment() {
             adapter?.setOnClickListener(object: BoardItemClickInterface {
                 override fun onClick(position: Int, model: Board) {
 
-                    val bundle = Bundle()
-                    bundle.putString(Constants.DOCUMENT_ID,model.documentID)
-                    val fragment = TaskListFragment()
-                    fragment.arguments = bundle
-                    childFragmentManager.beginTransaction()
-                        .replace(R.id.fragment_main,fragment)
-                        .commit()
+                    val directions = MainFragmentDirections.actionMainFragmentToTaskListFragment(
+                        model.documentID
+                    )
+
+                    findNavController().navigate(directions)
 
                 }
             })

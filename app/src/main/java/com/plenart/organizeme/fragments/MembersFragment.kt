@@ -10,11 +10,11 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.plenart.organizeme.adapters.MemberListItemAdapter
 import com.plenart.organizeme.databinding.DialogAddSearchMemberBinding
 import com.plenart.organizeme.databinding.FragmentMembersBinding
-import com.plenart.organizeme.utils.Constants
 import com.plenart.organizeme.viewModels.MembersViewModel
 
 
@@ -37,17 +37,15 @@ class MembersFragment : Fragment() {
         setUpActionBar()
         initObservers()
         initListeners()
-        getIntentData()
+        getArgs()
 
         viewModel.getAssignedMembersListDetails()
 
     }
 
-    private fun getIntentData() {
-        val data = requireArguments()
-        if(data.containsKey(Constants.BOARD_DETAIL)){
-            viewModel.setBoardDetails(data.getParcelable(Constants.BOARD_DETAIL)!!)
-        }
+    private fun getArgs() {
+        val args: MembersFragmentArgs by navArgs()
+        viewModel.setBoardDetails(args.boardDetails)
 
     }
 
@@ -111,15 +109,6 @@ class MembersFragment : Fragment() {
         }
         */
     }
-
-    /*
-    override fun onBackPressed() {
-        if(viewModel.anyChangesMade.value == true){
-            setResult(Activity.RESULT_OK);
-        }
-        super.onBackPressed()
-    }
-    */
 
     private fun setUpMembersList(){
         binding.rvMembers.layoutManager = LinearLayoutManager(requireContext())

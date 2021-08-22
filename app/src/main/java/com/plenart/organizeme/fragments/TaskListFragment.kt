@@ -6,12 +6,12 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.clearFragmentResult
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.plenart.organizeme.R
-import com.plenart.organizeme.activities.CardDetailsActivity
 import com.plenart.organizeme.activities.MembersActivity
 import com.plenart.organizeme.adapters.TaskListItemsAdapter
 import com.plenart.organizeme.databinding.FragmentTaskListBinding
@@ -38,14 +38,13 @@ class TaskListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         initObservers()
-        getIntentData()
+        getArgs()
 
     }
 
-    private fun getIntentData(){
-        val data = requireArguments()
-        viewModel.getBoardDetails(data.getString(Constants.DOCUMENT_ID).toString())
-
+    private fun getArgs(){
+        val args: TaskListFragmentArgs by navArgs()
+        viewModel.getBoardDetails(args.documentId)
     }
 
     private fun initObservers() {
@@ -188,18 +187,23 @@ class TaskListFragment : Fragment() {
     }
 
     fun cardDetails(taskListPosition: Int, cardPosition: Int){
-        val bundle = Bundle()
-        bundle.putParcelable(Constants.BOARD_DETAIL,viewModel.boardDetails?.value)
-        bundle.putInt(Constants.TASK_LIST_ITEM_POSITION,taskListPosition)
-        bundle.putInt(Constants.CARD_LIST_ITEM_POSITION,cardPosition)
-        bundle.putParcelableArrayList(Constants.BOARD_MEMBERS_LIST,viewModel.assignedMemberDetailList.value)
 
-        val fragment = CardDetailsFragment()
-        fragment.arguments = bundle
+        /*                                                          for testing purposes only!
+        val directions = TaskListFragmentDirections.actionTaskListFragmentToMembersFragment(
+            viewModel.boardDetails?.value!!
+        )
+        findNavController().navigate(directions)
+        */
 
-        childFragmentManager.beginTransaction()
-            .replace(R.id.fragment_task_list,fragment)
-            .commit()
+        val directions = TaskListFragmentDirections.actionTaskListFragmentToCardDetailsFragment(
+            taskListPosition,
+            cardPosition,
+            viewModel.boardDetails?.value!!,
+            (viewModel.assignedMemberDetailList.value)?.toTypedArray()!!
+        )
+        findNavController().navigate(directions)
+
+
 
     }
 

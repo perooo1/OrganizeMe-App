@@ -33,12 +33,32 @@
         android:id="@+id/cardDetailsFragment"
         android:name="com.plenart.organizeme.fragments.CardDetailsFragment"
         android:label="fragment_card_details"
-        tools:layout="@layout/fragment_card_details" />
+        tools:layout="@layout/fragment_card_details" >
+        <argument
+            android:name="task_list_item_position"
+            app:argType="integer" />
+        <argument
+            android:name="card_list_item_positoni"
+            app:argType="integer" />
+        <argument
+            android:name="board_details"
+            app:argType="com.plenart.organizeme.models.Board" />
+        <argument
+            android:name="assigned_users"
+            app:argType="com.plenart.organizeme.models.User[]" />
+    </fragment>
     <fragment
         android:id="@+id/createBoardFragment"
         android:name="com.plenart.organizeme.fragments.CreateBoardFragment"
         android:label="fragment_create_board"
-        tools:layout="@layout/fragment_create_board" />
+        tools:layout="@layout/fragment_create_board"
+        >
+
+        <argument
+            android:name="user_name"
+            app:argType="string"/>
+
+    </fragment>
     <fragment
         android:id="@+id/mainFragment"
         android:name="com.plenart.organizeme.fragments.MainFragment"
@@ -58,7 +78,11 @@
         android:id="@+id/membersFragment"
         android:name="com.plenart.organizeme.fragments.MembersFragment"
         android:label="fragment_members"
-        tools:layout="@layout/fragment_members" />
+        tools:layout="@layout/fragment_members" >
+        <argument
+            android:name="board_details"
+            app:argType="com.plenart.organizeme.models.Board" />
+    </fragment>
     <fragment
         android:id="@+id/myProfileFragment"
         android:name="com.plenart.organizeme.fragments.MyProfileFragment"
@@ -85,5 +109,8 @@
         <action
             android:id="@+id/action_taskListFragment_to_cardDetailsFragment"
             app:destination="@id/cardDetailsFragment" />
+        <argument
+            android:name="document_id"
+            app:argType="string" />
     </fragment>
 </navigation>
