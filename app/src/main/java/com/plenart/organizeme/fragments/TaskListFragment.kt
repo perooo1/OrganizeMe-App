@@ -12,7 +12,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.plenart.organizeme.R
-import com.plenart.organizeme.activities.MembersActivity
 import com.plenart.organizeme.adapters.TaskListItemsAdapter
 import com.plenart.organizeme.databinding.FragmentTaskListBinding
 import com.plenart.organizeme.models.Card
@@ -36,10 +35,16 @@ class TaskListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setHasOptionsMenu(true)
 
         initObservers()
         getArgs()
 
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_members,menu)
+        //super.onCreateOptionsMenu(menu, inflater)
     }
 
     private fun getArgs(){
@@ -167,23 +172,12 @@ class TaskListFragment : Fragment() {
         viewModel.firestore.addUpdateTaskList(viewModel.boardDetails?.value!!)
     }
 
-    /*
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_members,menu)
-        return super.onCreateOptionsMenu(menu)
-    }
-    */
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId){
-            R.id.action_members ->{
-                val intent = Intent(activity, MembersActivity::class.java)
-                intent.putExtra(Constants.BOARD_DETAIL, viewModel.boardDetails?.value)
-                startActivityForResult(intent, MEMBERS_REQUEST_CODE)
-                return true
-            }
-        }
-        return super.onOptionsItemSelected(item)
+        val directions = TaskListFragmentDirections.actionTaskListFragmentToMembersFragment(
+            viewModel.boardDetails?.value!!
+        )
+        findNavController().navigate(directions)
+        return true
     }
 
     fun cardDetails(taskListPosition: Int, cardPosition: Int){

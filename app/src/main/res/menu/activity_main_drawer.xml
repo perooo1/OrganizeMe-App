@@ -9,11 +9,13 @@
         <item
             android:id="@+id/myProfileFragment"
             android:icon="@drawable/ic_nav_user"
+            android:menuCategory="secondary"
             android:title="@string/nav_my_profile"
             />
         <item
-            android:id="@+id/introFragment"
+            android:id="@+id/nav_sign_out"
             android:icon="@drawable/ic_nav_sign_out"
+            android:menuCategory="secondary"
             android:title="@string/nav_sign_out"
             />
     </group>

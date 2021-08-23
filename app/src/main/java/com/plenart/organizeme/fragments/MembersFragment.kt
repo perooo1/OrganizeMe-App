@@ -16,6 +16,8 @@ import com.plenart.organizeme.adapters.MemberListItemAdapter
 import com.plenart.organizeme.databinding.DialogAddSearchMemberBinding
 import com.plenart.organizeme.databinding.FragmentMembersBinding
 import com.plenart.organizeme.viewModels.MembersViewModel
+import java.lang.Exception
+import java.lang.reflect.InvocationTargetException
 
 
 class MembersFragment : Fragment() {
@@ -37,7 +39,12 @@ class MembersFragment : Fragment() {
         setUpActionBar()
         initObservers()
         initListeners()
-        getArgs()
+        try{
+            getArgs()
+        }
+        catch (e: InvocationTargetException) {
+            Log.e("memfr", e.cause.toString())
+        }
 
         viewModel.getAssignedMembersListDetails()
 

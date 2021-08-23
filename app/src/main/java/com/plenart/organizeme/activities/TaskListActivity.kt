@@ -162,6 +162,7 @@ class TaskListActivity : BaseActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        /*
         when(item.itemId){
             R.id.action_members ->{
                 val intent = Intent(this, MembersActivity::class.java)
@@ -170,7 +171,10 @@ class TaskListActivity : BaseActivity() {
                 return true
             }
         }
+
+         */
         return super.onOptionsItemSelected(item)
+
     }
 
     fun cardDetails(taskListPosition: Int, cardPosition: Int){

@@ -53,6 +53,7 @@ class CardDetailsFragment : Fragment() {
         setUpCardNameEt()
         setUpSelectedColor()
         setUpDueDate()
+        setHasOptionsMenu(true)
 
         getCardName()
 
@@ -206,6 +207,11 @@ class CardDetailsFragment : Fragment() {
         setResult(Activity.RESULT_OK);
         finish();
         */
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_delete_card,menu);
+        return super.onCreateOptionsMenu(menu,inflater)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
