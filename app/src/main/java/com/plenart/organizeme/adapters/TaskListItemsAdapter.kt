@@ -23,12 +23,12 @@ class TaskListItemsAdapter(private val context: Context, private var list: Array
    private var mPositionDraggedTo = -1;
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_task, parent, false)                            //CONTEXT
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_task, parent, false)
         val layoutParams = LinearLayout.LayoutParams((parent.width * 0.7).toInt(), LinearLayout.LayoutParams.WRAP_CONTENT)
 
         layoutParams.setMargins((15.toDp().toPx()),0,(40.toDp().toPx()),0);
         view.layoutParams = layoutParams;
-        val binding = ItemTaskBinding.bind(view);                                           //CAREFUL, POTENTIAL PROBLEM!!
+        val binding = ItemTaskBinding.bind(view);
         return ListItemViewHolder(binding);
     }
 
@@ -143,7 +143,7 @@ class TaskListItemsAdapter(private val context: Context, private var list: Array
                     viewHolder: RecyclerView.ViewHolder,
                     target: RecyclerView.ViewHolder
                 ): Boolean {
-                    val draggedPosition = viewHolder.absoluteAdapterPosition;               //careful!
+                    val draggedPosition = viewHolder.absoluteAdapterPosition;
                     val targetPosition = target.absoluteAdapterPosition;
 
                     if(mPositionDraggedFrom == -1){

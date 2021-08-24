@@ -11,6 +11,11 @@ class SplashFragment : Fragment() {
 
     private lateinit var binding: FragmentSplashBinding
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        activity?.actionBar?.hide()
+        super.onCreate(savedInstanceState)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?

@@ -9,6 +9,7 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import com.plenart.organizeme.R
 import com.plenart.organizeme.databinding.FragmentSignInBinding
 import com.plenart.organizeme.viewModels.SignInViewModel
@@ -30,7 +31,6 @@ class SignInFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setUpActionBar()
         initObservers()
         initListeners()
         getEmail()
@@ -63,19 +63,6 @@ class SignInFragment : Fragment() {
         initUser()
     }
 
-    private fun setUpActionBar(){
-        /*
-        setSupportActionBar(binding.toolbarSignInActivity)
-        val actionBar = supportActionBar
-        if(actionBar != null){
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_black_color_back_24dp)
-        }
-
-        binding.toolbarSignInActivity.setNavigationOnClickListener{onBackPressed()}
-        */
-    }
-
     private fun initEmail(){
         viewModel.email?.observe(viewLifecycleOwner, Observer { newEmail ->
             if(newEmail == null || !newEmail.contains('@')){
@@ -106,10 +93,8 @@ class SignInFragment : Fragment() {
 
     private fun signInSuccess() {
         //hideProgressDialog()
-        val fragment = MainFragment()
-        childFragmentManager.beginTransaction()
-            .replace(R.id.fragment_sign_in,fragment)
-            .commit()
+        findNavController().navigate(R.id.action_signInFragment_to_mainFragment)
+
     }
 
 }

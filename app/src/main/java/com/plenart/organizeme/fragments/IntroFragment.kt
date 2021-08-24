@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.plenart.organizeme.R
 import com.plenart.organizeme.databinding.FragmentIntroBinding
 
@@ -31,22 +32,13 @@ class IntroFragment : Fragment() {
 
     private fun initListeners() {
         binding.btnSignUpIntro.setOnClickListener{
-
-            val fragment = SignUpFragment()
-            childFragmentManager.beginTransaction()
-                .replace(R.id.fragment_intro,fragment)
-                .commit()
+            findNavController().navigate(R.id.action_introFragment_to_signUpFragment)
         }
 
         binding.btnSignInIntro.setOnClickListener{
-
-            val fragment = SignInFragment()
-            childFragmentManager.beginTransaction()
-                .replace(R.id.fragment_intro,fragment)
-                .commit()
+            findNavController().navigate(R.id.action_introFragment_to_signInFragment)
 
         }
     }
-
 
 }

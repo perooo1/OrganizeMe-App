@@ -14,25 +14,6 @@
         android:background="@drawable/ic_background"
         >
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar_sign_up_activity"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            >
-
-            <TextView
-                android:id="@+id/tv_title_sign_up"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical"
-                android:text="@string/sign_up"
-                android:textColor="@color/primary_text_color"
-                android:textSize="@dimen/toolbar_title_text_size"
-                android:textStyle="bold"
-                />
-
-        </androidx.appcompat.widget.Toolbar>
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"

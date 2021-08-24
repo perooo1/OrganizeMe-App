@@ -61,7 +61,6 @@ class TaskListFragment : Fragment() {
     private fun initBoardDetails() {
         viewModel.boardDetails?.observe(viewLifecycleOwner, Observer { newBoard ->
             if(newBoard != null){
-                setUpActionBar()
                 viewModel.getAssignedMembersListDetails()
             }
             else{
@@ -90,25 +89,6 @@ class TaskListFragment : Fragment() {
                 Log.i("assignedMembersObserver","assignedMembers is empty or null! ${viewModel.assignedMemberDetailList.value.toString()}")
             }
         })
-    }
-
-    private fun setUpActionBar(){
-        /*
-        setSupportActionBar(activityTaskListBinding.toolbarTaskListActivity)
-
-        binding.toolbarTaskListActivity.setNavigationIcon(R.drawable.ic_action_navigation_menu)
-
-        val actionBar = supportActionBar;
-        if(actionBar != null){
-            actionBar.setDisplayHomeAsUpEnabled(true)
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_white_color_back_24dp)
-            actionBar.title = viewModel.boardDetails?.value?.name
-        }
-        activityTaskListBinding.toolbarTaskListActivity.setNavigationOnClickListener{
-            onBackPressed();
-        }
-        */
-
     }
 
     private fun addUpdateTaskListSuccess(){
@@ -181,14 +161,6 @@ class TaskListFragment : Fragment() {
     }
 
     fun cardDetails(taskListPosition: Int, cardPosition: Int){
-
-        /*                                                          for testing purposes only!
-        val directions = TaskListFragmentDirections.actionTaskListFragmentToMembersFragment(
-            viewModel.boardDetails?.value!!
-        )
-        findNavController().navigate(directions)
-        */
-
         val directions = TaskListFragmentDirections.actionTaskListFragmentToCardDetailsFragment(
             taskListPosition,
             cardPosition,
@@ -196,8 +168,6 @@ class TaskListFragment : Fragment() {
             (viewModel.assignedMemberDetailList.value)?.toTypedArray()!!
         )
         findNavController().navigate(directions)
-
-
 
     }
 

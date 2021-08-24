@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.plenart.organizeme.databinding.ItemLabelColorBinding
-import com.plenart.organizeme.interfaces.CardItemClickInterface
 import com.plenart.organizeme.interfaces.LabelColorClickedInterface
 
 class LabelColorListAdapter(private val context: Context,private val list: ArrayList<String>, private val mSelectedColor: String)

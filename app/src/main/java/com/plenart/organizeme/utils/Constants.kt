@@ -1,7 +1,6 @@
 package com.plenart.organizeme.utils
 
 import android.app.Activity
-import android.app.Dialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -10,9 +9,6 @@ import android.webkit.MimeTypeMap
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.plenart.organizeme.activities.MyProfileActivity
-import com.plenart.organizeme.databinding.ActivityBaseBinding
-import com.plenart.organizeme.databinding.DialogProgressBinding
 
 object Constants {
     const val USERS: String = "Users"

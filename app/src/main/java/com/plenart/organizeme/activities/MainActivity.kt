@@ -6,25 +6,26 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import android.view.MenuItem
-import android.widget.TextView
-import androidx.core.view.GravityCompat
+import android.view.View
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.*
-import com.bumptech.glide.Glide
-import com.google.android.material.navigation.NavigationView
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.navigateUp
+import androidx.navigation.ui.setupActionBarWithNavController
+import androidx.navigation.ui.setupWithNavController
+import com.google.firebase.auth.FirebaseAuth
 import com.plenart.organizeme.R
 import com.plenart.organizeme.databinding.ActivityMainBinding
 import com.plenart.organizeme.firebase.Firestore
 import com.plenart.organizeme.viewModels.MainActivityViewModel
-import de.hdodenhof.circleimageview.CircleImageView
 
-class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
+class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private lateinit var viewModel: MainActivityViewModel
+    private val viewModel: MainActivityViewModel by viewModels()
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var drawerLayout: DrawerLayout
@@ -32,96 +33,63 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     private lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
-        val view = binding.root
-        setContentView(view)
+        setContentView(binding.root)
 
         toolbar = binding.toolbarMainActivity
         setSupportActionBar(toolbar)
 
-        val navHostFragment = supportFragmentManager.findFragmentById(R.id.main_content_navigation_component) as NavHostFragment
-        navController = navHostFragment.navController
-
-        drawerLayout = binding.drawerLayout
-        appBarConfiguration = AppBarConfiguration(setOf(R.id.fragment_main),drawerLayout)
+        setupNavController()
+        setupNavigationDrawer()
 
         setupActionBarWithNavController(navController,appBarConfiguration)
         binding.navView.setupWithNavController(navController)
 
         Handler(Looper.getMainLooper()).postDelayed({
             var currentUserID = Firestore().getCurrentUserID()
-
             if(currentUserID.isNotEmpty()){
                 navController.navigate(R.id.action_splashFragment_to_mainFragment)
             }
             else{
                 navController.navigate(R.id.action_splashFragment_to_introFragment)
             }
-
         },2500)
 
     }
 
+    private fun setupNavigationDrawer() {
+        drawerLayout = binding.drawerLayout
+        appBarConfiguration = AppBarConfiguration(setOf(R.id.mainFragment,R.id.myProfileFragment),drawerLayout)
+    }
+
+    private fun setupNavController() {
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.main_content_navigation_component) as NavHostFragment
+        navController = navHostFragment.navController
+
+        setupNavControllerListeners()
+
+    }
+
+    private fun setupNavControllerListeners() {
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            if(destination.id == R.id.splashFragment || destination.id == R.id.introFragment){
+                toolbar.visibility = View.GONE
+            }
+            else{
+                toolbar.visibility = View.VISIBLE
+            }
+            if(destination.id == R.id.introFragment){
+                FirebaseAuth.getInstance().signOut()
+            }
+        }
+    }
 
 
     override fun onSupportNavigateUp(): Boolean {
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
-    }
-
-    override fun onBackPressed() {
-        if(binding.drawerLayout.isDrawerOpen(GravityCompat.START)){
-            binding.drawerLayout.closeDrawer(GravityCompat.START)
-        }
-        else{
-           doubleBackToExit()
-        }
-    }
-
-    override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        /*
-        when(item.itemId){
-            R.id.nav_home ->{
-                toggleDrawer()
-            }
-            R.id.nav_my_profile -> {
-                startActivityForResult(Intent(this, MyProfileActivity::class.java),
-                    MY_PROFILE_REQUEST_CODE)
-            }
-            R.id.nav_sign_out ->{
-                FirebaseAuth.getInstance().signOut()
-                val intent = Intent(this, IntroActivity::class.java)
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-                startActivity(intent)
-                finish()
-            }
-        }
-            mainActivityBinding.drawerLayout.closeDrawer(GravityCompat.START)
-        */
-        return true;
-
-    }
-
-    private fun updateNavigationUserDetails(loggedInUser: com.plenart.organizeme.models.User, readBoardsList: Boolean = false) {
-
-        val nav_user_img: CircleImageView = findViewById(R.id.nav_user_img)
-        val tv_username: TextView = findViewById(R.id.tv_username)
-
-        Glide.with(this)
-            .load(loggedInUser.image)
-            .centerCrop()
-            .placeholder(R.drawable.ic_user_place_holder)
-            .into(nav_user_img)
-
-        tv_username.text = loggedInUser.name
-
-        if(readBoardsList){
-            showProgressDialog(resources.getString(R.string.please_wait))
-
-            viewModel.getBoardsList()
-
-        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -142,5 +110,6 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         const val MY_PROFILE_REQUEST_CODE: Int = 11
         const val CREATE_BOARD_REQUEST_CODE: Int = 12
     }
+
 
 }

@@ -16,7 +16,6 @@ import com.plenart.organizeme.adapters.MemberListItemAdapter
 import com.plenart.organizeme.databinding.DialogAddSearchMemberBinding
 import com.plenart.organizeme.databinding.FragmentMembersBinding
 import com.plenart.organizeme.viewModels.MembersViewModel
-import java.lang.Exception
 import java.lang.reflect.InvocationTargetException
 
 
@@ -36,7 +35,6 @@ class MembersFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setUpActionBar()
         initObservers()
         initListeners()
         try{
@@ -96,25 +94,6 @@ class MembersFragment : Fragment() {
             }
 
         })
-    }
-
-    private fun setUpActionBar(){
-        /*
-        setSupportActionBar(activityMembersBinding.toolbarMembersActivity)
-
-        activityMembersBinding.toolbarMembersActivity.setNavigationIcon(R.drawable.ic_action_navigation_menu)
-
-        val actionBar = supportActionBar;
-        if(actionBar != null){
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_white_color_back_24dp);
-            actionBar.title = resources.getString(R.string.members);
-        }
-
-        activityMembersBinding.toolbarMembersActivity.setNavigationOnClickListener{
-            onBackPressed();
-        }
-        */
     }
 
     private fun setUpMembersList(){

@@ -38,8 +38,6 @@ class CreateBoardFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setUpActionBar()
-
         initObservers()
         initListeners()
 
@@ -110,24 +108,6 @@ class CreateBoardFragment : Fragment() {
         //finish()
     }
 
-    private fun setUpActionBar(){
-        /*
-        setSupportActionBar(createBoardBinding.toolbarCreateBoardActivity)
-
-        createBoardBinding.toolbarCreateBoardActivity.setNavigationIcon(R.drawable.ic_action_navigation_menu)
-
-        val actionBar = supportActionBar
-        if(actionBar != null){
-            actionBar.setDisplayHomeAsUpEnabled(true)
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_white_color_back_24dp)
-            actionBar.title = resources.getString(R.string.create_board_title)
-        }
-        createBoardBinding.toolbarCreateBoardActivity.setNavigationOnClickListener{
-            onBackPressed()
-        }
-        */
-    }
-
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -163,7 +143,6 @@ class CreateBoardFragment : Fragment() {
                 e.printStackTrace()
             }
         }
-
 
     }
 }

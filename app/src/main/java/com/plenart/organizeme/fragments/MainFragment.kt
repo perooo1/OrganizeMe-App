@@ -5,19 +5,26 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
+import com.google.android.material.navigation.NavigationView
+import com.plenart.organizeme.R
 import com.plenart.organizeme.adapters.BoardItemsAdapter
 import com.plenart.organizeme.databinding.ActivityMainBinding
 import com.plenart.organizeme.databinding.FragmentMainBinding
 import com.plenart.organizeme.databinding.MainContentBinding
+import com.plenart.organizeme.firebase.Firestore
 import com.plenart.organizeme.interfaces.BoardItemClickInterface
 import com.plenart.organizeme.models.Board
 import com.plenart.organizeme.viewModels.MainActivityViewModel
+import de.hdodenhof.circleimageview.CircleImageView
 
 
 class MainFragment : Fragment() {
@@ -86,38 +93,25 @@ class MainFragment : Fragment() {
         } )
     }
 
-    private fun toggleDrawer(){
-        if(activityMainBinding.drawerLayout.isDrawerOpen(GravityCompat.START)){
-            activityMainBinding.drawerLayout.closeDrawer(GravityCompat.START)
-        }
-        else{
-            activityMainBinding.drawerLayout.openDrawer(GravityCompat.START)
-        }
-    }
-
-    private fun setUpActionBar(){
-        /*
-        //setSupportActionBar(appBarMainBinding.toolbarMainActivity)
-        fragmentMainBinding.toolbarMainActivity.setNavigationIcon(R.drawable.ic_action_navigation_menu)
-
-        fragmentMainBinding.toolbarMainActivity.setNavigationOnClickListener {
-            toggleDrawer()
-        }
-        */
-    }
-
-    fun onBackPressed() {
-        if(activityMainBinding.drawerLayout.isDrawerOpen(GravityCompat.START)){
-            activityMainBinding.drawerLayout.closeDrawer(GravityCompat.START)
-        }
-        else{
-            //doubleBackToExit()
-        }
-    }
-
     private fun updateNavigationUserDetails(loggedInUser: com.plenart.organizeme.models.User, readBoardsList: Boolean = false) {
-        //actual implementation of this function is currently in MainActivity
-        viewModel.getBoardsList()
+
+        val navView = requireActivity().findViewById<NavigationView>(R.id.nav_view)
+        val header = navView.getHeaderView(0)
+        val userImage = header.findViewById<CircleImageView>(R.id.nav_user_img)
+        val userName = header.findViewById<TextView>(R.id.tv_username)
+
+        Glide.with(this)
+            .load(loggedInUser.image)
+            .centerCrop()
+            .placeholder(R.drawable.ic_user_place_holder)
+            .into(userImage)
+
+        userName.text = loggedInUser.name
+
+        if(readBoardsList){
+            viewModel.getBoardsList()
+        }
+
     }
 
     private fun displayBoards(boardsList: ArrayList<Board>){

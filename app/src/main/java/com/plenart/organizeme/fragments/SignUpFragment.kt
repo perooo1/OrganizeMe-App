@@ -113,19 +113,6 @@ class SignUpFragment : Fragment() {
         })
     }
 
-    private fun setUpActionBar(){
-        /*
-        setSupportActionBar(binding.toolbarSignUpActivity)
-        val actionBar = supportActionBar
-        if(actionBar != null){
-            actionBar.setDisplayHomeAsUpEnabled(true)
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_black_color_back_24dp)
-        }
-
-        binding.toolbarSignUpActivity.setNavigationOnClickListener{onBackPressed()}
-        */
-    }
-
     private fun userRegisteredSuccess(){
         Toast.makeText(activity, " you have successfully registered the email", Toast.LENGTH_LONG).show()
         //hideProgressDialog()

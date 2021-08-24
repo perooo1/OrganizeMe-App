@@ -8,9 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.plenart.organizeme.R
 import com.plenart.organizeme.databinding.ItemCardSelectedMemberBinding
-import com.plenart.organizeme.interfaces.CardItemClickInterface
 import com.plenart.organizeme.interfaces.MemberItemClickInterface
-import com.plenart.organizeme.interfaces.SelectedMembersClickInterface
 import com.plenart.organizeme.models.SelectedMembers
 
 class CardMembersListItemAdapter(

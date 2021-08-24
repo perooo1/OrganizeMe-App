@@ -39,8 +39,6 @@ class MyProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setUpActionBar()
-
         initObservers()
         initListeners()
         getValues()
@@ -157,24 +155,6 @@ class MyProfileFragment : Fragment() {
                 e.printStackTrace()
             }
         }
-    }
-
-    private fun setUpActionBar(){
-        /*
-        setSupportActionBar(myProfileBinding.toolbarMyProfileActivity)
-
-        myProfileBinding.toolbarMyProfileActivity.setNavigationIcon(R.drawable.ic_action_navigation_menu)
-
-        val actionBar = supportActionBar
-        if(actionBar != null){
-            actionBar.setDisplayHomeAsUpEnabled(true)
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_white_color_back_24dp)
-            actionBar.title = resources.getString(R.string.my_profile_title)
-        }
-        myProfileBinding.toolbarMyProfileActivity.setNavigationOnClickListener{
-            onBackPressed()
-        }
-        */
     }
 
     private fun setUserDataInUI(){

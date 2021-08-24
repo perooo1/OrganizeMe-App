@@ -13,7 +13,7 @@
             android:title="@string/nav_my_profile"
             />
         <item
-            android:id="@+id/nav_sign_out"
+            android:id="@+id/introFragment"
             android:icon="@drawable/ic_nav_sign_out"
             android:menuCategory="secondary"
             android:title="@string/nav_sign_out"

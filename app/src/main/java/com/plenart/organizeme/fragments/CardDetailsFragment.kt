@@ -45,7 +45,6 @@ class CardDetailsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         getArgs()
-        setUpActionBar()
 
         initObservers()
         initListeners()
@@ -171,26 +170,6 @@ class CardDetailsFragment : Fragment() {
             .length
         )
 
-    }
-
-
-    private fun setUpActionBar(){
-        /*
-        setSupportActionBar(activityCardDetailsBinding.toolbarCardDetailsActivity)
-
-        activityCardDetailsBinding.toolbarCardDetailsActivity.setNavigationIcon(R.drawable.ic_action_navigation_menu)
-
-        val actionBar = supportActionBar;
-        if(actionBar != null){
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_white_color_back_24dp);
-            actionBar.title = viewModel.boardDetails?.value?.taskList?.get(viewModel.taskListPosition.value!!)?.cards?.get(viewModel.cardPosition.value!!)?.name
-        }
-
-        activityCardDetailsBinding.toolbarCardDetailsActivity.setNavigationOnClickListener{
-            onBackPressed();
-        }
-        */
     }
 
     private fun getArgs(){
