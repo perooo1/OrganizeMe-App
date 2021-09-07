@@ -21,23 +21,13 @@ open class BoardItemsAdapter(private val context: Context, private val list: Arr
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val model = list[position];
+        val model = list[position]
 
         if(holder is BoardItemViewHolder){
-            Glide.with(context)
-                .load(model.image)
-                .centerCrop()
-                .placeholder(R.drawable.ic_board_place_holder)
-                .into(holder.binding.ivBoardImageItemBoard);
+            holder.bindImage(model.image)
+            holder.bindText(model.name, model.createdBy)
+            holder.bindListeners(position,model)
 
-            holder.binding.tvNameItemBoard.text = model.name;
-            holder.binding.tvCreatedByItemBoard.text = "Created by: ${model.createdBy}";
-
-            holder.itemView.setOnClickListener {
-                if(boardItemClickListener != null){
-                    boardItemClickListener!!.onClick(position, model);
-                }
-            }
         }
     }
 
@@ -51,6 +41,28 @@ open class BoardItemsAdapter(private val context: Context, private val list: Arr
     }
 
     inner class BoardItemViewHolder(val binding:ItemBoardBinding):RecyclerView.ViewHolder(binding.root){
+
+        fun bindImage(image: String){
+            Glide.with(context)
+                .load(image)
+                .centerCrop()
+                .placeholder(R.drawable.ic_board_place_holder)
+                .into(binding.ivBoardImageItemBoard);
+        }
+
+        fun bindText(name: String, createdBy: String){
+            binding.tvNameItemBoard.text = name;
+            binding.tvCreatedByItemBoard.text = "Created by: $createdBy";
+        }
+
+        fun bindListeners(position: Int, model:Board){
+            itemView.setOnClickListener{
+                if(boardItemClickListener != null){
+                    boardItemClickListener!!.onClick(position,model)
+                }
+            }
+        }
+
     }
 
 }

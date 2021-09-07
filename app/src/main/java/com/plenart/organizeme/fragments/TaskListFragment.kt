@@ -14,13 +14,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.plenart.organizeme.R
 import com.plenart.organizeme.adapters.TaskListItemsAdapter
 import com.plenart.organizeme.databinding.FragmentTaskListBinding
+import com.plenart.organizeme.interfaces.ITaskListCallback
 import com.plenart.organizeme.models.Card
 import com.plenart.organizeme.models.Task
 import com.plenart.organizeme.utils.Constants
 import com.plenart.organizeme.viewModels.TaskListViewModel
 
 
-class TaskListFragment : Fragment() {
+class TaskListFragment : Fragment(), ITaskListCallback {
     private lateinit var binding: FragmentTaskListBinding
     val viewModel: TaskListViewModel by viewModels()
 
@@ -41,6 +42,7 @@ class TaskListFragment : Fragment() {
         getArgs()
 
     }
+
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_members,menu)
@@ -109,7 +111,7 @@ class TaskListFragment : Fragment() {
         }
     }
 
-    fun createTaskList(taskListName: String){
+    override fun createTaskList(taskListName: String){
         val task = Task(taskListName, viewModel.firestore.getCurrentUserID())
         viewModel.boardDetails?.value?.taskList?.add(0,task)
         viewModel.boardDetails?.value?.taskList?.removeAt(viewModel.boardDetails?.value?.taskList?.size!!.minus(1))
@@ -117,7 +119,7 @@ class TaskListFragment : Fragment() {
         viewModel.firestore.addUpdateTaskList(viewModel.boardDetails?.value!!)
     }
 
-    fun updateTaskList(position: Int, listName: String, model: Task){
+    override fun updateTaskList(position: Int, listName: String, model: Task){
         val task = Task(listName, model.createdBy)
         viewModel.boardDetails?.value?.taskList?.set(position, task)
         viewModel.boardDetails?.value?.taskList?.removeAt(viewModel.boardDetails?.value?.taskList?.size!!.minus(1))
@@ -125,14 +127,14 @@ class TaskListFragment : Fragment() {
         viewModel.firestore.addUpdateTaskList(viewModel.boardDetails?.value!!)
     }
 
-    fun deleteTaskList(position: Int){
+    override fun deleteTaskList(position: Int){
         viewModel.boardDetails?.value?.taskList?.removeAt(position)
         viewModel.boardDetails?.value?.taskList?.removeAt(viewModel.boardDetails?.value?.taskList?.size!!.minus(1))
 
         viewModel.firestore.addUpdateTaskList(viewModel.boardDetails?.value!!)
     }
 
-    fun addCardToTaskList(position: Int, cardName: String){
+    override fun addCardToTaskList(position: Int, cardName: String){
         viewModel.boardDetails?.value?.taskList?.removeAt(viewModel.boardDetails?.value?.taskList?.size!!.minus(1))
 
         val cardAssignedUsersList: ArrayList<String> = ArrayList()
@@ -160,7 +162,7 @@ class TaskListFragment : Fragment() {
         return true
     }
 
-    fun cardDetails(taskListPosition: Int, cardPosition: Int){
+    override fun cardDetails(taskListPosition: Int, cardPosition: Int){
         val directions = TaskListFragmentDirections.actionTaskListFragmentToCardDetailsFragment(
             taskListPosition,
             cardPosition,
@@ -175,14 +177,23 @@ class TaskListFragment : Fragment() {
         val addTaskList = Task(resources.getString(R.string.add_list))
         viewModel.boardDetails?.value?.taskList?.add(addTaskList)
 
-        binding.rvTaskList.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        binding.rvTaskList.setHasFixedSize(true)
+        val adapterTask = TaskListItemsAdapter(requireActivity(),viewModel.boardDetails?.value?.taskList!!,this,viewModel)
 
-        val adapter = TaskListItemsAdapter(requireActivity(),viewModel.boardDetails?.value?.taskList!!,this)
-        binding.rvTaskList.adapter = adapter
+        viewModel.taskList.observe(viewLifecycleOwner, Observer {
+            adapterTask.submitList(it)
+        })
+
+        binding.apply {
+            rvTaskList.apply {
+                layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+                setHasFixedSize(true)
+                adapter = adapterTask
+            }
+        }
+
     }
 
-    fun updateCardsInTaskList(position: Int, cards: ArrayList<Card>){
+    override fun updateCardsInTaskList(position: Int, cards: ArrayList<Card>){
         viewModel.boardDetails?.value?.taskList?.removeAt(viewModel.boardDetails?.value?.taskList?.size!!.minus(1))
         viewModel.boardDetails?.value?.taskList?.get(position)!!.cards = cards
 
@@ -193,5 +204,6 @@ class TaskListFragment : Fragment() {
         const val MEMBERS_REQUEST_CODE : Int = 13
         const val CARD_DETAILS_REQUEST_CODE: Int = 14
     }
+
 
 }

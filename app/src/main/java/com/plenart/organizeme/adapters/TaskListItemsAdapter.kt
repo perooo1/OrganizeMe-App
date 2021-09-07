@@ -7,135 +7,214 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import android.widget.Toast
+import androidx.recyclerview.widget.*
 import com.plenart.organizeme.R
 import com.plenart.organizeme.databinding.ItemTaskBinding
-import com.plenart.organizeme.fragments.TaskListFragment
 import com.plenart.organizeme.interfaces.CardItemClickInterface
+import com.plenart.organizeme.interfaces.ITaskListCallback
 import com.plenart.organizeme.models.Task
+import com.plenart.organizeme.utils.TaskDiffCallback
+import com.plenart.organizeme.viewModels.TaskListViewModel
 import java.util.*
 
-class TaskListItemsAdapter(private val context: Context, private var list: ArrayList<Task>, private val fragment: TaskListFragment):RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-   private var mPositionDraggedFrom = -1;
-   private var mPositionDraggedTo = -1;
+class TaskListItemsAdapter(
+    private val context: Context,
+    private var list: ArrayList<Task>,
+    private val taskListCallback: ITaskListCallback,
+    private val viewModel: TaskListViewModel
+) :
+    ListAdapter<Task, TaskListItemsAdapter.ListItemViewHolder>(TaskDiffCallback()) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+    private var mPositionDraggedFrom = -1
+    private var mPositionDraggedTo = -1
+
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ListItemViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_task, parent, false)
-        val layoutParams = LinearLayout.LayoutParams((parent.width * 0.7).toInt(), LinearLayout.LayoutParams.WRAP_CONTENT)
+        val layoutParams = LinearLayout.LayoutParams(
+            (parent.width * 0.7).toInt(),
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
 
-        layoutParams.setMargins((15.toDp().toPx()),0,(40.toDp().toPx()),0);
-        view.layoutParams = layoutParams;
-        val binding = ItemTaskBinding.bind(view);
-        return ListItemViewHolder(binding);
+        layoutParams.setMargins((15.toDp().toPx()), 0, (40.toDp().toPx()), 0)
+        view.layoutParams = layoutParams
+        val binding = ItemTaskBinding.bind(view)
+        return ListItemViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val model = list[position];
-        if(holder is ListItemViewHolder){
-            if(position == list.size-1){
-                holder.binding.tvAddTaskList.visibility = View.VISIBLE;
-                holder.binding.llTaskItem.visibility = View.GONE;
-            }
-            else{
-                holder.binding.tvAddTaskList.visibility = View.GONE;
-                holder.binding.llTaskItem.visibility = View.VISIBLE;
+    override fun onBindViewHolder(holder: ListItemViewHolder, position: Int) {
+        val model = getItem(position)
+        holder.bind(model, position)
 
-            }
+    }
 
-            holder.binding.tvTaskListTitle.text = model.title;
-            holder.binding.tvAddTaskList.setOnClickListener {
+    private fun Int.toDp(): Int = (this / Resources.getSystem().displayMetrics.density).toInt()
+    private fun Int.toPx(): Int = (this * Resources.getSystem().displayMetrics.density).toInt()
 
-                holder.binding.tvAddTaskList.visibility = View.GONE;
-                holder.binding.cvAddTaskListName.visibility = View.VISIBLE;
-            }
+    private fun alertDialogForDeleteList(position: Int, title: String) {
+        val builder = AlertDialog.Builder(context);
+        builder.setTitle("Alert");
+        builder.setMessage("Are you sure you want to delete $title?")
+        builder.setIcon(android.R.drawable.ic_dialog_alert);
 
-            holder.binding.ibCloseListName.setOnClickListener {
-                holder.binding.tvAddTaskList.visibility = View.VISIBLE;
-                holder.binding.cvAddTaskListName.visibility = View.GONE;
-            }
+        builder.setPositiveButton("Yes") { dialogInterface, _ ->
+            dialogInterface.dismiss();
+            taskListCallback.deleteTaskList(position)
+        }
 
-            //adding list
-            holder.binding.ibDoneListName.setOnClickListener {
-                val listName = holder.binding.etTaskListName.text.toString();
-                if(listName.isNotEmpty()){
-                    fragment.createTaskList(listName)
+        builder.setNegativeButton("No") { dialogInterface, _ ->
+            dialogInterface.dismiss()
+        }
+
+        val alertDialog: AlertDialog = builder.create()
+        alertDialog.setCancelable(false)
+        alertDialog.show()
+
+    }
+
+    inner class ListItemViewHolder(val binding: ItemTaskBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(task: Task, position: Int) {
+            if (position == list.size - 1) {
+                binding.apply {
+                    tvAddTaskList.visibility = View.VISIBLE
+                    llTaskItem.visibility = View.GONE
                 }
-                else{
-                    //Toast.makeText(this, "Please enter list name",Toast.LENGTH_SHORT).show();
+            } else {
+                binding.apply {
+                    tvAddTaskList.visibility = View.GONE
+                    llTaskItem.visibility = View.VISIBLE
                 }
-
-            }
-            //editing
-            holder.binding.ibEditListName.setOnClickListener {
-                holder.binding.etEditTaskListName.setText(model.title);
-                holder.binding.llTitleView.visibility = View.GONE;
-                holder.binding.cvEditTaskListName.visibility = View.VISIBLE;
-
-            }
-            holder.binding.ibCloseEditableView.setOnClickListener {
-                holder.binding.llTitleView.visibility = View.VISIBLE;
-                holder.binding.cvEditTaskListName.visibility = View.GONE;
             }
 
-            holder.binding.ibDoneEditListName.setOnClickListener {
-                val listName = holder.binding.etEditTaskListName.text.toString();
-
-                if(listName.isNotEmpty()){
-                    fragment.updateTaskList(position,listName, model)
-                }
-                else{
-                    //Toast.makeText(fragment, "Please enter list name",Toast.LENGTH_SHORT).show();
+            binding.apply {
+                tvTaskListTitle.text = task.title
+                tvAddTaskList.setOnClickListener {
+                    tvAddTaskList.visibility = View.GONE
+                    cvAddTaskListName.visibility = View.VISIBLE
                 }
 
-            }
-            //deleting
-            holder.binding.ibDeleteListName.setOnClickListener {
-                alertDialogForDeleteList(position,model.title);
-            }
-
-            //showing cards UI
-            holder.binding.tvAddCard.setOnClickListener {
-                holder.binding.tvAddCard.visibility = View.GONE;
-                holder.binding.cvAddCard.visibility = View.VISIBLE;
-            }
-
-            holder.binding.ibCloseCardName.setOnClickListener {
-                holder.binding.tvAddCard.visibility = View.VISIBLE;
-                holder.binding.cvAddCard.visibility = View.GONE;
-            }
-            holder.binding.ibDoneCardName.setOnClickListener {
-                val cardName = holder.binding.etCardName.text.toString();
-
-                if(cardName.isNotEmpty()){
-                    fragment.addCardToTaskList(position,cardName)
-
-                }
-                else{
-                    //Toast.makeText(fragment, "Please enter a card name!",Toast.LENGTH_SHORT).show();
+                ibCloseListName.setOnClickListener {
+                    tvAddTaskList.visibility = View.VISIBLE
+                    cvAddTaskListName.visibility = View.GONE
                 }
 
             }
 
-            //loading cards into UI
-            holder.binding.rvCardList.layoutManager = LinearLayoutManager(context);
-            holder.binding.rvCardList.setHasFixedSize(true);
+            addList()
+            editList(task, position)
+            deleteList(task, position)
+            displayCards(task, position)
 
-            val adapter = CardListItemsAdapter(context, model.cards, fragment);
-            holder.binding.rvCardList.adapter = adapter;
+        }
 
-            adapter.setOnClickListener(object : CardItemClickInterface{
-                override fun onClick(cardPosition: Int) {
-                    fragment.cardDetails(position,cardPosition)
+        private fun addList() {
+            binding.apply {
+                ibDoneListName.setOnClickListener {
+                    val listName = etTaskListName.text.toString()
+                    if (listName.isNotEmpty()) {
+                        taskListCallback.createTaskList(listName)
+
+                    } else {
+                        Toast.makeText(context, "Please enter list name", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+
+        private fun editList(task: Task, position: Int) {
+            binding.apply {
+                ibEditListName.setOnClickListener {
+                    etEditTaskListName.setText(task.title)
+                    llTitleView.visibility = View.GONE
+                    cvEditTaskListName.visibility = View.VISIBLE
                 }
 
-            })
+                ibCloseEditableView.setOnClickListener {
+                    llTitleView.visibility = View.VISIBLE
+                    cvEditTaskListName.visibility = View.GONE
+                }
 
-            val dividerItemDecoration = DividerItemDecoration(context, DividerItemDecoration.VERTICAL);
-            holder.binding.rvCardList.addItemDecoration(dividerItemDecoration);
+                ibDoneEditListName.setOnClickListener {
+                    val listName = etEditTaskListName.text.toString();
 
+                    if (listName.isNotEmpty()) {
+                        taskListCallback.updateTaskList(position, listName, task)
+                    } else {
+                        Toast.makeText(context, "Please enter list name", Toast.LENGTH_SHORT)
+                            .show();
+                    }
+
+                }
+
+            }
+        }
+
+        private fun deleteList(task: Task, position: Int) {
+            binding.ibDeleteListName.setOnClickListener {
+                alertDialogForDeleteList(position, task.title)
+            }
+        }
+
+        private fun displayCards(task: Task, position: Int) {
+            binding.apply {
+                tvAddCard.setOnClickListener {
+                    tvAddCard.visibility = View.GONE
+                    cvAddCard.visibility = View.VISIBLE
+                }
+
+                ibCloseCardName.setOnClickListener {
+                    tvAddCard.visibility = View.VISIBLE
+                    cvAddCard.visibility = View.GONE
+                }
+
+                ibDoneCardName.setOnClickListener {
+                    val cardName =binding.etCardName.text.toString();
+                    if(cardName.isNotEmpty()){
+                        taskListCallback.addCardToTaskList(position, cardName)
+                    }
+                    else{
+                        Toast.makeText(context, "Please enter a card name!",Toast.LENGTH_SHORT).show();
+                    }
+
+                }
+
+            }
+
+            loadCards(task,position)
+
+            val dividerItemDecoration = DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
+            binding.rvCardList.addItemDecoration(dividerItemDecoration)
+
+            repositionCards(task,position)
+
+        }
+
+        private fun loadCards(task: Task, position: Int){
+            binding.apply {
+
+                val adapterCard = CardListItemsAdapter(context,viewModel)
+
+                rvCardList.apply {
+                    layoutManager = LinearLayoutManager(context)
+                    setHasFixedSize(true)
+                    adapter = adapterCard
+
+                }
+
+                adapterCard.setOnClickListener(object: CardItemClickInterface{
+                    override fun onClick(cardPosition: Int) {
+                        taskListCallback.cardDetails(position,cardPosition)         //first position is taskList position
+                    }
+
+                })
+
+            }
+        }
+
+        private fun repositionCards(task: Task, position: Int){
             val helper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(
                 ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0){
                 override fun onMove(
@@ -143,16 +222,17 @@ class TaskListItemsAdapter(private val context: Context, private var list: Array
                     viewHolder: RecyclerView.ViewHolder,
                     target: RecyclerView.ViewHolder
                 ): Boolean {
-                    val draggedPosition = viewHolder.absoluteAdapterPosition;
-                    val targetPosition = target.absoluteAdapterPosition;
+                    val draggedPosition = viewHolder.absoluteAdapterPosition
+                    val targetPosition = target.absoluteAdapterPosition
 
                     if(mPositionDraggedFrom == -1){
-                        mPositionDraggedFrom = draggedPosition;
+                        mPositionDraggedFrom = draggedPosition
                     }
-                    mPositionDraggedTo = targetPosition;
-                    Collections.swap(list[position].cards, draggedPosition, targetPosition);
+                    mPositionDraggedTo = targetPosition
+                    Collections.swap(list[position].cards, draggedPosition, targetPosition)
 
-                    adapter.notifyItemMoved(draggedPosition,targetPosition);
+                    bindingAdapter?.notifyItemMoved(draggedPosition,targetPosition)             //careful!
+                    //adapter.notifyItemMoved(draggedPosition,targetPosition)
                     return false;
 
                 }
@@ -167,53 +247,18 @@ class TaskListItemsAdapter(private val context: Context, private var list: Array
                 ) {
                     super.clearView(recyclerView, viewHolder)
                     if(mPositionDraggedFrom != -1 && mPositionDraggedTo != -1 && mPositionDraggedFrom != mPositionDraggedTo){
-                        fragment.updateCardsInTaskList(position, list[position].cards)
+                        taskListCallback.updateCardsInTaskList(position, list[position].cards)
                     }
 
-                    mPositionDraggedFrom = -1;
-                    mPositionDraggedTo = -1;
+                    mPositionDraggedFrom = -1
+                    mPositionDraggedTo = -1
                 }
 
             }
             )
 
-            helper.attachToRecyclerView(holder.binding.rvCardList);
-
+            helper.attachToRecyclerView(binding.rvCardList)
         }
 
     }
-
-
-    override fun getItemCount(): Int {
-        return list.size;
-    }
-
-    private fun Int.toDp(): Int = (this/Resources.getSystem().displayMetrics.density).toInt();
-    private fun Int.toPx(): Int = (this*Resources.getSystem().displayMetrics.density).toInt();
-
-    private fun alertDialogForDeleteList(position: Int, title: String){
-        val builder = AlertDialog.Builder(context);
-        builder.setTitle("Alert");
-        builder.setMessage("Are you sure you want to delete $title?")
-        builder.setIcon(android.R.drawable.ic_dialog_alert);
-
-        builder.setPositiveButton("Yes"){dialogInterface, which ->
-            dialogInterface.dismiss();
-            fragment.deleteTaskList(position)
-        }
-
-        builder.setNegativeButton("No"){dialogInterface, which ->
-            dialogInterface.dismiss();
-        }
-
-        val alertDialog: AlertDialog = builder.create();
-        alertDialog.setCancelable(false);
-        alertDialog.show();
-
-    }
-
-    inner class ListItemViewHolder(val binding: ItemTaskBinding): RecyclerView.ViewHolder(binding.root){
-
-    }
-
 }
