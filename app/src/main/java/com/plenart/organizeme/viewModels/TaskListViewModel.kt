@@ -34,7 +34,6 @@ class TaskListViewModel : ViewModel() {
     val taskList: LiveData<ArrayList<Task>>
         get() = _taskList
 
-
     init {
         Log.i("TaskListActivity", "TaskListViewModel created!")
     }
@@ -44,12 +43,10 @@ class TaskListViewModel : ViewModel() {
             _boardDetails?.value = firestore.getBoardDetails(docID)
             setTaskList()
         }
-
     }
 
     private fun setTaskList() {
         _taskList.value = _boardDetails?.value?.taskList
-
     }
 
     fun getAssignedMembersListDetails() {

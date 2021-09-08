@@ -30,7 +30,7 @@ class TaskListFragment : Fragment(), ITaskListCallback {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        binding = FragmentTaskListBinding.inflate(inflater,container,false)
+        binding = FragmentTaskListBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -43,13 +43,12 @@ class TaskListFragment : Fragment(), ITaskListCallback {
 
     }
 
-
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_members,menu)
+        inflater.inflate(R.menu.menu_members, menu)
         //super.onCreateOptionsMenu(menu, inflater)
     }
 
-    private fun getArgs(){
+    private fun getArgs() {
         val args: TaskListFragmentArgs by navArgs()
         viewModel.getBoardDetails(args.documentId)
     }
@@ -62,38 +61,38 @@ class TaskListFragment : Fragment(), ITaskListCallback {
 
     private fun initBoardDetails() {
         viewModel.boardDetails?.observe(viewLifecycleOwner, Observer { newBoard ->
-            if(newBoard != null){
+            if (newBoard != null) {
                 viewModel.getAssignedMembersListDetails()
+            } else {
+                Log.i("boardDetailsObserver", "error observing boardDetails ")
             }
-            else{
-                Log.i("boardDetailsObserver","error observing boardDetails ")
-            }
-        } )
+        })
     }
 
     private fun initTaskAddedUpdated() {
         viewModel.taskAddedUpdated.observe(viewLifecycleOwner, Observer {
-            if(it){
+            if (it) {
                 addUpdateTaskListSuccess()
-            }
-            else{
-                Log.i("taskAddedUpdatedObserver","task addedUpdate failed: it==false")
+            } else {
+                Log.i("taskAddedUpdatedObserver", "task addedUpdate failed: it==false")
             }
         })
     }
 
     private fun initAssignedMembers() {
         viewModel.assignedMemberDetailList.observe(viewLifecycleOwner, Observer { members ->
-            if(members != null && members.isNotEmpty()){
+            if (members != null && members.isNotEmpty()) {
                 boardMembersDetailsList()
-            }
-            else{
-                Log.i("assignedMembersObserver","assignedMembers is empty or null! ${viewModel.assignedMemberDetailList.value.toString()}")
+            } else {
+                Log.i(
+                    "assignedMembersObserver",
+                    "assignedMembers is empty or null! ${viewModel.assignedMemberDetailList.value.toString()}"
+                )
             }
         })
     }
 
-    private fun addUpdateTaskListSuccess(){
+    private fun addUpdateTaskListSuccess() {
         val data = requireArguments()
         viewModel.getBoardDetails(data.getString(Constants.DOCUMENT_ID).toString())
 
@@ -101,41 +100,54 @@ class TaskListFragment : Fragment(), ITaskListCallback {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if(resultCode == Activity.RESULT_OK && requestCode == MEMBERS_REQUEST_CODE || requestCode == CARD_DETAILS_REQUEST_CODE){
-
+        if (resultCode == Activity.RESULT_OK && requestCode == MEMBERS_REQUEST_CODE || requestCode == CARD_DETAILS_REQUEST_CODE) {
             //viewModel.getBoardDetails(intent.getStringExtra(Constants.DOCUMENT_ID)!!)
-
-        }
-        else{
-            Log.e("cancelled","cancelled")
+        } else {
+            Log.e("cancelled", "cancelled")
         }
     }
 
-    override fun createTaskList(taskListName: String){
+    override fun createTaskList(taskListName: String) {
         val task = Task(taskListName, viewModel.firestore.getCurrentUserID())
-        viewModel.boardDetails?.value?.taskList?.add(0,task)
-        viewModel.boardDetails?.value?.taskList?.removeAt(viewModel.boardDetails?.value?.taskList?.size!!.minus(1))
 
-        viewModel.firestore.addUpdateTaskList(viewModel.boardDetails?.value!!)
+        viewModel.apply {
+            boardDetails?.value?.taskList?.apply {
+                add(0, task)
+                removeAt(size!!.minus(1))
+            }
+            firestore.addUpdateTaskList(viewModel.boardDetails?.value!!)
+        }
+
     }
 
-    override fun updateTaskList(position: Int, listName: String, model: Task){
+    override fun updateTaskList(position: Int, listName: String, model: Task) {
         val task = Task(listName, model.createdBy)
-        viewModel.boardDetails?.value?.taskList?.set(position, task)
-        viewModel.boardDetails?.value?.taskList?.removeAt(viewModel.boardDetails?.value?.taskList?.size!!.minus(1))
+        viewModel.apply {
+            boardDetails?.value?.taskList?.apply {
+                set(position, task)
+                removeAt(size!!.minus(1))
+            }
+            firestore.addUpdateTaskList(viewModel.boardDetails?.value!!)
+        }
 
-        viewModel.firestore.addUpdateTaskList(viewModel.boardDetails?.value!!)
     }
 
-    override fun deleteTaskList(position: Int){
-        viewModel.boardDetails?.value?.taskList?.removeAt(position)
-        viewModel.boardDetails?.value?.taskList?.removeAt(viewModel.boardDetails?.value?.taskList?.size!!.minus(1))
+    override fun deleteTaskList(position: Int) {
+        viewModel.apply {
+            boardDetails?.value?.taskList?.apply {
+                removeAt(position)
+                removeAt(size!!.minus(1))
+            }
+            firestore.addUpdateTaskList(viewModel.boardDetails?.value!!)
+        }
 
-        viewModel.firestore.addUpdateTaskList(viewModel.boardDetails?.value!!)
     }
 
-    override fun addCardToTaskList(position: Int, cardName: String){
-        viewModel.boardDetails?.value?.taskList?.removeAt(viewModel.boardDetails?.value?.taskList?.size!!.minus(1))
+    override fun addCardToTaskList(position: Int, cardName: String) {
+        viewModel.boardDetails
+            ?.value
+            ?.taskList
+            ?.removeAt(viewModel.boardDetails?.value?.taskList?.size!!.minus(1))
 
         val cardAssignedUsersList: ArrayList<String> = ArrayList()
         cardAssignedUsersList.add(viewModel.firestore.getCurrentUserID())
@@ -145,7 +157,8 @@ class TaskListFragment : Fragment(), ITaskListCallback {
         val cardsList = viewModel.boardDetails?.value?.taskList?.get(position)?.cards
         cardsList?.add(card)
 
-        val task = Task(viewModel.boardDetails?.value?.taskList?.get(position)?.title.toString(),
+        val task = Task(
+            viewModel.boardDetails?.value?.taskList?.get(position)?.title.toString(),
             viewModel.boardDetails?.value?.taskList?.get(position)?.createdBy.toString(),
             cardsList!!
         )
@@ -162,7 +175,7 @@ class TaskListFragment : Fragment(), ITaskListCallback {
         return true
     }
 
-    override fun cardDetails(taskListPosition: Int, cardPosition: Int){
+    override fun cardDetails(taskListPosition: Int, cardPosition: Int) {
         val directions = TaskListFragmentDirections.actionTaskListFragmentToCardDetailsFragment(
             taskListPosition,
             cardPosition,
@@ -173,11 +186,16 @@ class TaskListFragment : Fragment(), ITaskListCallback {
 
     }
 
-    private fun boardMembersDetailsList(){
+    private fun boardMembersDetailsList() {
         val addTaskList = Task(resources.getString(R.string.add_list))
         viewModel.boardDetails?.value?.taskList?.add(addTaskList)
 
-        val adapterTask = TaskListItemsAdapter(requireActivity(),viewModel.boardDetails?.value?.taskList!!,this,viewModel)
+        val adapterTask = TaskListItemsAdapter(
+            requireActivity(),
+            viewModel.boardDetails?.value?.taskList!!,
+            this,
+            viewModel
+        )
 
         viewModel.taskList.observe(viewLifecycleOwner, Observer {
             adapterTask.submitList(it)
@@ -193,15 +211,18 @@ class TaskListFragment : Fragment(), ITaskListCallback {
 
     }
 
-    override fun updateCardsInTaskList(position: Int, cards: ArrayList<Card>){
-        viewModel.boardDetails?.value?.taskList?.removeAt(viewModel.boardDetails?.value?.taskList?.size!!.minus(1))
-        viewModel.boardDetails?.value?.taskList?.get(position)!!.cards = cards
-
-        viewModel.firestore.addUpdateTaskList(viewModel.boardDetails?.value!!)
+    override fun updateCardsInTaskList(position: Int, cards: ArrayList<Card>) {
+        viewModel.apply {
+            boardDetails?.value?.taskList?.apply {
+                removeAt(size!!.minus(1))
+                get(position)!!.cards = cards
+            }
+            firestore.addUpdateTaskList(boardDetails?.value!!)
+        }
     }
 
-    companion object{
-        const val MEMBERS_REQUEST_CODE : Int = 13
+    companion object {
+        const val MEMBERS_REQUEST_CODE: Int = 13
         const val CARD_DETAILS_REQUEST_CODE: Int = 14
     }
 

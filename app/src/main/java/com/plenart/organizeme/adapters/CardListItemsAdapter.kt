@@ -25,7 +25,7 @@ class CardListItemsAdapter(
     private var onClickListener: CardItemClickInterface? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardItemViewHolder {
-        val binding = ItemCardBinding.inflate(LayoutInflater.from(parent.context), parent, false);
+        val binding = ItemCardBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return CardItemViewHolder(binding)
     }
 
@@ -35,7 +35,7 @@ class CardListItemsAdapter(
     }
 
     fun setOnClickListener(onClickInterface: CardItemClickInterface) {
-        this.onClickListener = onClickInterface;
+        this.onClickListener = onClickInterface
     }
 
     inner class CardItemViewHolder(val binding: ItemCardBinding) :
@@ -99,6 +99,7 @@ class CardListItemsAdapter(
                             }
 
                         })
+
 
                     }
                 } else {

@@ -12,11 +12,10 @@ import com.plenart.organizeme.models.Board
 
 open class BoardItemsAdapter(private val context: Context, private val list: ArrayList<Board>): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private var boardItemClickListener: BoardItemClickInterface? = null;
-
+    private var boardItemClickListener: BoardItemClickInterface? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val binding = ItemBoardBinding.inflate(LayoutInflater.from(parent.context),parent,false);
+        val binding = ItemBoardBinding.inflate(LayoutInflater.from(parent.context),parent,false)
         return BoardItemViewHolder(binding);
     }
 
@@ -32,12 +31,11 @@ open class BoardItemsAdapter(private val context: Context, private val list: Arr
     }
 
     override fun getItemCount(): Int {
-        return list.size;
-
+        return list.size
     }
 
     fun setOnClickListener(onClickInterface: BoardItemClickInterface){
-        this.boardItemClickListener = onClickInterface;
+        this.boardItemClickListener = onClickInterface
     }
 
     inner class BoardItemViewHolder(val binding:ItemBoardBinding):RecyclerView.ViewHolder(binding.root){
@@ -47,12 +45,14 @@ open class BoardItemsAdapter(private val context: Context, private val list: Arr
                 .load(image)
                 .centerCrop()
                 .placeholder(R.drawable.ic_board_place_holder)
-                .into(binding.ivBoardImageItemBoard);
+                .into(binding.ivBoardImageItemBoard)
         }
 
         fun bindText(name: String, createdBy: String){
-            binding.tvNameItemBoard.text = name;
-            binding.tvCreatedByItemBoard.text = "Created by: $createdBy";
+            binding.apply{
+                tvNameItemBoard.text = name
+                tvCreatedByItemBoard.text = "Created by: $createdBy"
+            }
         }
 
         fun bindListeners(position: Int, model:Board){

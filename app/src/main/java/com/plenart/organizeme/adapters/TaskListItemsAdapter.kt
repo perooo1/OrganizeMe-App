@@ -53,24 +53,26 @@ class TaskListItemsAdapter(
     private fun Int.toPx(): Int = (this * Resources.getSystem().displayMetrics.density).toInt()
 
     private fun alertDialogForDeleteList(position: Int, title: String) {
-        val builder = AlertDialog.Builder(context);
-        builder.setTitle("Alert");
-        builder.setMessage("Are you sure you want to delete $title?")
-        builder.setIcon(android.R.drawable.ic_dialog_alert);
+        val builder = AlertDialog.Builder(context)
 
-        builder.setPositiveButton("Yes") { dialogInterface, _ ->
-            dialogInterface.dismiss();
-            taskListCallback.deleteTaskList(position)
-        }
+        builder.apply {
+            setTitle("Alert");
+            setMessage("Are you sure you want to delete $title?")
+            setIcon(android.R.drawable.ic_dialog_alert);
 
-        builder.setNegativeButton("No") { dialogInterface, _ ->
-            dialogInterface.dismiss()
+            setPositiveButton("Yes") { dialogInterface, _ ->
+                dialogInterface.dismiss();
+                taskListCallback.deleteTaskList(position)
+            }
+
+            setNegativeButton("No") { dialogInterface, _ ->
+                dialogInterface.dismiss()
+            }
         }
 
         val alertDialog: AlertDialog = builder.create()
         alertDialog.setCancelable(false)
         alertDialog.show()
-
     }
 
     inner class ListItemViewHolder(val binding: ItemTaskBinding) :
@@ -144,7 +146,7 @@ class TaskListItemsAdapter(
                         taskListCallback.updateTaskList(position, listName, task)
                     } else {
                         Toast.makeText(context, "Please enter list name", Toast.LENGTH_SHORT)
-                            .show();
+                            .show()
                     }
 
                 }
@@ -171,42 +173,46 @@ class TaskListItemsAdapter(
                 }
 
                 ibDoneCardName.setOnClickListener {
-                    val cardName =binding.etCardName.text.toString();
-                    if(cardName.isNotEmpty()){
+                    val cardName = binding.etCardName.text.toString();
+                    if (cardName.isNotEmpty()) {
                         taskListCallback.addCardToTaskList(position, cardName)
-                    }
-                    else{
-                        Toast.makeText(context, "Please enter a card name!",Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(context, "Please enter a card name!", Toast.LENGTH_SHORT)
+                            .show();
                     }
 
                 }
 
             }
 
-            loadCards(task,position)
+            loadCards(task, position)
 
-            val dividerItemDecoration = DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
+            val dividerItemDecoration =
+                DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
             binding.rvCardList.addItemDecoration(dividerItemDecoration)
 
-            repositionCards(task,position)
+            repositionCards(task, position)
 
         }
 
-        private fun loadCards(task: Task, position: Int){
+        private fun loadCards(task: Task, position: Int) {
+
+            val adapterCard = CardListItemsAdapter(context, viewModel)
+            adapterCard.submitList(task.cards)
+
             binding.apply {
-
-                val adapterCard = CardListItemsAdapter(context,viewModel)
-
                 rvCardList.apply {
                     layoutManager = LinearLayoutManager(context)
                     setHasFixedSize(true)
                     adapter = adapterCard
-
                 }
 
-                adapterCard.setOnClickListener(object: CardItemClickInterface{
+                adapterCard.setOnClickListener(object : CardItemClickInterface {
                     override fun onClick(cardPosition: Int) {
-                        taskListCallback.cardDetails(position,cardPosition)         //first position is taskList position
+                        taskListCallback.cardDetails(
+                            position,
+                            cardPosition
+                        )         //first position is taskList position
                     }
 
                 })
@@ -214,9 +220,10 @@ class TaskListItemsAdapter(
             }
         }
 
-        private fun repositionCards(task: Task, position: Int){
+        private fun repositionCards(task: Task, position: Int) {
             val helper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(
-                ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0){
+                ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0
+            ) {
                 override fun onMove(
                     recyclerView: RecyclerView,
                     viewHolder: RecyclerView.ViewHolder,
@@ -225,13 +232,16 @@ class TaskListItemsAdapter(
                     val draggedPosition = viewHolder.absoluteAdapterPosition
                     val targetPosition = target.absoluteAdapterPosition
 
-                    if(mPositionDraggedFrom == -1){
+                    if (mPositionDraggedFrom == -1) {
                         mPositionDraggedFrom = draggedPosition
                     }
                     mPositionDraggedTo = targetPosition
                     Collections.swap(list[position].cards, draggedPosition, targetPosition)
 
-                    bindingAdapter?.notifyItemMoved(draggedPosition,targetPosition)             //careful!
+                    bindingAdapter?.notifyItemMoved(
+                        draggedPosition,
+                        targetPosition
+                    )             //careful!
                     //adapter.notifyItemMoved(draggedPosition,targetPosition)
                     return false;
 
@@ -246,8 +256,8 @@ class TaskListItemsAdapter(
                     viewHolder: RecyclerView.ViewHolder
                 ) {
                     super.clearView(recyclerView, viewHolder)
-                    if(mPositionDraggedFrom != -1 && mPositionDraggedTo != -1 && mPositionDraggedFrom != mPositionDraggedTo){
-                        taskListCallback.updateCardsInTaskList(position, list[position].cards)
+                    if (mPositionDraggedFrom != -1 && mPositionDraggedTo != -1 && mPositionDraggedFrom != mPositionDraggedTo) {
+                        taskListCallback.updateCardsInTaskList(position, task.cards)
                     }
 
                     mPositionDraggedFrom = -1
