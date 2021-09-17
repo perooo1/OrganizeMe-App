@@ -6,21 +6,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.navigation.fragment.findNavController
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.google.android.material.navigation.NavigationView
 import com.plenart.organizeme.R
 import com.plenart.organizeme.adapters.BoardItemsAdapter
-import com.plenart.organizeme.databinding.ActivityMainBinding
 import com.plenart.organizeme.databinding.FragmentMainBinding
 import com.plenart.organizeme.databinding.MainContentBinding
-import com.plenart.organizeme.firebase.Firestore
 import com.plenart.organizeme.interfaces.BoardItemClickInterface
 import com.plenart.organizeme.models.Board
 import com.plenart.organizeme.viewModels.MainActivityViewModel
@@ -29,7 +25,6 @@ import de.hdodenhof.circleimageview.CircleImageView
 
 class MainFragment : Fragment() {
     private lateinit var fragmentMainBinding: FragmentMainBinding
-    private lateinit var activityMainBinding: ActivityMainBinding
     private lateinit var mainContentBinding: MainContentBinding
     private val viewModel: MainActivityViewModel by viewModels()
 
@@ -54,12 +49,11 @@ class MainFragment : Fragment() {
     }
 
     private fun initListeners() {
-
         fragmentMainBinding.fabCreateBoard.setOnClickListener{
-            val directions = MainFragmentDirections.actionMainFragmentToCreateBoardFragment(
+            val directions = DrawerHostFragmentDirections.actionSecNavHostFragmentToCreateBoardFragment(
                 viewModel.userName.value.toString()
             )
-            findNavController().navigate(directions)
+            requireActivity().findNavController(R.id.main_content_navigation_component).navigate(directions)
         }
 
     }
@@ -116,47 +110,42 @@ class MainFragment : Fragment() {
 
     private fun displayBoards(boardsList: ArrayList<Board>){
         mainContentBinding = fragmentMainBinding.mainContentIncluded
-        Log.i("displayBoards","functin triggered")
 
+        val adapterToSet = context?.let { BoardItemsAdapter(it, boardsList) }
         if(boardsList.size > 0){
-            Log.i("displayBoards","inside if call ")
-            mainContentBinding.rvBoards.visibility = View.VISIBLE
-            mainContentBinding.tvNoBoardsAvailable.visibility = View.GONE
-            mainContentBinding.tvTip.visibility = View.GONE
-            mainContentBinding.ivNoBoardsIllustration.visibility = View.GONE
+            mainContentBinding.apply {
+                rvBoards.visibility = View.VISIBLE
+                tvNoBoardsAvailable.visibility = View.GONE
+                tvTip.visibility = View.GONE
+                ivNoBoardsIllustration.visibility = View.GONE
 
-            mainContentBinding.rvBoards.layoutManager = LinearLayoutManager(context)
-            mainContentBinding.rvBoards.setHasFixedSize(true)
+                rvBoards.apply {
+                    layoutManager = LinearLayoutManager(context)
+                    setHasFixedSize(true)
+                    adapter = adapterToSet
+                }
 
-            val adapter = context?.let { BoardItemsAdapter(it, boardsList) }
-            Log.i("displayBoards","adapter is ${adapter.toString()}")
-            mainContentBinding.rvBoards.adapter = adapter
+            }
 
-            adapter?.setOnClickListener(object: BoardItemClickInterface {
+            adapterToSet?.setOnClickListener(object: BoardItemClickInterface {
                 override fun onClick(position: Int, model: Board) {
 
-                    val directions = MainFragmentDirections.actionMainFragmentToTaskListFragment(
+                    val directions = DrawerHostFragmentDirections.actionSecNavHostFragmentToTaskListFragment(
                         model.documentID
                     )
-
-                    findNavController().navigate(directions)
-
+                    requireActivity().findNavController(R.id.main_content_navigation_component).navigate(directions)
                 }
             })
-
-            adapter?.notifyDataSetChanged()
+            adapterToSet?.notifyDataSetChanged()
         }
         else{
-            mainContentBinding.rvBoards.visibility = View.GONE
-            mainContentBinding.tvNoBoardsAvailable.visibility = View.VISIBLE
-            mainContentBinding.tvTip.visibility = View.VISIBLE
-            mainContentBinding.ivNoBoardsIllustration.visibility = View.VISIBLE
+            mainContentBinding.apply {
+                rvBoards.visibility = View.GONE
+                tvNoBoardsAvailable.visibility = View.VISIBLE
+                tvTip.visibility = View.VISIBLE
+                ivNoBoardsIllustration.visibility = View.VISIBLE
+            }
         }
-    }
-
-    companion object {
-        const val MY_PROFILE_REQUEST_CODE: Int = 11
-        const val CREATE_BOARD_REQUEST_CODE: Int = 12
     }
 
 }

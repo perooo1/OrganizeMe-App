@@ -25,6 +25,7 @@ class TaskListFragment : Fragment(), ITaskListCallback {
     private lateinit var binding: FragmentTaskListBinding
     val viewModel: TaskListViewModel by viewModels()
 
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?

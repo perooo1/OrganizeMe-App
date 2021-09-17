@@ -9,31 +9,50 @@
         android:id="@+id/splashFragment"
         android:name="com.plenart.organizeme.fragments.SplashFragment"
         android:label="fragment_splash"
-        tools:layout="@layout/fragment_splash" >
+        tools:layout="@layout/fragment_splash">
         <action
             android:id="@+id/action_splashFragment_to_introFragment"
             app:destination="@id/introFragment"
             app:popUpTo="@id/splashFragment"
-            app:popUpToInclusive="true"
-            />
+            app:popUpToInclusive="true" />
         <action
-            android:id="@+id/action_splashFragment_to_mainFragment"
-            app:destination="@id/mainFragment"
-            app:popUpTo="@id/splashFragment"
-            app:popUpToInclusive="true"
-            />
+            android:id="@+id/action_splashFragment_to_secNavHostFragment"
+            app:destination="@id/secNavHostFragment" />
     </fragment>
     <fragment
         android:id="@+id/introFragment"
         android:name="com.plenart.organizeme.fragments.IntroFragment"
         android:label="fragment_intro"
-        tools:layout="@layout/fragment_intro" >
+        tools:layout="@layout/fragment_intro">
         <action
             android:id="@+id/action_introFragment_to_signInFragment"
             app:destination="@id/signInFragment" />
         <action
             android:id="@+id/action_introFragment_to_signUpFragment"
             app:destination="@id/signUpFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/signInFragment"
+        android:name="com.plenart.organizeme.fragments.SignInFragment"
+        android:label="@string/sign_in"
+        tools:layout="@layout/fragment_sign_in">
+        <action
+            android:id="@+id/action_signInFragment_to_secNavHostFragment"
+            app:destination="@id/secNavHostFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/signUpFragment"
+        android:name="com.plenart.organizeme.fragments.SignUpFragment"
+        android:label="@string/sign_up"
+        tools:layout="@layout/fragment_sign_up" />
+    <fragment
+        android:id="@+id/membersFragment"
+        android:name="com.plenart.organizeme.fragments.MembersFragment"
+        android:label="@string/members"
+        tools:layout="@layout/fragment_members">
+        <argument
+            android:name="board_details"
+            app:argType="com.plenart.organizeme.models.Board" />
     </fragment>
     <fragment
         android:id="@+id/cardDetailsFragment"
@@ -54,6 +73,21 @@
             app:argType="com.plenart.organizeme.models.User[]" />
     </fragment>
     <fragment
+        android:id="@+id/taskListFragment"
+        android:name="com.plenart.organizeme.fragments.TaskListFragment"
+        android:label="fragment_task_list"
+        tools:layout="@layout/fragment_task_list">
+        <action
+            android:id="@+id/action_taskListFragment_to_membersFragment"
+            app:destination="@id/membersFragment" />
+        <action
+            android:id="@+id/action_taskListFragment_to_cardDetailsFragment"
+            app:destination="@id/cardDetailsFragment" />
+        <argument
+            android:name="document_id"
+            app:argType="string" />
+    </fragment>
+    <fragment
         android:id="@+id/createBoardFragment"
         android:name="com.plenart.organizeme.fragments.CreateBoardFragment"
         android:label="@string/create_board_title"
@@ -65,61 +99,14 @@
 
     </fragment>
     <fragment
-        android:id="@+id/mainFragment"
-        android:name="com.plenart.organizeme.fragments.MainFragment"
-        android:label="@string/app_name"
-        tools:layout="@layout/fragment_main">
+        android:id="@+id/secNavHostFragment"
+        android:name="com.plenart.organizeme.fragments.DrawerHostFragment"
+        android:label="SecNavHostFragment">
         <action
-            android:id="@+id/action_mainFragment_to_createBoardFragment"
-            app:destination="@id/createBoardFragment" />
-        <action
-            android:id="@+id/action_mainFragment_to_taskListFragment"
+            android:id="@+id/action_secNavHostFragment_to_taskListFragment"
             app:destination="@id/taskListFragment" />
         <action
-            android:id="@+id/action_mainFragment_to_myProfileFragment"
-            app:destination="@id/myProfileFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/membersFragment"
-        android:name="com.plenart.organizeme.fragments.MembersFragment"
-        android:label="@string/members"
-        tools:layout="@layout/fragment_members">
-        <argument
-            android:name="board_details"
-            app:argType="com.plenart.organizeme.models.Board" />
-    </fragment>
-    <fragment
-        android:id="@+id/myProfileFragment"
-        android:name="com.plenart.organizeme.fragments.MyProfileFragment"
-        android:label="@string/my_profile_title"
-        tools:layout="@layout/fragment_my_profile" />
-    <fragment
-        android:id="@+id/signInFragment"
-        android:name="com.plenart.organizeme.fragments.SignInFragment"
-        android:label="@string/sign_in"
-        tools:layout="@layout/fragment_sign_in">
-        <action
-            android:id="@+id/action_signInFragment_to_mainFragment"
-            app:destination="@id/mainFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/signUpFragment"
-        android:name="com.plenart.organizeme.fragments.SignUpFragment"
-        android:label="@string/sign_up"
-        tools:layout="@layout/fragment_sign_up"></fragment>
-    <fragment
-        android:id="@+id/taskListFragment"
-        android:name="com.plenart.organizeme.fragments.TaskListFragment"
-        android:label="fragment_task_list"
-        tools:layout="@layout/fragment_task_list" >
-        <action
-            android:id="@+id/action_taskListFragment_to_membersFragment"
-            app:destination="@id/membersFragment" />
-        <action
-            android:id="@+id/action_taskListFragment_to_cardDetailsFragment"
-            app:destination="@id/cardDetailsFragment" />
-        <argument
-            android:name="document_id"
-            app:argType="string" />
+            android:id="@+id/action_secNavHostFragment_to_createBoardFragment"
+            app:destination="@id/createBoardFragment" />
     </fragment>
 </navigation>

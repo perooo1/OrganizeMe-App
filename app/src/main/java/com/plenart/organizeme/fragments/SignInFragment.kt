@@ -93,7 +93,7 @@ class SignInFragment : Fragment() {
 
     private fun signInSuccess() {
         //hideProgressDialog()
-        findNavController().navigate(R.id.action_signInFragment_to_mainFragment)
+        findNavController().navigate(R.id.action_signInFragment_to_secNavHostFragment)
 
     }
 
