@@ -21,6 +21,8 @@ import com.plenart.organizeme.interfaces.MemberItemClickInterface
 import com.plenart.organizeme.models.SelectedMembers
 import com.plenart.organizeme.models.User
 import com.plenart.organizeme.utils.Constants
+import com.plenart.organizeme.utils.gone
+import com.plenart.organizeme.utils.visible
 import com.plenart.organizeme.viewModels.CardDetailsViewModel
 import java.text.SimpleDateFormat
 import java.util.*
@@ -37,7 +39,7 @@ class CardDetailsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        binding = FragmentCardDetailsBinding.inflate(inflater, container,false)
+        binding = FragmentCardDetailsBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -59,13 +61,14 @@ class CardDetailsFragment : Fragment() {
     }
 
     private fun setUpDueDate() {
-        viewModel.setSelectedDueDate(viewModel.boardDetails?.value?.taskList
-            ?.get(viewModel.taskListPosition.value!!)
-            ?.cards!![viewModel.cardPosition.value!!]
-            .dueDate
+        viewModel.setSelectedDueDate(
+            viewModel.boardDetails?.value?.taskList
+                ?.get(viewModel.taskListPosition.value!!)
+                ?.cards!![viewModel.cardPosition.value!!]
+                .dueDate
         )
 
-        if(viewModel.selectedDueDateMilis.value!! > 0 ){
+        if (viewModel.selectedDueDateMilis.value!! > 0) {
             val simpleDateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH)
             val selectedDate = simpleDateFormat.format(Date(viewModel.selectedDueDateMilis.value!!))
             binding.tvSelectDueDate.text = selectedDate
@@ -74,26 +77,29 @@ class CardDetailsFragment : Fragment() {
     }
 
     private fun initListeners() {
-        binding.btnUpdateCardDetails.setOnClickListener {
-            if(binding.etNameCardDetails.text.toString().isNotEmpty()){
-                viewModel.updateCardDetails()
+        binding.apply {
+            btnUpdateCardDetails.setOnClickListener {
+                if (etNameCardDetails.text.toString().isNotEmpty()) {
+                    viewModel.updateCardDetails()
+                } else {
+                    Toast.makeText(context, "Please enter a card name", Toast.LENGTH_SHORT).show()
+                }
             }
-            else{
-                Toast.makeText(context,"Please enter a card name", Toast.LENGTH_SHORT).show()
+
+            tvSelectLabelColor.setOnClickListener {
+                labelColorListDialog()
             }
+
+            tvSelectMembers.setOnClickListener {
+                membersListDialog()
+            }
+
+            tvSelectDueDate.setOnClickListener {
+                showDatePicker()
+            }
+
         }
 
-        binding.tvSelectLabelColor.setOnClickListener {
-            labelColorListDialog();
-        }
-
-        binding.tvSelectMembers.setOnClickListener {
-            membersListDialog();
-        }
-
-        binding.tvSelectDueDate.setOnClickListener {
-            showDatePicker();
-        }
     }
 
     private fun getCardName() {
@@ -103,13 +109,14 @@ class CardDetailsFragment : Fragment() {
     }
 
     private fun setUpSelectedColor() {
-        viewModel.setSelectedColor(viewModel.boardDetails?.value?.taskList
-            ?.get(viewModel.taskListPosition.value!!)
-            ?.cards!![viewModel.cardPosition.value!!]
-            .labelColor
+        viewModel.setSelectedColor(
+            viewModel.boardDetails?.value?.taskList
+                ?.get(viewModel.taskListPosition.value!!)
+                ?.cards!![viewModel.cardPosition.value!!]
+                .labelColor
         )
 
-        if(viewModel.selectedColor.value?.isNotEmpty() == true){
+        if (viewModel.selectedColor.value?.isNotEmpty() == true) {
             setColor()
         }
     }
@@ -122,33 +129,30 @@ class CardDetailsFragment : Fragment() {
 
     private fun initCardName() {
         viewModel.cardName.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
-            if(it == null ){
+            if (it == null) {
                 //showErrorSnackBar("Please enter a card name")
-            }
-            else{
-                Log.i("cardNameObserver","log log")
+            } else {
+                Log.i("cardNameObserver", "log log")
             }
         })
     }
 
     private fun initTaskListUpdated() {
         viewModel.taskListUpdated.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
-            if(it){
+            if (it) {
                 addUpdateTaskListSuccess()
-            }
-            else{
-                Log.i("taskListUpdatedObserver","it == false")
+            } else {
+                Log.i("taskListUpdatedObserver", "it == false")
             }
         })
     }
 
     private fun initAssignedMembers() {
         viewModel.assignedMemberDetailList.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
-            if(it != null && it.isNotEmpty()){
+            if (it != null && it.isNotEmpty()) {
                 setUpSelectedMembersList()
-            }
-            else{
-                Log.i("assignedMembersObserver","assigned mems is empty or null")
+            } else {
+                Log.i("assignedMembersObserver", "assigned mems is empty or null")
             }
 
         })
@@ -156,32 +160,40 @@ class CardDetailsFragment : Fragment() {
 
     private fun setUpCardNameEt() {
 
-        binding.etNameCardDetails.setText(
-            viewModel.boardDetails?.value
-                ?.taskList?.get(viewModel.taskListPosition.value!!)
-                ?.cards?.get(viewModel.cardPosition.value!!)
-                ?.name
-        )
+        binding.apply {
+            etNameCardDetails.apply {
+                setText(
+                    viewModel.boardDetails?.value
+                        ?.taskList?.get(viewModel.taskListPosition.value!!)
+                        ?.cards?.get(viewModel.cardPosition.value!!)
+                        ?.name
+                )
 
-        binding.etNameCardDetails.setSelection(binding
-            .etNameCardDetails
-            .text
-            .toString()
-            .length
-        )
+                setSelection(
+                    etNameCardDetails
+                        .text
+                        .toString()
+                        .length
+                )
+            }
+        }
 
     }
 
-    private fun getArgs(){
+    private fun getArgs() {
         val args: CardDetailsFragmentArgs by navArgs()
         val assignedMembers = (args.assignedUsers).toList()
-        viewModel.setBoardDetails(args.boardDetails)
-        viewModel.setAssignedMembers(assignedMembers as ArrayList<User>)
-        viewModel.setTaskListPosition(args.taskListItemPosition)
-        viewModel.setCardPosition(args.cardListItemPositoni)
+
+        viewModel.apply {
+            setBoardDetails(args.boardDetails)
+            setAssignedMembers(assignedMembers as ArrayList<User>)
+            setTaskListPosition(args.taskListItemPosition)
+            setCardPosition(args.cardListItemPositoni)
+        }
+
     }
 
-    private fun addUpdateTaskListSuccess(){
+    private fun addUpdateTaskListSuccess() {
         /*
         setResult(Activity.RESULT_OK);
         finish();
@@ -189,13 +201,13 @@ class CardDetailsFragment : Fragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_delete_card,menu);
-        return super.onCreateOptionsMenu(menu,inflater)
+        inflater.inflate(R.menu.menu_delete_card, menu);
+        return super.onCreateOptionsMenu(menu, inflater)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId){
-            R.id.action_delete_card ->{
+        when (item.itemId) {
+            R.id.action_delete_card -> {
                 alertDialogForDeleteCard(
                     viewModel.boardDetails?.value
                         ?.taskList?.get(viewModel.taskListPosition.value!!)
@@ -209,7 +221,7 @@ class CardDetailsFragment : Fragment() {
         return super.onOptionsItemSelected(item)
     }
 
-    private fun membersListDialog(){
+    private fun membersListDialog() {
 
         var cardAssignedMembersList = viewModel.boardDetails?.value
             ?.taskList
@@ -218,60 +230,62 @@ class CardDetailsFragment : Fragment() {
             ?.get(viewModel.cardPosition.value!!)
             ?.assignedTo
 
-        if(cardAssignedMembersList!!.size > 0){
-            for(i in viewModel.assignedMemberDetailList.value?.indices!!){
-                for(j in cardAssignedMembersList){
-                    if(viewModel.assignedMemberDetailList.value?.get(i)!!.id == j){
-                        viewModel.assignedMemberDetailList.value?.get(i)!!.selected = true
+        viewModel.assignedMemberDetailList.value?.apply {
+            if (cardAssignedMembersList!!.size > 0) {
+                for (i in indices) {
+                    for (j in cardAssignedMembersList) {
+                        if (get(i).id == j) {
+                            get(i).selected = true
+                        }
                     }
                 }
+            } else {
+                for (i in indices) {
+                    get(i).selected = false
+                }
             }
-        }
-        else{
-            for(i in viewModel.assignedMemberDetailList.value?.indices!!){
-                viewModel.assignedMemberDetailList.value?.get(i)!!.selected = false
-            }
+
         }
 
-        val listDialog = object: MembersListDialog(
+        val listDialog = object : MembersListDialog(
             requireContext(),
             viewModel.assignedMemberDetailList.value!!,
             resources.getString(R.string.str_select_member)
-        ){
+        ) {
             override fun onItemSelected(user: User, action: String) {
-                if(action == Constants.SELECT){
+                if (action == Constants.SELECT) {
 
-                    if(!viewModel.boardDetails?.value
-                            ?.taskList
-                            ?.get(viewModel.taskListPosition.value!!)
-                            ?.cards
-                            ?.get(viewModel.cardPosition.value!!)
-                            ?.assignedTo
-                            ?.contains(user.id)!!
-                    ){
-                        viewModel.boardDetails?.value
-                            ?.taskList
-                            ?.get(viewModel.taskListPosition.value!!)
-                            ?.cards
-                            ?.get(viewModel.cardPosition.value!!)
-                            ?.assignedTo!!.add(user.id)
-                    }
+                    viewModel.apply {
+                        boardDetails?.value?.taskList?.get(taskListPosition.value!!)?.cards?.get(
+                            cardPosition.value!!
+                        ).apply {
+                            if (!(this?.assignedTo?.contains(user.id)!!)) {
+                                this?.assignedTo?.add(user.id)
+                            }
 
-                }
-                else{
-                    viewModel.boardDetails?.value
-                        ?.taskList
-                        ?.get(viewModel.taskListPosition.value!!)
-                        ?.cards
-                        ?.get(viewModel.cardPosition.value!!)
-                        ?.assignedTo
-                        ?.remove(user.id)
-
-                    for(i in viewModel.assignedMemberDetailList.value?.indices!!){
-                        if(viewModel.assignedMemberDetailList.value!![i].id == user.id){
-                            viewModel.assignedMemberDetailList.value!![i].selected = false
                         }
                     }
+
+                } else {
+
+                    viewModel.apply {
+                        boardDetails?.value?.taskList?.get(taskListPosition.value!!)?.cards?.get(
+                            cardPosition.value!!
+                        ).apply {
+                            this?.assignedTo?.remove(user.id)
+                        }
+
+                        assignedMemberDetailList.value?.apply {
+                            for (i in indices!!) {
+                                if (get(i).id == user.id) {
+                                    get(i).selected = false
+                                }
+                            }
+
+                        }
+
+                    }
+
                 }
                 setUpSelectedMembersList()
             }
@@ -279,68 +293,88 @@ class CardDetailsFragment : Fragment() {
         listDialog.show()
     }
 
-    private fun setUpSelectedMembersList(){
-        val cardAssignedMemberList = viewModel.boardDetails?.value
-            ?.taskList
-            ?.get(viewModel.taskListPosition.value!!)
-            ?.cards
-            ?.get(viewModel.cardPosition.value!!)
-            ?.assignedTo
+    private fun setUpSelectedMembersList() {
 
-        val selectedMembersList: ArrayList<SelectedMembers> = ArrayList()
+        viewModel.apply {
+            val cardAssignedMemberList = boardDetails?.value
+                ?.taskList
+                ?.get(viewModel.taskListPosition.value!!)
+                ?.cards
+                ?.get(viewModel.cardPosition.value!!)
+                ?.assignedTo
 
-        for(i in viewModel.assignedMemberDetailList.value?.indices!!){
-            for(j in cardAssignedMemberList!!){
-                if(viewModel.assignedMemberDetailList.value!![i].id == j){
-                    val selectedMember = SelectedMembers(
-                        viewModel.assignedMemberDetailList.value!![i].id,
-                        viewModel.assignedMemberDetailList.value!![i].image
-                    )
-                    selectedMembersList.add(selectedMember)
+            val selectedMembersList: ArrayList<SelectedMembers> = ArrayList()
+
+            assignedMemberDetailList.value?.apply {
+                for (i in indices) {
+                    for (j in cardAssignedMemberList!!) {
+                        if (get(i).id == j) {
+                            val selectedMember = SelectedMembers(
+                                get(i).id,
+                                get(i).image
+                            )
+                            selectedMembersList.add(selectedMember)
+                        }
+                    }
                 }
             }
-        }
 
-        if(selectedMembersList.size > 0){
-            selectedMembersList.add(SelectedMembers("",""))
-            binding.tvSelectMembers.visibility = View.GONE
-            binding.rvSelectedMembers.visibility = View.VISIBLE
+            binding.apply {
+                if (selectedMembersList.size > 0) {
+                    selectedMembersList.add(SelectedMembers("", ""))
 
-            binding.rvSelectedMembers.layoutManager = GridLayoutManager(requireContext(),6)
-            val adapter = CardMembersListItemAdapter(requireContext(),selectedMembersList,true)
-            binding.rvSelectedMembers.adapter = adapter
-            adapter.setOnClickListener(object : MemberItemClickInterface {
-                override fun onClick() {
-                    membersListDialog()
+                    tvSelectMembers.gone()
+                    rvSelectedMembers.visible()
+
+                    val adapterToSet =
+                        CardMembersListItemAdapter(requireContext(), selectedMembersList, true)
+
+                    rvSelectedMembers.apply {
+                        layoutManager = GridLayoutManager(requireContext(), 6)
+                        adapter = adapterToSet
+                    }
+
+                    adapterToSet.setOnClickListener(object : MemberItemClickInterface {
+                        override fun onClick() {
+                            membersListDialog()
+                        }
+
+                    })
+
+                } else {
+                    tvSelectMembers.visible()
+                    rvSelectedMembers.gone()
                 }
-
-            })
-
-        }
-        else{
-            binding.tvSelectMembers.visibility = View.VISIBLE;
-            binding.rvSelectedMembers.visibility = View.GONE;
+            }
 
         }
-
     }
 
+    private fun alertDialogForDeleteCard(cardName: String) {
+        val builder = AlertDialog.Builder(requireContext())
 
-    private fun alertDialogForDeleteCard(cardName: String){
-        val builder = AlertDialog.Builder(requireContext());
-        builder.setTitle(resources.getString(R.string.alert));
-        builder.setMessage(resources.getString(R.string.confirmation_message_to_delete_card,cardName))
-        builder.setIcon(android.R.drawable.ic_dialog_alert);
+        builder.apply {
+            setTitle(resources.getString(R.string.alert));
+            setMessage(
+                resources.getString(
+                    R.string.confirmation_message_to_delete_card,
+                    cardName
+                )
+            )
+            setIcon(android.R.drawable.ic_dialog_alert);
 
-        builder.setPositiveButton(resources.getString(R.string.yes)){dialogInterface, which ->
-            dialogInterface.dismiss();
-            viewModel.deleteCard();
+            setPositiveButton(resources.getString(R.string.yes)) { dialogInterface, which ->
+                dialogInterface.dismiss();
+                viewModel.deleteCard();
+
+            }
+
+            setNegativeButton(resources.getString(R.string.no)) { dialogInterface, which ->
+                dialogInterface.dismiss();
+            }
 
         }
 
-        builder.setNegativeButton(resources.getString(R.string.no)){dialogInterface, which ->
-            dialogInterface.dismiss();
-        }
 
         val alertDialog: AlertDialog = builder.create()
         alertDialog.setCancelable(false)
@@ -348,7 +382,7 @@ class CardDetailsFragment : Fragment() {
 
     }
 
-    private fun colorsList(): ArrayList<String>{
+    private fun colorsList(): ArrayList<String> {
         val colorsList: ArrayList<String> = ArrayList()
         colorsList.add("#43C86F")
         colorsList.add("#0C90F1")
@@ -361,19 +395,24 @@ class CardDetailsFragment : Fragment() {
         return colorsList;
     }
 
-    private fun setColor(){
-        binding.tvSelectLabelColor.text = ""
-        binding.tvSelectLabelColor.setBackgroundColor(
-            Color.parseColor(viewModel.selectedColor.value.toString())
-        )
+    private fun setColor() {
+        binding.apply {
+            tvSelectLabelColor.text = ""
+            tvSelectLabelColor.setBackgroundColor(
+                Color.parseColor(viewModel.selectedColor.value.toString())
+            )
+
+        }
 
     }
 
-    private fun labelColorListDialog(){
-        val colorsList : ArrayList<String> = colorsList();
-        val listDialog = object: LabelColorListDialog(requireContext(),
-            colorsList,resources.getString(R.string.str_select_label_color),
-            viewModel.selectedColor.value.toString()){
+    private fun labelColorListDialog() {
+        val colorsList: ArrayList<String> = colorsList();
+        val listDialog = object : LabelColorListDialog(
+            requireContext(),
+            colorsList, resources.getString(R.string.str_select_label_color),
+            viewModel.selectedColor.value.toString()
+        ) {
             override fun onItemSelected(color: String) {
                 viewModel.setSelectedColor(color)
                 setColor()
@@ -382,7 +421,7 @@ class CardDetailsFragment : Fragment() {
         listDialog.show()
     }
 
-    private fun showDatePicker(){
+    private fun showDatePicker() {
         val calendar = Calendar.getInstance()
         val year = calendar.get(Calendar.YEAR)
         val month = calendar.get(Calendar.MONTH)
@@ -390,9 +429,10 @@ class CardDetailsFragment : Fragment() {
 
         val datePickerDialog = DatePickerDialog(
             requireContext(),
-            DatePickerDialog.OnDateSetListener{ view, year, monthOfYear, dayOfMonth ->
-                val sDayOfMonth = if(dayOfMonth < 1) "0$dayOfMonth" else "$dayOfMonth"
-                val sMonthOfYear = if((monthOfYear + 1) < 10) "0${monthOfYear + 1}" else "${monthOfYear + 1}"
+            DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
+                val sDayOfMonth = if (dayOfMonth < 1) "0$dayOfMonth" else "$dayOfMonth"
+                val sMonthOfYear =
+                    if ((monthOfYear + 1) < 10) "0${monthOfYear + 1}" else "${monthOfYear + 1}"
 
                 val selectedDate = "$sDayOfMonth/$sMonthOfYear/$year"
                 binding.tvSelectDueDate.text = selectedDate

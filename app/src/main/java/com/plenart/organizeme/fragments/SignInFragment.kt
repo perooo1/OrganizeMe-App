@@ -46,14 +46,14 @@ class SignInFragment : Fragment() {
 
     private fun getEmail() = with(binding.etEmailSignInActivity) {
         this.doAfterTextChanged {
-            viewModel.setEmail(it.toString())
+            viewModel.setEmail(text.toString())
         }
 
     }
 
-    private fun getPassword() {
-        binding.etPasswordSignInActivity.doAfterTextChanged {
-            viewModel.setPassword(it.toString())
+    private fun getPassword()=with(binding.etPasswordSignInActivity) {
+        this.doAfterTextChanged {
+            viewModel.setPassword(text.toString())
         }
     }
 
@@ -68,7 +68,7 @@ class SignInFragment : Fragment() {
             if(newEmail == null || !newEmail.contains('@')){
                 //showErrorSnackBar("Please enter email")
             }
-        });
+        })
     }
 
     private fun initPassword(){
@@ -81,20 +81,19 @@ class SignInFragment : Fragment() {
 
     private fun initUser(){
         viewModel.user?.observe(viewLifecycleOwner, Observer { newUser ->
-            if(newUser != null){
-                //showProgressDialog(resources.getString(R.string.please_wait))
+            if(newUser){
                 signInSuccess()
             }
             else{
-                Log.i("initUser","newUser == null");
+                Log.i("initUser","newUser == false");
+
             }
+
         } )
     }
 
     private fun signInSuccess() {
-        //hideProgressDialog()
         findNavController().navigate(R.id.action_signInFragment_to_secNavHostFragment)
-
     }
 
 }

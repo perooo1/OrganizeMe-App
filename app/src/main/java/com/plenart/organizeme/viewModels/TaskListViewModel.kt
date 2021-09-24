@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.plenart.organizeme.firebase.Firestore
 import com.plenart.organizeme.models.Board
-import com.plenart.organizeme.models.Card
 import com.plenart.organizeme.models.Task
 import com.plenart.organizeme.models.User
 import kotlinx.coroutines.launch

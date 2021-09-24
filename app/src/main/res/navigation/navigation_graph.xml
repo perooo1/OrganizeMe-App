@@ -17,7 +17,10 @@
             app:popUpToInclusive="true" />
         <action
             android:id="@+id/action_splashFragment_to_secNavHostFragment"
-            app:destination="@id/secNavHostFragment" />
+            app:destination="@id/secNavHostFragment"
+            app:popUpTo="@id/splashFragment"
+            app:popUpToInclusive="true"
+            />
     </fragment>
     <fragment
         android:id="@+id/introFragment"
@@ -44,7 +47,11 @@
         android:id="@+id/signUpFragment"
         android:name="com.plenart.organizeme.fragments.SignUpFragment"
         android:label="@string/sign_up"
-        tools:layout="@layout/fragment_sign_up" />
+        tools:layout="@layout/fragment_sign_up" >
+        <action
+            android:id="@+id/action_signUpFragment_to_secNavHostFragment"
+            app:destination="@id/secNavHostFragment" />
+    </fragment>
     <fragment
         android:id="@+id/membersFragment"
         android:name="com.plenart.organizeme.fragments.MembersFragment"

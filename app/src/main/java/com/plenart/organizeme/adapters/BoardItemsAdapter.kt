@@ -58,7 +58,7 @@ open class BoardItemsAdapter(private val context: Context, private val list: Arr
         fun bindListeners(position: Int, model:Board){
             itemView.setOnClickListener{
                 if(boardItemClickListener != null){
-                    boardItemClickListener!!.onClick(position,model)
+                    boardItemClickListener?.onClick(position,model)
                 }
             }
         }

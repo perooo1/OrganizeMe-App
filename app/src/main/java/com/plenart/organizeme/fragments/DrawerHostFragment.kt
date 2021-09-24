@@ -7,10 +7,10 @@ import android.view.ViewGroup
 import androidx.appcompat.widget.Toolbar
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
-import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
+import com.google.firebase.auth.FirebaseAuth
 import com.plenart.organizeme.R
 import com.plenart.organizeme.databinding.FragmentDrawerHostBinding
 
@@ -21,7 +21,7 @@ class DrawerHostFragment : Fragment() {
     private lateinit var toolbar: Toolbar
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var drawerLayout: DrawerLayout
-    private lateinit var navController: NavController
+    private lateinit var navHostFragment: NavHostFragment
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -40,8 +40,8 @@ class DrawerHostFragment : Fragment() {
         setupNavController()
         setupNavigationDrawer()
 
-        toolbar.setupWithNavController(navController,appBarConfiguration)
-        binding.navView.setupWithNavController(navController)
+        toolbar.setupWithNavController(navHostFragment.navController,appBarConfiguration)
+        binding.navView.setupWithNavController(navHostFragment.navController)
 
     }
 
@@ -51,9 +51,21 @@ class DrawerHostFragment : Fragment() {
     }
 
     private fun setupNavController() {
-        val navHostFragment = childFragmentManager.findFragmentById(R.id.sec_nav_host) as NavHostFragment
-        navController = navHostFragment.navController
+        navHostFragment = childFragmentManager.findFragmentById(R.id.sec_nav_host) as NavHostFragment
+        //navController = navHostFragment.navController
 
+        setupNavControllerListeners()
+
+
+    }
+
+    private fun setupNavControllerListeners() {
+        navHostFragment.navController.addOnDestinationChangedListener { _, destination, _ ->
+            if (destination.id == R.id.introFragment) {
+                FirebaseAuth.getInstance().signOut()
+
+            }
+        }
     }
 
 }

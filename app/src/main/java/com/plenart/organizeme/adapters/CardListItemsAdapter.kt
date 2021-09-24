@@ -3,7 +3,6 @@ package com.plenart.organizeme.adapters
 import android.content.Context
 import android.graphics.Color
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ListAdapter
@@ -13,12 +12,14 @@ import com.plenart.organizeme.interfaces.CardItemClickInterface
 import com.plenart.organizeme.interfaces.MemberItemClickInterface
 import com.plenart.organizeme.models.Card
 import com.plenart.organizeme.models.SelectedMembers
+import com.plenart.organizeme.models.User
 import com.plenart.organizeme.utils.CardDiffCallback
-import com.plenart.organizeme.viewModels.TaskListViewModel
+import com.plenart.organizeme.utils.gone
+import com.plenart.organizeme.utils.visible
 
 class CardListItemsAdapter(
     private val context: Context,
-    private val viewModel: TaskListViewModel
+    private val members: ArrayList<User>
 ) :
     ListAdapter<Card, CardListItemsAdapter.CardItemViewHolder>(CardDiffCallback()) {
 
@@ -50,60 +51,54 @@ class CardListItemsAdapter(
         private fun bindColor(card: Card) {
             if (card.labelColor.isNotEmpty()) {
                 binding.apply {
-                    binding.viewLabelColor.visibility = View.VISIBLE
+                    binding.viewLabelColor.visible()
                     binding.viewLabelColor.setBackgroundColor(Color.parseColor(card.labelColor))
                 }
             } else
-                binding.viewLabelColor.visibility = View.GONE
+                binding.viewLabelColor.gone()
 
         }
 
         private fun setupSelectedMembers(card: Card, position: Int) {
-            if (viewModel.assignedMemberDetailList.value?.size!! > 0) {
-                val selectedMembersList: ArrayList<SelectedMembers> = ArrayList();
-
-                for (i in viewModel.assignedMemberDetailList.value?.indices!!) {
+            if (members.size > 0) {
+                val selectedMembersList: ArrayList<SelectedMembers> = ArrayList()
+                for (i in members.indices) {
                     for (j in card.assignedTo) {
-                        if (viewModel.assignedMemberDetailList.value!![i].id == j) {
-
+                        if (members[i].id == j) {
                             val selectedMembers = SelectedMembers(
-                                viewModel.assignedMemberDetailList.value!![i].id,
-                                viewModel.assignedMemberDetailList.value!![i].image
+                                members[i].id,
+                                members[i].image
                             )
-
                             selectedMembersList.add(selectedMembers)
-
                         }
                     }
                 }
 
                 if (selectedMembersList.size > 0) {
                     if (selectedMembersList.size == 1 && selectedMembersList[0].id == card.createdBy) {
-                        binding.rvCardSelectedMembersList.visibility = View.GONE
+                        binding.rvCardSelectedMembersList.gone()
                     } else {
-                        binding.rvCardSelectedMembersList.visibility = View.VISIBLE
-                        binding.rvCardSelectedMembersList.layoutManager =
-                            GridLayoutManager(context, 4)
-
-                        val adapter =
+                        val adapterCardMembers =
                             CardMembersListItemAdapter(context, selectedMembersList, false)
-                        binding.rvCardSelectedMembersList.adapter = adapter
 
-                        adapter.setOnClickListener(object : MemberItemClickInterface {
+                        binding.apply {
+                            rvCardSelectedMembersList.apply {
+                                visible()
+                                layoutManager = GridLayoutManager(context, 4)
+                                adapter = adapterCardMembers
+                            }
+                        }
+
+                        adapterCardMembers.setOnClickListener(object : MemberItemClickInterface {
                             override fun onClick() {
-
-                                if (onClickListener != null) {
-                                    onClickListener!!.onClick(position)
-                                }
+                                onClickListener?.onClick(position)
 
                             }
-
                         })
-
 
                     }
                 } else {
-                    binding.rvCardSelectedMembersList.visibility = View.GONE
+                    binding.rvCardSelectedMembersList.gone()
                 }
 
             }

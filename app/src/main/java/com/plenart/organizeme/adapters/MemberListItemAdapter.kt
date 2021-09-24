@@ -2,7 +2,6 @@ package com.plenart.organizeme.adapters
 
 import android.content.Context
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -11,6 +10,8 @@ import com.plenart.organizeme.databinding.ItemMemberBinding
 import com.plenart.organizeme.interfaces.SelectedMembersClickInterface
 import com.plenart.organizeme.models.User
 import com.plenart.organizeme.utils.Constants
+import com.plenart.organizeme.utils.gone
+import com.plenart.organizeme.utils.visible
 
 class MemberListItemAdapter(private val context: Context, private val list: ArrayList<User>): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -23,32 +24,18 @@ class MemberListItemAdapter(private val context: Context, private val list: Arra
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val model = list[position];
+        val model = list[position]
 
         if(holder is MemberItemViewHolder){
-            Glide.with(context)
-                .load(model.image)
-                .centerCrop()
-                .placeholder(R.drawable.ic_user_place_holder)
-                .into(holder.binding.ivMemberImage);
-
-            holder.binding.tvMemberNameItemMember.text = model.name;
-            holder.binding.tvMemberEmailItemMember.text = model.email;
-
-            if(model.selected){
-                holder.binding.ivSelectedMembers.visibility = View.VISIBLE;
-            }
-            else{
-                holder.binding.ivSelectedMembers.visibility = View.GONE;
-            }
+            holder.bind(model,position)
 
             holder.itemView.setOnClickListener{
                 if(onClickListener != null){
                     if(model.selected){
-                        onClickListener!!.onClick(position,model,Constants.UN_SELECT);
+                        onClickListener!!.onClick(position,model,Constants.UN_SELECT)
                     }
                     else{
-                        onClickListener!!.onClick(position,model,Constants.SELECT);
+                        onClickListener!!.onClick(position,model,Constants.SELECT)
                     }
                 }
             }
@@ -58,15 +45,34 @@ class MemberListItemAdapter(private val context: Context, private val list: Arra
     }
 
     override fun getItemCount(): Int {
-        return list.size;
+        return list.size
     }
 
     fun setOnClickListener(onClickListener: SelectedMembersClickInterface){
-        this.onClickListener = onClickListener;
+        this.onClickListener = onClickListener
     }
 
     inner class MemberItemViewHolder(val binding: ItemMemberBinding): RecyclerView.ViewHolder(binding.root){
+        fun bind(model: User, position: Int) {
+            Glide.with(context)
+                .load(model.image)
+                .centerCrop()
+                .placeholder(R.drawable.ic_user_place_holder)
+                .into(binding.ivMemberImage)
 
+            binding.apply {
+                tvMemberNameItemMember.text = model.name
+                tvMemberEmailItemMember.text = model.email
+
+                if(model.selected){
+                    ivSelectedMembers.visible()
+                }
+                else{
+                    ivSelectedMembers.gone()
+                }
+            }
+
+        }
     }
 
 }

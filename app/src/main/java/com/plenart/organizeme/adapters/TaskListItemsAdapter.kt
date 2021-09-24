@@ -3,8 +3,8 @@ package com.plenart.organizeme.adapters
 import android.app.AlertDialog
 import android.content.Context
 import android.content.res.Resources
+import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Toast
@@ -14,15 +14,17 @@ import com.plenart.organizeme.databinding.ItemTaskBinding
 import com.plenart.organizeme.interfaces.CardItemClickInterface
 import com.plenart.organizeme.interfaces.ITaskListCallback
 import com.plenart.organizeme.models.Task
+import com.plenart.organizeme.models.User
 import com.plenart.organizeme.utils.TaskDiffCallback
-import com.plenart.organizeme.viewModels.TaskListViewModel
+import com.plenart.organizeme.utils.gone
+import com.plenart.organizeme.utils.visible
 import java.util.*
 
 class TaskListItemsAdapter(
     private val context: Context,
     private var list: ArrayList<Task>,
     private val taskListCallback: ITaskListCallback,
-    private val viewModel: TaskListViewModel
+    private val members: ArrayList<User>
 ) :
     ListAdapter<Task, TaskListItemsAdapter.ListItemViewHolder>(TaskDiffCallback()) {
 
@@ -81,26 +83,26 @@ class TaskListItemsAdapter(
         fun bind(task: Task, position: Int) {
             if (position == list.size - 1) {
                 binding.apply {
-                    tvAddTaskList.visibility = View.VISIBLE
-                    llTaskItem.visibility = View.GONE
+                    tvAddTaskList.visible()
+                    llTaskItem.gone()
                 }
             } else {
                 binding.apply {
-                    tvAddTaskList.visibility = View.GONE
-                    llTaskItem.visibility = View.VISIBLE
+                    tvAddTaskList.gone()
+                    llTaskItem.visible()
                 }
             }
 
             binding.apply {
                 tvTaskListTitle.text = task.title
                 tvAddTaskList.setOnClickListener {
-                    tvAddTaskList.visibility = View.GONE
-                    cvAddTaskListName.visibility = View.VISIBLE
+                    tvAddTaskList.gone()
+                    cvAddTaskListName.visible()
                 }
 
                 ibCloseListName.setOnClickListener {
-                    tvAddTaskList.visibility = View.VISIBLE
-                    cvAddTaskListName.visibility = View.GONE
+                    tvAddTaskList.visible()
+                    cvAddTaskListName.gone()
                 }
 
             }
@@ -130,13 +132,13 @@ class TaskListItemsAdapter(
             binding.apply {
                 ibEditListName.setOnClickListener {
                     etEditTaskListName.setText(task.title)
-                    llTitleView.visibility = View.GONE
-                    cvEditTaskListName.visibility = View.VISIBLE
+                    llTitleView.gone()
+                    cvEditTaskListName.visible()
                 }
 
                 ibCloseEditableView.setOnClickListener {
-                    llTitleView.visibility = View.VISIBLE
-                    cvEditTaskListName.visibility = View.GONE
+                    llTitleView.visible()
+                    cvEditTaskListName.gone()
                 }
 
                 ibDoneEditListName.setOnClickListener {
@@ -163,13 +165,13 @@ class TaskListItemsAdapter(
         private fun displayCards(task: Task, position: Int) {
             binding.apply {
                 tvAddCard.setOnClickListener {
-                    tvAddCard.visibility = View.GONE
-                    cvAddCard.visibility = View.VISIBLE
+                    tvAddCard.gone()
+                    cvAddCard.visible()
                 }
 
                 ibCloseCardName.setOnClickListener {
-                    tvAddCard.visibility = View.VISIBLE
-                    cvAddCard.visibility = View.GONE
+                    tvAddCard.visible()
+                    cvAddCard.gone()
                 }
 
                 ibDoneCardName.setOnClickListener {
@@ -196,8 +198,7 @@ class TaskListItemsAdapter(
         }
 
         private fun loadCards(task: Task, position: Int) {
-
-            val adapterCard = CardListItemsAdapter(context, viewModel)
+            val adapterCard = CardListItemsAdapter(context, members)
             adapterCard.submitList(task.cards)
 
             binding.apply {
@@ -207,17 +208,20 @@ class TaskListItemsAdapter(
                     adapter = adapterCard
                 }
 
-                adapterCard.setOnClickListener(object : CardItemClickInterface {
-                    override fun onClick(cardPosition: Int) {
-                        taskListCallback.cardDetails(
-                            position,
-                            cardPosition
-                        )         //first position is taskList position
-                    }
-
-                })
-
             }
+
+            adapterCard.setOnClickListener(object : CardItemClickInterface {
+                override fun onClick(cardPosition: Int) {
+                    Log.i("loadCards","inside override")
+
+                    taskListCallback.cardDetails(
+                        position,
+                        cardPosition
+                    )         //first position is taskList position
+                }
+
+            })
+
         }
 
         private fun repositionCards(task: Task, position: Int) {

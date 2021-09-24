@@ -159,16 +159,23 @@ class MyProfileFragment : Fragment() {
 
     private fun setUserDataInUI(){
 
-        Glide.with(requireActivity())
-            .load(viewModel.user.value?.image)
-            .centerCrop()
-            .placeholder(R.drawable.ic_user_place_holder)
-            .into(binding.ivUserImage)
+        binding.apply {
+            Glide.with(requireActivity())
+                .load(viewModel.user.value?.image)
+                .centerCrop()
+                .placeholder(R.drawable.ic_user_place_holder)
+                .into(ivUserImage)
 
-        binding.etNameMyProfileActivity.setText(viewModel.user.value?.name)
-        binding.etEmailMyProfileActivity.setText(viewModel.user.value?.email)
-        if(viewModel.user.value?.mobile != 0L){
-            binding.etMobileMyProfileActivity.setText(viewModel.user.value?.mobile.toString())
+            viewModel.apply {
+                etNameMyProfileActivity.setText(user.value?.name)
+                etEmailMyProfileActivity.setText(user.value?.email)
+
+                if(user.value?.mobile != 0L){
+                    etMobileMyProfileActivity.setText(user.value?.mobile.toString())
+                }
+
+            }
+
         }
 
     }

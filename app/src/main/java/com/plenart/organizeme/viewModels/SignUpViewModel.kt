@@ -4,12 +4,14 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.plenart.organizeme.firebase.Firestore
 import com.plenart.organizeme.models.User
+import kotlinx.coroutines.launch
 
-class SignUpViewModel: ViewModel() {
+class SignUpViewModel : ViewModel() {
     private lateinit var auth: FirebaseAuth;
 
     private val _name: MutableLiveData<String> = MutableLiveData()
@@ -33,33 +35,40 @@ class SignUpViewModel: ViewModel() {
         Log.i("SignUpViewModel", "SignUpView model created!")
     }
 
-    fun registerUser(){
-
+    fun registerUser() {
         auth = FirebaseAuth.getInstance()
+        auth.createUserWithEmailAndPassword(_email.value.toString(), _password.value.toString())
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
 
-        auth.createUserWithEmailAndPassword(_email.value.toString(), _password.value.toString()).addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                val firebaseUser: FirebaseUser = task.result!!.user!!
-                val registeredEmail = firebaseUser.email!!
-                val user = User(firebaseUser.uid,_name.value.toString(), registeredEmail)
-                _userRegisterSuccess.value = Firestore().registerUser(user)
-                Log.d("registerUser","createUserWithEmailAndPassword Success")
+                    viewModelScope.launch {
+
+                        val firebaseUser: FirebaseUser = task.result!!.user!!
+                        val registeredEmail = firebaseUser.email!!
+                        val user = User(firebaseUser.uid, _name.value.toString(), registeredEmail)
+                        _userRegisterSuccess.value = Firestore().registerUser(user)
+                        Log.d(
+                            "SignUpViewModel",
+                            "createUserWithEmailAndPassword Success - ${_userRegisterSuccess.value.toString()}"
+                        )
+                    }
+
+                } else {
+                    Log.d("SignUpViewModel", "createUserWithEmailAndPassword Failed")
+                }
             }
-            else{
-                Log.d("registerUser","createUserWithEmailAndPassword Failed")
-            }
-        }
+
     }
 
-    fun setName(name: String){
+    fun setName(name: String) {
         _name.value = name
     }
 
-    fun setEmail(email: String){
+    fun setEmail(email: String) {
         _email.value = email
     }
 
-    fun setPassword(password: String){
+    fun setPassword(password: String) {
         _password.value = password
     }
 

@@ -9,7 +9,9 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
+import com.plenart.organizeme.R
 import com.plenart.organizeme.databinding.FragmentSignUpBinding
 import com.plenart.organizeme.viewModels.SignUpViewModel
 
@@ -51,21 +53,21 @@ class SignUpFragment : Fragment() {
         initUserRegister()
     }
 
-    private fun getName(){
-        binding.etNameSignUpActivity.doAfterTextChanged {
-            viewModel.setName(it.toString())
+    private fun getName()=with(binding.etNameSignUpActivity){
+        this.doAfterTextChanged {
+            viewModel.setName(text.toString())
         }
     }
 
-    private fun getEmail() {
-        binding.etEmailSignUpActivity.doAfterTextChanged {
-            viewModel.setEmail(it.toString())
+    private fun getEmail()=with(binding.etEmailSignUpActivity) {
+        this.doAfterTextChanged {
+            viewModel.setEmail(text.toString())
         }
     }
 
-    private fun getPassword() {
-        binding.etEmailSignUpActivity.doAfterTextChanged {
-            viewModel.setPassword(it.toString())
+    private fun getPassword()=with(binding.etPasswordSignUpActivity) {
+        this.doAfterTextChanged {
+            viewModel.setPassword(text.toString())
         }
     }
 
@@ -115,8 +117,7 @@ class SignUpFragment : Fragment() {
 
     private fun userRegisteredSuccess(){
         Toast.makeText(activity, " you have successfully registered the email", Toast.LENGTH_LONG).show()
-        //hideProgressDialog()
-        FirebaseAuth.getInstance().signOut()
+        findNavController().navigate(R.id.action_signUpFragment_to_secNavHostFragment)
     }
 
 

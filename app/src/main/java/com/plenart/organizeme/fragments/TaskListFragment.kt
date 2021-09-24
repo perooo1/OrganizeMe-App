@@ -17,6 +17,7 @@ import com.plenart.organizeme.databinding.FragmentTaskListBinding
 import com.plenart.organizeme.interfaces.ITaskListCallback
 import com.plenart.organizeme.models.Card
 import com.plenart.organizeme.models.Task
+import com.plenart.organizeme.models.User
 import com.plenart.organizeme.utils.Constants
 import com.plenart.organizeme.viewModels.TaskListViewModel
 
@@ -83,7 +84,7 @@ class TaskListFragment : Fragment(), ITaskListCallback {
     private fun initAssignedMembers() {
         viewModel.assignedMemberDetailList.observe(viewLifecycleOwner, Observer { members ->
             if (members != null && members.isNotEmpty()) {
-                boardMembersDetailsList()
+                boardMembersDetailsList(members)
             } else {
                 Log.i(
                     "assignedMembersObserver",
@@ -187,7 +188,7 @@ class TaskListFragment : Fragment(), ITaskListCallback {
 
     }
 
-    private fun boardMembersDetailsList() {
+    private fun boardMembersDetailsList(members: ArrayList<User>) {
         val addTaskList = Task(resources.getString(R.string.add_list))
         viewModel.boardDetails?.value?.taskList?.add(addTaskList)
 
@@ -195,7 +196,7 @@ class TaskListFragment : Fragment(), ITaskListCallback {
             requireActivity(),
             viewModel.boardDetails?.value?.taskList!!,
             this,
-            viewModel
+            members
         )
 
         viewModel.taskList.observe(viewLifecycleOwner, Observer {

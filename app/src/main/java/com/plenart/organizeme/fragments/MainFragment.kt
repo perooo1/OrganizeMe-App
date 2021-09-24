@@ -54,6 +54,7 @@ class MainFragment : Fragment() {
                 viewModel.userName.value.toString()
             )
             requireActivity().findNavController(R.id.main_content_navigation_component).navigate(directions)
+
         }
 
     }

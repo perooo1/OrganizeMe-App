@@ -4,19 +4,15 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseAuthException
-import com.plenart.organizeme.firebase.Firestore
-import com.plenart.organizeme.models.User
-import kotlinx.coroutines.launch
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 
 class SignInViewModel: ViewModel() {
     private lateinit var auth: FirebaseAuth
 
     private val _email: MutableLiveData<String> = MutableLiveData()
     private val _password: MutableLiveData<String> = MutableLiveData()
-    private val _user: MutableLiveData<User> = MutableLiveData()
+    private val _user: MutableLiveData<Boolean> = MutableLiveData()
 
     val email: LiveData<String>
         get() = _email
@@ -24,11 +20,12 @@ class SignInViewModel: ViewModel() {
     val password: LiveData<String>
         get() = _password
 
-    val user: LiveData<User>
+    val user: LiveData<Boolean>
         get() = _user
 
     init {
         Log.i("SignInViewModel", "SignInView model created!")
+        _user.value = false
     }
 
     fun signInUser(){
@@ -36,16 +33,14 @@ class SignInViewModel: ViewModel() {
         auth.signInWithEmailAndPassword(_email.value.toString(), _password.value.toString()).addOnCompleteListener{ task ->
             try{
                 if(task.isSuccessful){
-                    viewModelScope.launch {
-                        _user?.postValue(Firestore().loadUserData())
-                        val user = auth.currentUser
-                    }
+                    _user.value = true
                 }
                 else{
-                    task.exception;
+                    _user.value = false;
+                    task.exception
                 }
             }
-            catch (e: FirebaseAuthException){
+            catch (e: FirebaseAuthInvalidCredentialsException){
                 e.errorCode
             }
         }

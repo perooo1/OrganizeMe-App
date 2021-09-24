@@ -28,7 +28,7 @@ class MembersFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        binding = FragmentMembersBinding.inflate(inflater,container,false)
+        binding = FragmentMembersBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -37,10 +37,9 @@ class MembersFragment : Fragment() {
 
         initObservers()
         initListeners()
-        try{
+        try {
             getArgs()
-        }
-        catch (e: InvocationTargetException) {
+        } catch (e: InvocationTargetException) {
             Log.e("memfr", e.cause.toString())
         }
 
@@ -68,69 +67,87 @@ class MembersFragment : Fragment() {
     }
 
     private fun initMember() {
-        viewModel.member?.observe(viewLifecycleOwner, Observer{
+        viewModel.member?.observe(viewLifecycleOwner, Observer {
             memberDetails()
         })
     }
 
     private fun initMemberAssigned() {
         viewModel.memberAssignSuccess.observe(viewLifecycleOwner, Observer {
-            if (it){
+            if (it) {
                 memberAssignSuccess()
-            }
-            else{
-                Log.i("memberAssignedObserver","error assigning member; it == false")
+            } else {
+                Log.i("memberAssignedObserver", "error assigning member; it == false")
             }
         })
     }
 
     private fun initAssignedMembers() {
         viewModel.assignedMemberDetailList.observe(viewLifecycleOwner, Observer { members ->
-            if(members != null && members.isNotEmpty()){
+            if (members != null && members.isNotEmpty()) {
                 setUpMembersList()
-            }
-            else{
-                Log.i("assignedMembersObserverMembers","assignedMembers is empty or null")
+            } else {
+                Log.i("assignedMembersObserverMembers", "assignedMembers is empty or null")
             }
 
         })
     }
 
-    private fun setUpMembersList(){
-        binding.rvMembers.layoutManager = LinearLayoutManager(requireContext())
-        binding.rvMembers.setHasFixedSize(true)
+    private fun setUpMembersList() {
+        val adapterToSet =
+            MemberListItemAdapter(requireContext(), viewModel.assignedMemberDetailList.value!!)
+        binding.apply {
+            rvMembers.apply {
+                layoutManager = LinearLayoutManager(requireContext())
+                setHasFixedSize(true)
+                adapter = adapterToSet
 
-        val adapter = MemberListItemAdapter(requireContext(), viewModel.assignedMemberDetailList?.value!!)
-        binding.rvMembers.adapter = adapter
+            }
+
+        }
     }
 
-    private fun memberDetails(){
-        viewModel.boardDetails?.value?.assignedTo?.add(viewModel.member?.value?.id.toString())
-        viewModel.firestore.assignMemberToBoard(viewModel.boardDetails?.value!!)
+    private fun memberDetails() {
+        viewModel.apply {
+            boardDetails?.value?.assignedTo?.add(viewModel.member?.value?.id.toString())
+            firestore.assignMemberToBoard(viewModel.boardDetails?.value!!)
+        }
     }
 
-    private fun memberAssignSuccess(){
-        viewModel.assignedMemberDetailList.value?.add(viewModel.member?.value!!)
-        viewModel.setAnyChangesMade(true)
+    private fun memberAssignSuccess() {
+        viewModel.apply {
+            assignedMemberDetailList.value?.add(viewModel.member?.value!!)
+            setAnyChangesMade(true)
+
+        }
         setUpMembersList()
     }
 
-    private fun dialogAddSearchMember(){
+    private fun dialogAddSearchMember() {
 
         val dialog = Dialog(requireContext())
 
-        var dialogBinding: DialogAddSearchMemberBinding = DialogAddSearchMemberBinding.inflate(layoutInflater)
+        var dialogBinding: DialogAddSearchMemberBinding =
+            DialogAddSearchMemberBinding.inflate(layoutInflater)
         dialog.setContentView(dialogBinding.root)
 
         dialogBinding.tvAddMember.setOnClickListener {
-            viewModel.setEmail(dialogBinding.etEmailSearchMember.text.toString())
-            if(viewModel.email.value?.isNotEmpty() == true){
-                dialog.dismiss();
-                viewModel.setMemberFromDialog()
+
+            viewModel.apply {
+                setEmail(dialogBinding.etEmailSearchMember.text.toString())
+                if (viewModel.email.value?.isNotEmpty() == true) {
+                    dialog.dismiss();
+                    setMemberFromDialog()
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        "Please enter members' email address",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
             }
-            else{
-                Toast.makeText(requireContext(), "Please enter members' email address", Toast.LENGTH_SHORT).show()
-            }
+
         }
         dialogBinding.tvCancel.setOnClickListener {
             dialog.dismiss();
