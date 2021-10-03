@@ -115,5 +115,9 @@
         <action
             android:id="@+id/action_secNavHostFragment_to_createBoardFragment"
             app:destination="@id/createBoardFragment" />
+        <action
+            android:id="@+id/action_secNavHostFragment_to_introFragment"
+            app:popUpTo="@id/introFragment"
+            app:destination="@id/introFragment" />
     </fragment>
 </navigation>

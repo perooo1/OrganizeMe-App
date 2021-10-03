@@ -10,10 +10,10 @@ import com.plenart.organizeme.models.Board
 import com.plenart.organizeme.models.User
 import kotlinx.coroutines.launch
 
-class MembersViewModel: ViewModel() {
+class MembersViewModel : ViewModel() {
 
     private val _boardDetails: MutableLiveData<Board>? = MutableLiveData()
-    private val _anyChangesMade: MutableLiveData<Boolean> = MutableLiveData()
+    private val _anyChangesMade: MutableLiveData<Boolean> = MutableLiveData(false)
     private val _assignedMemberDetailList: MutableLiveData<ArrayList<User>> = MutableLiveData()
     private val _memberAssignSuccess: MutableLiveData<Boolean> = MutableLiveData()
     private val _member: MutableLiveData<User>? = MutableLiveData()
@@ -31,7 +31,7 @@ class MembersViewModel: ViewModel() {
         get() = _assignedMemberDetailList
 
     val memberAssignSuccess: LiveData<Boolean>
-        get()=_memberAssignSuccess
+        get() = _memberAssignSuccess
 
     val member: LiveData<User>?
         get() = _member
@@ -41,28 +41,28 @@ class MembersViewModel: ViewModel() {
 
     init {
         Log.i("MembersViewModel", "MainActivityViewModel created!")
-        _anyChangesMade.value = false;
     }
 
-    fun getAssignedMembersListDetails(){
+    fun getAssignedMembersListDetails() {
         viewModelScope.launch {
-            _assignedMemberDetailList.value = firestore.getAssignedMembersListDetails(_boardDetails?.value?.assignedTo!!)
+            _assignedMemberDetailList.value =
+                firestore.getAssignedMembersListDetails(_boardDetails?.value?.assignedTo!!)
         }
     }
 
-    fun setEmail(email: String){
+    fun setEmail(email: String) {
         _email.value = email
     }
 
-    fun setBoardDetails(details: Board){
+    fun setBoardDetails(details: Board) {
         _boardDetails?.value = details
     }
 
-    fun setAnyChangesMade(changesMade: Boolean){
+    fun setAnyChangesMade(changesMade: Boolean) {
         _anyChangesMade.value = changesMade
     }
 
-    fun setMemberFromDialog(){
+    fun setMemberFromDialog() {
         viewModelScope.launch {
             _member?.value = firestore.getMemberDetails(_email.value.toString())
         }

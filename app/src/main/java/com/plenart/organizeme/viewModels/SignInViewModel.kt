@@ -12,7 +12,7 @@ class SignInViewModel: ViewModel() {
 
     private val _email: MutableLiveData<String> = MutableLiveData()
     private val _password: MutableLiveData<String> = MutableLiveData()
-    private val _user: MutableLiveData<Boolean> = MutableLiveData()
+    private val _user: MutableLiveData<Boolean> = MutableLiveData(false)
 
     val email: LiveData<String>
         get() = _email
@@ -25,7 +25,6 @@ class SignInViewModel: ViewModel() {
 
     init {
         Log.i("SignInViewModel", "SignInView model created!")
-        _user.value = false
     }
 
     fun signInUser(){

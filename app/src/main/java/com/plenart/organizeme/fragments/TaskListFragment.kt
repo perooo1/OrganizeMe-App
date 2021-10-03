@@ -8,6 +8,7 @@ import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -115,7 +116,7 @@ class TaskListFragment : Fragment(), ITaskListCallback {
         viewModel.apply {
             boardDetails?.value?.taskList?.apply {
                 add(0, task)
-                removeAt(size!!.minus(1))
+                removeAt(size.minus(1))
             }
             firestore.addUpdateTaskList(viewModel.boardDetails?.value!!)
         }
@@ -127,7 +128,7 @@ class TaskListFragment : Fragment(), ITaskListCallback {
         viewModel.apply {
             boardDetails?.value?.taskList?.apply {
                 set(position, task)
-                removeAt(size!!.minus(1))
+                removeAt(size.minus(1))
             }
             firestore.addUpdateTaskList(viewModel.boardDetails?.value!!)
         }
@@ -138,7 +139,7 @@ class TaskListFragment : Fragment(), ITaskListCallback {
         viewModel.apply {
             boardDetails?.value?.taskList?.apply {
                 removeAt(position)
-                removeAt(size!!.minus(1))
+                removeAt(size.minus(1))
             }
             firestore.addUpdateTaskList(viewModel.boardDetails?.value!!)
         }
@@ -216,8 +217,8 @@ class TaskListFragment : Fragment(), ITaskListCallback {
     override fun updateCardsInTaskList(position: Int, cards: ArrayList<Card>) {
         viewModel.apply {
             boardDetails?.value?.taskList?.apply {
-                removeAt(size!!.minus(1))
-                get(position)!!.cards = cards
+                removeAt(size.minus(1))
+                get(position).cards = cards
             }
             firestore.addUpdateTaskList(boardDetails?.value!!)
         }

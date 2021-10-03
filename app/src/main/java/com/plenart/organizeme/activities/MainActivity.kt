@@ -3,8 +3,6 @@ package com.plenart.organizeme.activities
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
@@ -12,10 +10,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupActionBarWithNavController
-import com.google.firebase.auth.FirebaseAuth
 import com.plenart.organizeme.R
 import com.plenart.organizeme.databinding.ActivityMainBinding
-import com.plenart.organizeme.firebase.Firestore
 import com.plenart.organizeme.viewModels.MainActivityViewModel
 
 class MainActivity : AppCompatActivity() {
@@ -37,17 +33,7 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
 
         setupNavController()
-        setupNavControllerListeners()
         setupActionBarWithNavController(navHostFragment.navController)
-
-        Handler(Looper.getMainLooper()).postDelayed({
-            var currentUserID = Firestore().getCurrentUserID()
-            if (currentUserID.isNotEmpty()) {
-                navHostFragment.navController.navigate(R.id.action_splashFragment_to_secNavHostFragment)
-            } else {
-                navHostFragment.navController.navigate(R.id.action_splashFragment_to_introFragment)
-            }
-        }, 2500)
 
     }
 
@@ -65,11 +51,7 @@ class MainActivity : AppCompatActivity() {
             } else {
                 toolbar.visibility = View.VISIBLE
             }
-            if (destination.id == R.id.introFragment) {
-                FirebaseAuth.getInstance().signOut()
-            }
         }
-
     }
 
     override fun onSupportNavigateUp(): Boolean {

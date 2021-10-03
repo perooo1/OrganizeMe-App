@@ -14,11 +14,11 @@ class CardDetailsViewModel: ViewModel() {
 
     private val _boardDetails: MutableLiveData<Board>? = MutableLiveData()
     private val _assignedMemberDetailList: MutableLiveData<ArrayList<User>> = MutableLiveData()
-    private val _taskListPosition: MutableLiveData<Int> = MutableLiveData()
+    private val _taskListPosition: MutableLiveData<Int> = MutableLiveData(-1)
     private val _cardPosition: MutableLiveData<Int> = MutableLiveData()
-    private val _selectedColor: MutableLiveData<String> = MutableLiveData()
+    private val _selectedColor: MutableLiveData<String> = MutableLiveData("")
     private val _taskListUpdated: MutableLiveData<Boolean> = MutableLiveData()
-    private val _selectedDueDateMilis: MutableLiveData<Long> = MutableLiveData()
+    private val _selectedDueDateMilis: MutableLiveData<Long> = MutableLiveData(0L)
     private val _cardName: MutableLiveData<String> = MutableLiveData()
 
     val firestore = Firestore()
@@ -49,9 +49,6 @@ class CardDetailsViewModel: ViewModel() {
 
     init {
         Log.i("CardDetailsViewModel", "CardDetailsViewModel created!")
-        _taskListPosition.value = -1
-        _selectedColor.value = ""
-        _selectedDueDateMilis.value = 0L
     }
 
     fun setCardName(name: String){
@@ -110,6 +107,6 @@ class CardDetailsViewModel: ViewModel() {
 
     override fun onCleared() {
         super.onCleared()
-        Log.i("CardDetailsViewModel", "MainActivityViewModel model destroyed!")
+        Log.i("CardDetailsViewModel", "CardDetailsViewModel model destroyed!")
     }
 }
