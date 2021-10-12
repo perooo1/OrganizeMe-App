@@ -8,7 +8,6 @@ import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -186,7 +185,6 @@ class TaskListFragment : Fragment(), ITaskListCallback {
             (viewModel.assignedMemberDetailList.value)?.toTypedArray()!!
         )
         findNavController().navigate(directions)
-
     }
 
     private fun boardMembersDetailsList(members: ArrayList<User>) {

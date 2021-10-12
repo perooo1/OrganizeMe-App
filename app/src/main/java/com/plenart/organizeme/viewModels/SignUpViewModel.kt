@@ -76,4 +76,8 @@ class SignUpViewModel : ViewModel() {
         super.onCleared()
         Log.i("SignUpViewModel", "SignUpView model destroyed!")
     }
+
+    fun signOut() {
+        FirebaseAuth.getInstance().signOut()
+    }
 }

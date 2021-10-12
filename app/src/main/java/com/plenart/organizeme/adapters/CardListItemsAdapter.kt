@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.plenart.organizeme.databinding.ItemCardBinding
 import com.plenart.organizeme.interfaces.CardItemClickInterface
+import com.plenart.organizeme.interfaces.ITaskListCallback
 import com.plenart.organizeme.interfaces.MemberItemClickInterface
 import com.plenart.organizeme.models.Card
 import com.plenart.organizeme.models.SelectedMembers
@@ -19,7 +20,9 @@ import com.plenart.organizeme.utils.visible
 
 class CardListItemsAdapter(
     private val context: Context,
-    private val members: ArrayList<User>
+    private val members: ArrayList<User>,
+    private val taskListCallback: ITaskListCallback,
+    private val taskPosition: Int
 ) :
     ListAdapter<Card, CardListItemsAdapter.CardItemViewHolder>(CardDiffCallback()) {
 
@@ -46,6 +49,10 @@ class CardListItemsAdapter(
             bindColor(card)
             binding.tvCardName.text = card.name
             setupSelectedMembers(card, position)
+
+            binding.itemCard.setOnClickListener {
+                taskListCallback.cardDetails(taskPosition,absoluteAdapterPosition)
+            }
         }
 
         private fun bindColor(card: Card) {

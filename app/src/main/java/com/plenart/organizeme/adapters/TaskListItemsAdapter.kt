@@ -3,7 +3,6 @@ package com.plenart.organizeme.adapters
 import android.app.AlertDialog
 import android.content.Context
 import android.content.res.Resources
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.LinearLayout
@@ -180,7 +179,7 @@ class TaskListItemsAdapter(
                         taskListCallback.addCardToTaskList(position, cardName)
                     } else {
                         Toast.makeText(context, "Please enter a card name!", Toast.LENGTH_SHORT)
-                            .show();
+                            .show()
                     }
 
                 }
@@ -198,7 +197,7 @@ class TaskListItemsAdapter(
         }
 
         private fun loadCards(task: Task, position: Int) {
-            val adapterCard = CardListItemsAdapter(context, members)
+            val adapterCard = CardListItemsAdapter(context, members, taskListCallback, position)
             adapterCard.submitList(task.cards)
 
             binding.apply {
@@ -212,16 +211,12 @@ class TaskListItemsAdapter(
 
             adapterCard.setOnClickListener(object : CardItemClickInterface {
                 override fun onClick(cardPosition: Int) {
-                    Log.i("loadCards","inside override")
-
                     taskListCallback.cardDetails(
                         position,
                         cardPosition
                     )         //first position is taskList position
                 }
-
             })
-
         }
 
         private fun repositionCards(task: Task, position: Int) {

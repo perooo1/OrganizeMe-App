@@ -51,6 +51,9 @@
         <action
             android:id="@+id/action_signUpFragment_to_secNavHostFragment"
             app:destination="@id/secNavHostFragment" />
+        <action
+            android:id="@+id/action_signUpFragment_to_signInFragment"
+            app:destination="@id/signInFragment" />
     </fragment>
     <fragment
         android:id="@+id/membersFragment"

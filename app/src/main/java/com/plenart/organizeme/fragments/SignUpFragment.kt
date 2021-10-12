@@ -10,7 +10,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
-import com.google.firebase.auth.FirebaseAuth
 import com.plenart.organizeme.R
 import com.plenart.organizeme.databinding.FragmentSignUpBinding
 import com.plenart.organizeme.viewModels.SignUpViewModel
@@ -117,7 +116,8 @@ class SignUpFragment : Fragment() {
 
     private fun userRegisteredSuccess(){
         Toast.makeText(activity, " you have successfully registered the email", Toast.LENGTH_LONG).show()
-        findNavController().navigate(R.id.action_signUpFragment_to_secNavHostFragment)
+        viewModel.signOut()
+        findNavController().navigate(R.id.action_signUpFragment_to_signInFragment)
     }
 
 
