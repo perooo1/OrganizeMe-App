@@ -9,6 +9,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.plenart.organizeme.firebase.Firestore
 import com.plenart.organizeme.models.User
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class SignUpViewModel : ViewModel() {
@@ -31,22 +32,18 @@ class SignUpViewModel : ViewModel() {
     val userRegisterSuccess: LiveData<Boolean>
         get() = _userRegisterSuccess
 
-    init {
-        Log.i("SignUpViewModel", "SignUpView model created!")
-    }
-
     fun registerUser() {
         auth = FirebaseAuth.getInstance()
         auth.createUserWithEmailAndPassword(_email.value.toString(), _password.value.toString())
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
 
-                    viewModelScope.launch {
+                    viewModelScope.launch(Dispatchers.IO) {
 
                         val firebaseUser: FirebaseUser = task.result!!.user!!
                         val registeredEmail = firebaseUser.email!!
                         val user = User(firebaseUser.uid, _name.value.toString(), registeredEmail)
-                        _userRegisterSuccess.value = Firestore().registerUser(user)
+                        _userRegisterSuccess.postValue(Firestore().registerUser(user))
                         Log.d(
                             "SignUpViewModel",
                             "createUserWithEmailAndPassword Success - ${_userRegisterSuccess.value.toString()}"
@@ -70,11 +67,6 @@ class SignUpViewModel : ViewModel() {
 
     fun setPassword(password: String) {
         _password.value = password
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        Log.i("SignUpViewModel", "SignUpView model destroyed!")
     }
 
     fun signOut() {

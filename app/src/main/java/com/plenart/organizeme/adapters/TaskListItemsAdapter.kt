@@ -21,7 +21,6 @@ import java.util.*
 
 class TaskListItemsAdapter(
     private val context: Context,
-    private var list: ArrayList<Task>,
     private val taskListCallback: ITaskListCallback,
     private val members: ArrayList<User>
 ) :
@@ -47,7 +46,6 @@ class TaskListItemsAdapter(
     override fun onBindViewHolder(holder: ListItemViewHolder, position: Int) {
         val model = getItem(position)
         holder.bind(model, position)
-
     }
 
     private fun Int.toDp(): Int = (this / Resources.getSystem().displayMetrics.density).toInt()
@@ -80,7 +78,8 @@ class TaskListItemsAdapter(
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(task: Task, position: Int) {
-            if (position == list.size - 1) {
+
+            if (position == itemCount - 1) {
                 binding.apply {
                     tvAddTaskList.visible()
                     llTaskItem.gone()
@@ -197,7 +196,7 @@ class TaskListItemsAdapter(
         }
 
         private fun loadCards(task: Task, position: Int) {
-            val adapterCard = CardListItemsAdapter(context, members, taskListCallback, position)
+            val adapterCard = CardListItemsAdapter(members, taskListCallback, position)
             adapterCard.submitList(task.cards)
 
             binding.apply {
@@ -235,7 +234,7 @@ class TaskListItemsAdapter(
                         mPositionDraggedFrom = draggedPosition
                     }
                     mPositionDraggedTo = targetPosition
-                    Collections.swap(list[position].cards, draggedPosition, targetPosition)
+                    Collections.swap(getItem(position).cards, draggedPosition, targetPosition)
 
                     bindingAdapter?.notifyItemMoved(
                         draggedPosition,

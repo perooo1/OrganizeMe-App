@@ -33,7 +33,6 @@ class CardDetailsFragment : Fragment() {
     private lateinit var binding: FragmentCardDetailsBinding
     private val viewModel: CardDetailsViewModel by viewModels()
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -62,7 +61,7 @@ class CardDetailsFragment : Fragment() {
 
     private fun setUpDueDate() {
         viewModel.setSelectedDueDate(
-            viewModel.boardDetails?.value?.taskList
+            viewModel.boardDetails.value?.taskList
                 ?.get(viewModel.taskListPosition.value!!)
                 ?.cards!![viewModel.cardPosition.value!!]
                 .dueDate
@@ -110,7 +109,7 @@ class CardDetailsFragment : Fragment() {
 
     private fun setUpSelectedColor() {
         viewModel.setSelectedColor(
-            viewModel.boardDetails?.value?.taskList
+            viewModel.boardDetails.value?.taskList
                 ?.get(viewModel.taskListPosition.value!!)
                 ?.cards!![viewModel.cardPosition.value!!]
                 .labelColor
@@ -123,28 +122,6 @@ class CardDetailsFragment : Fragment() {
 
     private fun initObservers() {
         initAssignedMembers()
-        initTaskListUpdated()
-        initCardName()
-    }
-
-    private fun initCardName() {
-        viewModel.cardName.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
-            if (it == null) {
-                //showErrorSnackBar("Please enter a card name")
-            } else {
-                Log.i("cardNameObserver", "log log")
-            }
-        })
-    }
-
-    private fun initTaskListUpdated() {
-        viewModel.taskListUpdated.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
-            if (it) {
-                addUpdateTaskListSuccess()
-            } else {
-                Log.i("taskListUpdatedObserver", "it == false")
-            }
-        })
     }
 
     private fun initAssignedMembers() {
@@ -159,11 +136,10 @@ class CardDetailsFragment : Fragment() {
     }
 
     private fun setUpCardNameEt() {
-
         binding.apply {
             etNameCardDetails.apply {
                 setText(
-                    viewModel.boardDetails?.value
+                    viewModel.boardDetails.value
                         ?.taskList?.get(viewModel.taskListPosition.value!!)
                         ?.cards?.get(viewModel.cardPosition.value!!)
                         ?.name
@@ -193,13 +169,6 @@ class CardDetailsFragment : Fragment() {
 
     }
 
-    private fun addUpdateTaskListSuccess() {
-        /*
-        setResult(Activity.RESULT_OK);
-        finish();
-        */
-    }
-
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_delete_card, menu);
         return super.onCreateOptionsMenu(menu, inflater)
@@ -209,12 +178,12 @@ class CardDetailsFragment : Fragment() {
         when (item.itemId) {
             R.id.action_delete_card -> {
                 alertDialogForDeleteCard(
-                    viewModel.boardDetails?.value
+                    viewModel.boardDetails.value
                         ?.taskList?.get(viewModel.taskListPosition.value!!)
                         ?.cards?.get(viewModel.cardPosition.value!!)
                         ?.name!!
-                );
-                return true;
+                )
+                return true
             }
         }
 
@@ -223,7 +192,7 @@ class CardDetailsFragment : Fragment() {
 
     private fun membersListDialog() {
 
-        var cardAssignedMembersList = viewModel.boardDetails?.value
+        val cardAssignedMembersList = viewModel.boardDetails.value
             ?.taskList
             ?.get(viewModel.taskListPosition.value!!)
             ?.cards
@@ -256,11 +225,11 @@ class CardDetailsFragment : Fragment() {
                 if (action == Constants.SELECT) {
 
                     viewModel.apply {
-                        boardDetails?.value?.taskList?.get(taskListPosition.value!!)?.cards?.get(
+                        boardDetails.value?.taskList?.get(taskListPosition.value!!)?.cards?.get(
                             cardPosition.value!!
                         ).apply {
                             if (!(this?.assignedTo?.contains(user.id)!!)) {
-                                this?.assignedTo?.add(user.id)
+                                this.assignedTo.add(user.id)
                             }
 
                         }
@@ -269,14 +238,14 @@ class CardDetailsFragment : Fragment() {
                 } else {
 
                     viewModel.apply {
-                        boardDetails?.value?.taskList?.get(taskListPosition.value!!)?.cards?.get(
+                        boardDetails.value?.taskList?.get(taskListPosition.value!!)?.cards?.get(
                             cardPosition.value!!
                         ).apply {
                             this?.assignedTo?.remove(user.id)
                         }
 
                         assignedMemberDetailList.value?.apply {
-                            for (i in indices!!) {
+                            for (i in indices) {
                                 if (get(i).id == user.id) {
                                     get(i).selected = false
                                 }
@@ -296,7 +265,7 @@ class CardDetailsFragment : Fragment() {
     private fun setUpSelectedMembersList() {
 
         viewModel.apply {
-            val cardAssignedMemberList = boardDetails?.value
+            val cardAssignedMemberList = boardDetails.value
                 ?.taskList
                 ?.get(viewModel.taskListPosition.value!!)
                 ?.cards
@@ -327,7 +296,9 @@ class CardDetailsFragment : Fragment() {
                     rvSelectedMembers.visible()
 
                     val adapterToSet =
-                        CardMembersListItemAdapter(requireContext(), selectedMembersList, true)
+                        CardMembersListItemAdapter(true)
+
+                    adapterToSet.submitList(selectedMembersList)        //same situation as in cardlistitemsadapter
 
                     rvSelectedMembers.apply {
                         layoutManager = GridLayoutManager(requireContext(), 6)
@@ -375,7 +346,6 @@ class CardDetailsFragment : Fragment() {
 
         }
 
-
         val alertDialog: AlertDialog = builder.create()
         alertDialog.setCancelable(false)
         alertDialog.show()
@@ -392,7 +362,7 @@ class CardDetailsFragment : Fragment() {
         colorsList.add("#770000")
         colorsList.add("#0022F8")
 
-        return colorsList;
+        return colorsList
     }
 
     private fun setColor() {
@@ -445,7 +415,7 @@ class CardDetailsFragment : Fragment() {
             year,
             month,
             day
-        );
+        )
 
         datePickerDialog.show()
 

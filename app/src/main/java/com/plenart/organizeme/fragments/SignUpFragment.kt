@@ -82,9 +82,10 @@ class SignUpFragment : Fragment() {
     }
 
     private fun initPassword() {
-        viewModel.password?.observe(viewLifecycleOwner, Observer { newPassword ->
+        viewModel.password.observe(viewLifecycleOwner, Observer { newPassword ->
             if(newPassword == null ){
-                //showErrorSnackBar("Please enter a password")
+                Toast.makeText(requireContext(), "Please enter a password", Toast.LENGTH_SHORT)
+                    .show()
             }
             else{
                 binding.etPasswordSignUpActivity.text.toString()
@@ -93,9 +94,10 @@ class SignUpFragment : Fragment() {
     }
 
     private fun initEmail() {
-        viewModel.email?.observe(viewLifecycleOwner, Observer { newEmail ->
+        viewModel.email.observe(viewLifecycleOwner, Observer { newEmail ->
             if(newEmail == null ){
-                //showErrorSnackBar("Please enter a email")
+                Toast.makeText(requireContext(), "Email must contain @ sign", Toast.LENGTH_SHORT)
+                    .show()
             }
             else{
                 binding.etEmailSignUpActivity.text.toString().trim{it <=' '}
@@ -104,9 +106,10 @@ class SignUpFragment : Fragment() {
     }
 
     private fun initName() {
-        viewModel.name?.observe(viewLifecycleOwner, Observer { newName ->
+        viewModel.name.observe(viewLifecycleOwner, Observer { newName ->
             if(newName == null ){
-                //showErrorSnackBar("Please enter a name")
+                Toast.makeText(requireContext(), "Please enter your name", Toast.LENGTH_SHORT)
+                    .show()
             }
             else{
                 binding.etNameSignUpActivity.text.toString().trim{it <=' '}

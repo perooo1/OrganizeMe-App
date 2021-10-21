@@ -14,10 +14,9 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import com.bumptech.glide.Glide
-import com.plenart.organizeme.R
 import com.plenart.organizeme.databinding.FragmentMyProfileBinding
 import com.plenart.organizeme.utils.Constants
+import com.plenart.organizeme.utils.loadImage
 import com.plenart.organizeme.viewModels.MyProfileViewModel
 import java.io.IOException
 
@@ -32,7 +31,7 @@ class MyProfileFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        binding = FragmentMyProfileBinding.inflate(inflater,container,false)
+        binding = FragmentMyProfileBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -47,22 +46,20 @@ class MyProfileFragment : Fragment() {
 
     private fun initListeners() {
         binding.ivUserImage.setOnClickListener {
-            if(Constants.isReadExternalStorageAllowed(requireActivity())){
+            if (Constants.isReadExternalStorageAllowed(requireActivity())) {
                 Constants.showImageChooser(requireActivity())
-            }
-            else{
+            } else {
                 Constants.requestStoragePermission(requireActivity())
             }
         }
 
-        binding.btnUpdateMyProfileActivity.setOnClickListener{
-            if(viewModel.selectedImageFileUri?.value != null){
+        binding.btnUpdateMyProfileActivity.setOnClickListener {
+            if (viewModel.selectedImageFileUri?.value != null) {
                 viewModel.uploadUserImage()
             }
-            if(viewModel.mobile.value.toString().isEmpty()){
-                Toast.makeText(context,"Please provide a phone number", Toast.LENGTH_SHORT).show()
-            }
-            else{
+            if (viewModel.mobile.value.toString().isEmpty()) {
+                Toast.makeText(context, "Please provide a phone number", Toast.LENGTH_SHORT).show()
+            } else {
                 viewModel.updateUserProfileData()
             }
         }
@@ -75,47 +72,16 @@ class MyProfileFragment : Fragment() {
 
     private fun initObservers() {
         initUser()
-        initName()
-        initMobile()
-        initUpdateUserProfileDataSuccess()
-    }
-
-    private fun initUpdateUserProfileDataSuccess() {
-        viewModel.updateUserProfileSuccess.observe(viewLifecycleOwner, Observer {
-            if(it){
-                profileUpdateSuccess()
-            }
-            else{
-                Log.i("successObserver","Update userprofile data not successful(it==false)")
-            }
-        })
-    }
-
-    private fun initMobile() {
-        viewModel.mobile.observe(viewLifecycleOwner, Observer {
-            if(it == null){
-                //showErrorSnackBar("Please enter a mobile num")
-            }
-        })
-    }
-
-    private fun initName() {
-        viewModel.name.observe(viewLifecycleOwner, Observer { newName ->
-            if(newName == null ){
-                //showErrorSnackBar("Please enter a name")
-            }
-        })
     }
 
     private fun initUser() {
-        viewModel.user?.observe(viewLifecycleOwner, Observer { newUser ->
-            if(newUser != null){
+        viewModel.user.observe(viewLifecycleOwner, Observer { newUser ->
+            if (newUser != null) {
                 setUserDataInUI()
+            } else {
+                Log.i("UserObserver", "error observing user")
             }
-            else{
-                Log.i("UserObserver","error observing user")
-            }
-        } )
+        })
     }
 
     private fun getName() {
@@ -126,10 +92,9 @@ class MyProfileFragment : Fragment() {
 
     private fun getMobile() {
         binding.etMobileMyProfileActivity.doAfterTextChanged {
-            if(binding.etMobileMyProfileActivity.text!!.isEmpty()){
-                Toast.makeText(context,"Please provide a phone number", Toast.LENGTH_SHORT).show()
-            }
-            else{
+            if (binding.etMobileMyProfileActivity.text!!.isEmpty()) {
+                Toast.makeText(context, "Please provide a phone number", Toast.LENGTH_SHORT).show()
+            } else {
                 viewModel.setMobile(it.toString().toLong())
             }
         }
@@ -138,39 +103,30 @@ class MyProfileFragment : Fragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if(resultCode == Activity.RESULT_OK && requestCode == Constants.PICK_IMAGE_REQUEST_CODE && data!!.data != null){
+        if (resultCode == Activity.RESULT_OK && requestCode == Constants.PICK_IMAGE_REQUEST_CODE && data!!.data != null) {
 
             viewModel.setSelectedImageFileUri(data.data)
-            viewModel.setFileExtension(Constants.getFileExtension(requireActivity(),data.data))
+            viewModel.setFileExtension(Constants.getFileExtension(requireActivity(), data.data))
 
-            try{
-                Glide.with(requireActivity())
-                    .load(viewModel.selectedImageFileUri?.value)
-                    .centerCrop()
-                    .placeholder(R.drawable.ic_user_place_holder)
-                    .into(binding.ivUserImage)
+            try {
+                binding.ivUserImage.loadImage(viewModel.selectedImageFileUri?.value.toString())
 
-            }
-            catch (e: IOException){
+            } catch (e: IOException) {
                 e.printStackTrace()
             }
         }
     }
 
-    private fun setUserDataInUI(){
+    private fun setUserDataInUI() {
 
         binding.apply {
-            Glide.with(requireActivity())
-                .load(viewModel.user.value?.image)
-                .centerCrop()
-                .placeholder(R.drawable.ic_user_place_holder)
-                .into(ivUserImage)
 
+            ivUserImage.loadImage(viewModel.user.value?.image.toString())
             viewModel.apply {
                 etNameMyProfileActivity.setText(user.value?.name)
                 etEmailMyProfileActivity.setText(user.value?.email)
 
-                if(user.value?.mobile != 0L){
+                if (user.value?.mobile != 0L) {
                     etMobileMyProfileActivity.setText(user.value?.mobile.toString())
                 }
 
@@ -186,22 +142,17 @@ class MyProfileFragment : Fragment() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if(requestCode == Constants.READ_STORAGE_PERMISSION_CODE){
-            if(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+        if (requestCode == Constants.READ_STORAGE_PERMISSION_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Constants.showImageChooser(requireActivity())
             }
+        } else {
+            Toast.makeText(
+                context,
+                "permission denied. You can change it in settings",
+                Toast.LENGTH_LONG
+            ).show()
         }
-        else{
-            Toast.makeText(context,"permission denied. You can change it in settings", Toast.LENGTH_LONG).show()
-        }
-    }
-
-    private fun profileUpdateSuccess(){
-        /*
-        hideProgressDialog()
-        setResult(Activity.RESULT_OK)
-        finish()
-        */
     }
 
 }

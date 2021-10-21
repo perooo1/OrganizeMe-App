@@ -1,6 +1,5 @@
 package com.plenart.organizeme.adapters
 
-import android.content.Context
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -19,7 +18,6 @@ import com.plenart.organizeme.utils.gone
 import com.plenart.organizeme.utils.visible
 
 class CardListItemsAdapter(
-    private val context: Context,
     private val members: ArrayList<User>,
     private val taskListCallback: ITaskListCallback,
     private val taskPosition: Int
@@ -46,23 +44,24 @@ class CardListItemsAdapter(
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(card: Card, position: Int) {
-            bindColor(card)
+            setLabelColor(card)
             binding.tvCardName.text = card.name
             setupSelectedMembers(card, position)
 
             binding.itemCard.setOnClickListener {
-                taskListCallback.cardDetails(taskPosition,absoluteAdapterPosition)
+                taskListCallback.cardDetails(taskPosition, absoluteAdapterPosition)
             }
         }
 
-        private fun bindColor(card: Card) {
+        private fun setLabelColor(card: Card) {
             if (card.labelColor.isNotEmpty()) {
                 binding.apply {
-                    binding.viewLabelColor.visible()
-                    binding.viewLabelColor.setBackgroundColor(Color.parseColor(card.labelColor))
+                    viewLabelColor.visible()
+                    viewLabelColor.setBackgroundColor(Color.parseColor(card.labelColor))
                 }
-            } else
+            } else {
                 binding.viewLabelColor.gone()
+            }
 
         }
 
@@ -86,7 +85,9 @@ class CardListItemsAdapter(
                         binding.rvCardSelectedMembersList.gone()
                     } else {
                         val adapterCardMembers =
-                            CardMembersListItemAdapter(context, selectedMembersList, false)
+                            CardMembersListItemAdapter(false)
+
+                        adapterCardMembers.submitList(selectedMembersList)      //don't know if it makes sense bc it's not in observer
 
                         binding.apply {
                             rvCardSelectedMembersList.apply {

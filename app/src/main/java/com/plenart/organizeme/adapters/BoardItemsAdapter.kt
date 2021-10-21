@@ -1,64 +1,60 @@
 package com.plenart.organizeme.adapters
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.plenart.organizeme.R
 import com.plenart.organizeme.databinding.ItemBoardBinding
 import com.plenart.organizeme.interfaces.BoardItemClickInterface
 import com.plenart.organizeme.models.Board
+import com.plenart.organizeme.utils.BoardDiffCallback
+import com.plenart.organizeme.utils.loadImage
 
-open class BoardItemsAdapter(private val context: Context, private val list: ArrayList<Board>): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class BoardItemsAdapter() :
+    ListAdapter<Board, BoardItemsAdapter.BoardItemViewHolder>(BoardDiffCallback()) {
 
     private var boardItemClickListener: BoardItemClickInterface? = null
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val binding = ItemBoardBinding.inflate(LayoutInflater.from(parent.context),parent,false)
-        return BoardItemViewHolder(binding);
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int
+    ): BoardItemsAdapter.BoardItemViewHolder {
+        val binding = ItemBoardBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return BoardItemViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val model = list[position]
+    override fun onBindViewHolder(holder: BoardItemViewHolder, position: Int) {
+        val model = getItem(position)
 
-        if(holder is BoardItemViewHolder){
-            holder.bindImage(model.image)
-            holder.bindText(model.name, model.createdBy)
-            holder.bindListeners(position,model)
+        holder.bindImage(model.image)
+        holder.bindText(model.name, model.createdBy)
+        holder.bindListeners(position, model)
 
-        }
     }
 
-    override fun getItemCount(): Int {
-        return list.size
-    }
-
-    fun setOnClickListener(onClickInterface: BoardItemClickInterface){
+    fun setOnClickListener(onClickInterface: BoardItemClickInterface) {
         this.boardItemClickListener = onClickInterface
     }
 
-    inner class BoardItemViewHolder(val binding:ItemBoardBinding):RecyclerView.ViewHolder(binding.root){
+    inner class BoardItemViewHolder(val binding: ItemBoardBinding) :
+        RecyclerView.ViewHolder(binding.root) {
 
-        fun bindImage(image: String){
-            Glide.with(context)
-                .load(image)
-                .centerCrop()
-                .placeholder(R.drawable.ic_board_place_holder)
-                .into(binding.ivBoardImageItemBoard)
+        fun bindImage(image: String) {
+            binding.ivBoardImageItemBoard.loadImage(image)
+
         }
 
-        fun bindText(name: String, createdBy: String){
-            binding.apply{
+        fun bindText(name: String, createdBy: String) {
+            binding.apply {
                 tvNameItemBoard.text = name
                 tvCreatedByItemBoard.text = "Created by: $createdBy"
             }
         }
 
-        fun bindListeners(position: Int, model:Board){
-            itemView.setOnClickListener{
-                if(boardItemClickListener != null){
-                    boardItemClickListener?.onClick(position,model)
+        fun bindListeners(position: Int, model: Board) {
+            itemView.setOnClickListener {
+                if (boardItemClickListener != null) {
+                    boardItemClickListener?.onClick(position, model)
                 }
             }
         }

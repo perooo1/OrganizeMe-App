@@ -4,14 +4,13 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
@@ -21,10 +20,9 @@ import com.plenart.organizeme.utils.Constants
 import com.plenart.organizeme.viewModels.CreateBoardViewModel
 import java.io.IOException
 
-
 class CreateBoardFragment : Fragment() {
     private lateinit var binding : FragmentCreateBoardBinding
-    private val viewModel: CreateBoardViewModel by activityViewModels()
+    private val viewModel: CreateBoardViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -63,7 +61,7 @@ class CreateBoardFragment : Fragment() {
         }
 
         binding.btnCreateCreateBoardActivity.setOnClickListener{
-            if(viewModel.selectedImageFileUri?.value != null){
+            if(viewModel.selectedImageFileUri.value != null){
                 viewModel.uploadBoardImage()
             }
             else{
@@ -74,18 +72,6 @@ class CreateBoardFragment : Fragment() {
 
     private fun initObservers() {
         initBoardName()
-        initBoardCreated()
-    }
-
-    private fun initBoardCreated() {
-        viewModel.boardCreated.observe(viewLifecycleOwner, Observer {
-            if (it){
-                boardCreatedSuccessfully()
-            }
-            else{
-                Log.i("boardCreatedObserver","Board creation failed: it==false")
-            }
-        })
     }
 
     private fun initBoardName() {
@@ -100,12 +86,6 @@ class CreateBoardFragment : Fragment() {
         binding.etBoardNameCreateBoardActivity.doAfterTextChanged {
             viewModel.setBoardName(it.toString())
         }
-    }
-
-    private fun boardCreatedSuccessfully(){
-        //hideProgressDialog()
-        //setResult(Activity.RESULT_OK)
-        //finish()
     }
 
     override fun onRequestPermissionsResult(
@@ -125,7 +105,6 @@ class CreateBoardFragment : Fragment() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-
         super.onActivityResult(requestCode, resultCode, data)
         if(resultCode == Activity.RESULT_OK && requestCode == Constants.PICK_IMAGE_REQUEST_CODE && data!!.data != null){
             viewModel.setSelectedImageFileUri(data.data);
@@ -133,7 +112,7 @@ class CreateBoardFragment : Fragment() {
 
             try{
                 Glide.with(this)
-                    .load(viewModel.selectedImageFileUri?.value)
+                    .load(viewModel.selectedImageFileUri.value)
                     .centerCrop()
                     .placeholder(R.drawable.ic_board_place_holder)
                     .into(binding.ivBoardImageCreateBoardActivity)

@@ -44,7 +44,6 @@ class MyProfileViewModel: ViewModel() {
         get() = _fileExtension
 
     init {
-        Log.i("MyProfileActivity", "MyProfileViewModel created!")
         viewModelScope.launch {
             loadUserData()
         }
@@ -99,7 +98,7 @@ class MyProfileViewModel: ViewModel() {
 
     fun updateUserProfileData(){
         val userHashMap = HashMap<String, Any>()
-        var changesMade: Boolean = false
+        var changesMade = false
 
         if(_profileImageURL.value?.isNotEmpty() == true && _profileImageURL.value != _user.value?.image){
             userHashMap[Constants.IMAGE] = _profileImageURL.value!!
@@ -120,11 +119,6 @@ class MyProfileViewModel: ViewModel() {
             _updateUserProfileSuccess.value = firestore.updateUserProfileData(userHashMap)
             changesMade = false;
         }
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        Log.i("MyProfileActivity", "MyProfileViewModel model destroyed!")
     }
 
 }

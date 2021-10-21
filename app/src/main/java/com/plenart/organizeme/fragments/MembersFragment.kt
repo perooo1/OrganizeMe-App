@@ -16,7 +16,6 @@ import com.plenart.organizeme.adapters.MemberListItemAdapter
 import com.plenart.organizeme.databinding.DialogAddSearchMemberBinding
 import com.plenart.organizeme.databinding.FragmentMembersBinding
 import com.plenart.organizeme.viewModels.MembersViewModel
-import java.lang.reflect.InvocationTargetException
 
 
 class MembersFragment : Fragment() {
@@ -37,11 +36,7 @@ class MembersFragment : Fragment() {
 
         initObservers()
         initListeners()
-        try {
-            getArgs()
-        } catch (e: InvocationTargetException) {
-            Log.e("memfr", e.cause.toString())
-        }
+        getArgs()
 
         viewModel.getAssignedMembersListDetails()
 
@@ -95,7 +90,7 @@ class MembersFragment : Fragment() {
 
     private fun setUpMembersList() {
         val adapterToSet =
-            MemberListItemAdapter(requireContext(), viewModel.assignedMemberDetailList.value!!)
+            MemberListItemAdapter(viewModel.assignedMemberDetailList.value!!)
         binding.apply {
             rvMembers.apply {
                 layoutManager = LinearLayoutManager(requireContext())
@@ -109,14 +104,14 @@ class MembersFragment : Fragment() {
 
     private fun memberDetails() {
         viewModel.apply {
-            boardDetails?.value?.assignedTo?.add(viewModel.member?.value?.id.toString())
-            firestore.assignMemberToBoard(viewModel.boardDetails?.value!!)
+            boardDetails.value?.assignedTo?.add(viewModel.member.value?.id.toString())
+            firestore.assignMemberToBoard(viewModel.boardDetails.value!!)
         }
     }
 
     private fun memberAssignSuccess() {
         viewModel.apply {
-            assignedMemberDetailList.value?.add(viewModel.member?.value!!)
+            assignedMemberDetailList.value?.add(viewModel.member.value!!)
             setAnyChangesMade(true)
 
         }

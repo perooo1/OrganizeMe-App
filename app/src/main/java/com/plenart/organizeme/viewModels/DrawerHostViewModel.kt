@@ -1,6 +1,5 @@
 package com.plenart.organizeme.viewModels
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -14,20 +13,11 @@ class DrawerHostViewModel : ViewModel() {
     val signOutSuccess: LiveData<Boolean>
         get() = _signOutSuccess
 
-    init {
-        Log.i("DrawerHost", "DrawerHostViewModel created!")
-    }
-
     fun signOut() {
         FirebaseAuth.getInstance().signOut()
         if (Firestore().getCurrentUserID().isEmpty()) {
             _signOutSuccess.value = true
         }
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        Log.i("DrawerHostViewModel", "DrawerHostViewModel model destroyed!")
     }
 
 

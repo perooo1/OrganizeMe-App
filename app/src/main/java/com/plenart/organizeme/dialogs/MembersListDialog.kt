@@ -31,7 +31,7 @@ abstract class MembersListDialog(context: Context, private var list: ArrayList<U
 
         if(list.size > 0){
             binding.rvList.layoutManager = LinearLayoutManager(context);
-            adapter = MemberListItemAdapter(context,list);
+            adapter = MemberListItemAdapter(list);
             binding.rvList.adapter = adapter;
 
             adapter!!.setOnClickListener(object: SelectedMembersClickInterface{

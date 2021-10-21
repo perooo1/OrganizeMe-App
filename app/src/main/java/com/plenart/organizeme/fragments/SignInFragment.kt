@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -24,7 +25,7 @@ class SignInFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        binding = FragmentSignInBinding.inflate(inflater,container, false)
+        binding = FragmentSignInBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -38,58 +39,57 @@ class SignInFragment : Fragment() {
 
     }
 
-    private fun initListeners(){
-        binding.btnSignInSignInActivity.setOnClickListener(){
-            viewModel.signInUser();
+    private fun initListeners() {
+        binding.btnSignInSignInActivity.setOnClickListener() {
+            if (!viewModel.email.contains('@')) {
+                Toast.makeText(requireContext(), "Email must contain @ sign", Toast.LENGTH_SHORT)
+                    .show()
+            }
+            else{
+                if (viewModel.password.isEmpty() || viewModel.password.length < 6) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Please enter a password of min 6 characters",
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
+                }
+                else{
+                    viewModel.signInUser()
+                }
+
+            }
+
+
         }
     }
 
     private fun getEmail() = with(binding.etEmailSignInActivity) {
         this.doAfterTextChanged {
-            viewModel.setEmail(text.toString())
+            viewModel.email = text.toString()
         }
 
     }
 
-    private fun getPassword()=with(binding.etPasswordSignInActivity) {
+    private fun getPassword() = with(binding.etPasswordSignInActivity) {
         this.doAfterTextChanged {
-            viewModel.setPassword(text.toString())
+            viewModel.password = text.toString()
         }
     }
 
     private fun initObservers() {
-        initEmail()
-        initPassword()
         initUser()
     }
 
-    private fun initEmail(){
-        viewModel.email?.observe(viewLifecycleOwner, Observer { newEmail ->
-            if(newEmail == null || !newEmail.contains('@')){
-                //showErrorSnackBar("Please enter email")
-            }
-        })
-    }
-
-    private fun initPassword(){
-        viewModel.password?.observe(viewLifecycleOwner, Observer { newPassword ->
-            if(newPassword == null){
-                //showErrorSnackBar("Please enter a password")
-            }
-        })
-    }
-
-    private fun initUser(){
-        viewModel.user?.observe(viewLifecycleOwner, Observer { newUser ->
-            if(newUser){
+    private fun initUser() {
+        viewModel.user.observe(viewLifecycleOwner, Observer { newUser ->
+            if (newUser) {
                 signInSuccess()
-            }
-            else{
-                Log.i("initUser","newUser == false");
-
+            } else {
+                Log.i("initUser", "newUser == false")
             }
 
-        } )
+        })
     }
 
     private fun signInSuccess() {

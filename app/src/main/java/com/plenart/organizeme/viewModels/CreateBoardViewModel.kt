@@ -18,19 +18,19 @@ import kotlinx.coroutines.tasks.await
 
 class CreateBoardViewModel: ViewModel() {
 
-    private val _selectedImageFileUri: MutableLiveData<Uri>? = MutableLiveData()
-    private val _userName: MutableLiveData<String>? = MutableLiveData()
+    private val _selectedImageFileUri: MutableLiveData<Uri> = MutableLiveData()
+    private val _userName: MutableLiveData<String> = MutableLiveData()
     private val _boardName: MutableLiveData<String> = MutableLiveData()
     private val _boardImageURL: MutableLiveData<String> = MutableLiveData()
-    private val _fileExtension: MutableLiveData<String>? = MutableLiveData()
+    private val _fileExtension: MutableLiveData<String> = MutableLiveData()
     private val _boardCreated: MutableLiveData<Boolean> = MutableLiveData()
 
     val firestore = Firestore()
 
-    val selectedImageFileUri: LiveData<Uri>?
+    val selectedImageFileUri: LiveData<Uri>
         get() = _selectedImageFileUri
 
-    val userName: LiveData<String>?
+    val userName: LiveData<String>
         get() = _userName
 
     val boardName: LiveData<String>
@@ -39,18 +39,15 @@ class CreateBoardViewModel: ViewModel() {
     val boardImageURL: LiveData<String>
         get() = _boardImageURL
 
-    val fileExtension: LiveData<String>?
+    val fileExtension: LiveData<String>
         get() = _fileExtension
 
     val boardCreated: LiveData<Boolean>
         get() = _boardCreated
 
-    init {
-        Log.i("CreateBoard", "CreateBoardViewModel created!")
-    }
 
     fun setUserName(userName: String){
-        _userName?.value = userName
+        _userName.value = userName
     }
 
     fun setBoardName(boardName: String){
@@ -58,11 +55,11 @@ class CreateBoardViewModel: ViewModel() {
     }
 
     fun setSelectedImageFileUri(uri: Uri?){
-        _selectedImageFileUri!!.value = uri
+        _selectedImageFileUri.value = uri
     }
 
     fun setFileExtension(extension: String?){
-        _fileExtension?.value = extension
+        _fileExtension.value = extension
     }
 
     fun createBoard(){
@@ -74,10 +71,10 @@ class CreateBoardViewModel: ViewModel() {
             Log.i("createBoard","board name is empty")
         }
         else{
-            var board = Board(
+            val board = Board(
                 boardName,
                 _boardImageURL.value.toString(),
-                _userName?.value.toString(),
+                _userName.value.toString(),
                 assignedUserArrayList
             )
             _boardCreated.value = firestore.createBoard(board)
@@ -86,7 +83,7 @@ class CreateBoardViewModel: ViewModel() {
 
     fun uploadBoardImage(){
 
-        if(_selectedImageFileUri?.value != null){
+        if(_selectedImageFileUri.value != null){
             try{
                 viewModelScope.launch {
                     val uploadedBoardImage = uploadBoardCallback()
@@ -107,18 +104,13 @@ class CreateBoardViewModel: ViewModel() {
         val sRef: StorageReference = FirebaseStorage.getInstance()
             .reference
             .child("BOARD_IMAGE"+System.currentTimeMillis()
-                    +"."+ _fileExtension?.value)
+                    +"."+ _fileExtension.value)
 
-        return sRef.putFile(_selectedImageFileUri?.value!!).await()
+        return sRef.putFile(_selectedImageFileUri.value!!).await()
     }
 
     private fun getCurrentUserID(): String{
-        Log.i("getCurrentUserID","${FirebaseAuth.getInstance().currentUser!!.uid}")
         return FirebaseAuth.getInstance().currentUser!!.uid
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        Log.i("MainActivityViewModel", "MainActivityViewModel model destroyed!")
-    }
 }

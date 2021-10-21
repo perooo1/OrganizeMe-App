@@ -26,7 +26,6 @@ class TaskListFragment : Fragment(), ITaskListCallback {
     private lateinit var binding: FragmentTaskListBinding
     val viewModel: TaskListViewModel by viewModels()
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -62,7 +61,7 @@ class TaskListFragment : Fragment(), ITaskListCallback {
     }
 
     private fun initBoardDetails() {
-        viewModel.boardDetails?.observe(viewLifecycleOwner, Observer { newBoard ->
+        viewModel.boardDetails.observe(viewLifecycleOwner, Observer { newBoard ->
             if (newBoard != null) {
                 viewModel.getAssignedMembersListDetails()
             } else {
@@ -113,11 +112,11 @@ class TaskListFragment : Fragment(), ITaskListCallback {
         val task = Task(taskListName, viewModel.firestore.getCurrentUserID())
 
         viewModel.apply {
-            boardDetails?.value?.taskList?.apply {
+            boardDetails.value?.taskList?.apply {
                 add(0, task)
                 removeAt(size.minus(1))
             }
-            firestore.addUpdateTaskList(viewModel.boardDetails?.value!!)
+            firestore.addUpdateTaskList(viewModel.boardDetails.value!!)
         }
 
     }
@@ -125,53 +124,53 @@ class TaskListFragment : Fragment(), ITaskListCallback {
     override fun updateTaskList(position: Int, listName: String, model: Task) {
         val task = Task(listName, model.createdBy)
         viewModel.apply {
-            boardDetails?.value?.taskList?.apply {
+            boardDetails.value?.taskList?.apply {
                 set(position, task)
                 removeAt(size.minus(1))
             }
-            firestore.addUpdateTaskList(viewModel.boardDetails?.value!!)
+            firestore.addUpdateTaskList(viewModel.boardDetails.value!!)
         }
 
     }
 
     override fun deleteTaskList(position: Int) {
         viewModel.apply {
-            boardDetails?.value?.taskList?.apply {
+            boardDetails.value?.taskList?.apply {
                 removeAt(position)
                 removeAt(size.minus(1))
             }
-            firestore.addUpdateTaskList(viewModel.boardDetails?.value!!)
+            firestore.addUpdateTaskList(viewModel.boardDetails.value!!)
         }
 
     }
 
     override fun addCardToTaskList(position: Int, cardName: String) {
         viewModel.boardDetails
-            ?.value
+            .value
             ?.taskList
-            ?.removeAt(viewModel.boardDetails?.value?.taskList?.size!!.minus(1))
+            ?.removeAt(viewModel.boardDetails.value?.taskList?.size!!.minus(1))
 
         val cardAssignedUsersList: ArrayList<String> = ArrayList()
         cardAssignedUsersList.add(viewModel.firestore.getCurrentUserID())
 
         val card = Card(cardName, viewModel.firestore.getCurrentUserID(), cardAssignedUsersList)
 
-        val cardsList = viewModel.boardDetails?.value?.taskList?.get(position)?.cards
+        val cardsList = viewModel.boardDetails.value?.taskList?.get(position)?.cards
         cardsList?.add(card)
 
         val task = Task(
-            viewModel.boardDetails?.value?.taskList?.get(position)?.title.toString(),
-            viewModel.boardDetails?.value?.taskList?.get(position)?.createdBy.toString(),
+            viewModel.boardDetails.value?.taskList?.get(position)?.title.toString(),
+            viewModel.boardDetails.value?.taskList?.get(position)?.createdBy.toString(),
             cardsList!!
         )
 
-        viewModel.boardDetails?.value?.taskList?.set(position, task)
-        viewModel.firestore.addUpdateTaskList(viewModel.boardDetails?.value!!)
+        viewModel.boardDetails.value?.taskList?.set(position, task)
+        viewModel.firestore.addUpdateTaskList(viewModel.boardDetails.value!!)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val directions = TaskListFragmentDirections.actionTaskListFragmentToMembersFragment(
-            viewModel.boardDetails?.value!!
+            viewModel.boardDetails.value!!
         )
         findNavController().navigate(directions)
         return true
@@ -181,19 +180,19 @@ class TaskListFragment : Fragment(), ITaskListCallback {
         val directions = TaskListFragmentDirections.actionTaskListFragmentToCardDetailsFragment(
             taskListPosition,
             cardPosition,
-            viewModel.boardDetails?.value!!,
+            viewModel.boardDetails.value!!,
             (viewModel.assignedMemberDetailList.value)?.toTypedArray()!!
         )
         findNavController().navigate(directions)
     }
 
     private fun boardMembersDetailsList(members: ArrayList<User>) {
+
         val addTaskList = Task(resources.getString(R.string.add_list))
-        viewModel.boardDetails?.value?.taskList?.add(addTaskList)
+        viewModel.boardDetails.value?.taskList?.add(addTaskList)
 
         val adapterTask = TaskListItemsAdapter(
             requireActivity(),
-            viewModel.boardDetails?.value?.taskList!!,
             this,
             members
         )
@@ -214,11 +213,11 @@ class TaskListFragment : Fragment(), ITaskListCallback {
 
     override fun updateCardsInTaskList(position: Int, cards: ArrayList<Card>) {
         viewModel.apply {
-            boardDetails?.value?.taskList?.apply {
+            boardDetails.value?.taskList?.apply {
                 removeAt(size.minus(1))
                 get(position).cards = cards
             }
-            firestore.addUpdateTaskList(boardDetails?.value!!)
+            firestore.addUpdateTaskList(boardDetails.value!!)
         }
     }
 

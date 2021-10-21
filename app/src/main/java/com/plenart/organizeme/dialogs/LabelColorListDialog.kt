@@ -34,7 +34,7 @@ abstract class LabelColorListDialog(context: Context,
     private fun setUpRecyclerView(binding: DialogListBinding ){
         binding.tvTitle.text = title;
         binding.rvList.layoutManager = LinearLayoutManager(context);
-        adapter = LabelColorListAdapter(context,list, mSelectedColor);
+        adapter = LabelColorListAdapter(list, mSelectedColor);
         binding.rvList.adapter = adapter;
 
         adapter!!.onItemClickListener = object: LabelColorClickedInterface{
