@@ -61,15 +61,15 @@ class CardDetailsFragment : Fragment() {
 
     private fun setUpDueDate() {
         viewModel.setSelectedDueDate(
-            viewModel.boardDetails.value?.taskList
-                ?.get(viewModel.taskListPosition.value!!)
-                ?.cards!![viewModel.cardPosition.value!!]
+            viewModel.getBoardDetails()?.taskList
+                ?.get(viewModel.getTaskListPosition())
+                ?.cards!![viewModel.getCardPosition()]
                 .dueDate
         )
 
-        if (viewModel.selectedDueDateMilis.value!! > 0) {
+        if (viewModel.getSelectedDueDate() > 0) {
             val simpleDateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH)
-            val selectedDate = simpleDateFormat.format(Date(viewModel.selectedDueDateMilis.value!!))
+            val selectedDate = simpleDateFormat.format(Date(viewModel.getSelectedDueDate()))
             binding.tvSelectDueDate.text = selectedDate
 
         }
@@ -109,13 +109,13 @@ class CardDetailsFragment : Fragment() {
 
     private fun setUpSelectedColor() {
         viewModel.setSelectedColor(
-            viewModel.boardDetails.value?.taskList
-                ?.get(viewModel.taskListPosition.value!!)
-                ?.cards!![viewModel.cardPosition.value!!]
+            viewModel.getBoardDetails()?.taskList
+                ?.get(viewModel.getTaskListPosition())
+                ?.cards!![viewModel.getCardPosition()]
                 .labelColor
         )
 
-        if (viewModel.selectedColor.value?.isNotEmpty() == true) {
+        if (viewModel.getSelectedColor().isNotEmpty()) {
             setColor()
         }
     }
@@ -139,9 +139,9 @@ class CardDetailsFragment : Fragment() {
         binding.apply {
             etNameCardDetails.apply {
                 setText(
-                    viewModel.boardDetails.value
-                        ?.taskList?.get(viewModel.taskListPosition.value!!)
-                        ?.cards?.get(viewModel.cardPosition.value!!)
+                    viewModel.getBoardDetails()
+                        ?.taskList?.get(viewModel.getTaskListPosition())
+                        ?.cards?.get(viewModel.getCardPosition())
                         ?.name
                 )
 
@@ -178,9 +178,9 @@ class CardDetailsFragment : Fragment() {
         when (item.itemId) {
             R.id.action_delete_card -> {
                 alertDialogForDeleteCard(
-                    viewModel.boardDetails.value
-                        ?.taskList?.get(viewModel.taskListPosition.value!!)
-                        ?.cards?.get(viewModel.cardPosition.value!!)
+                    viewModel.getBoardDetails()
+                        ?.taskList?.get(viewModel.getTaskListPosition())
+                        ?.cards?.get(viewModel.getCardPosition())
                         ?.name!!
                 )
                 return true
@@ -192,11 +192,11 @@ class CardDetailsFragment : Fragment() {
 
     private fun membersListDialog() {
 
-        val cardAssignedMembersList = viewModel.boardDetails.value
+        val cardAssignedMembersList = viewModel.getBoardDetails()
             ?.taskList
-            ?.get(viewModel.taskListPosition.value!!)
+            ?.get(viewModel.getTaskListPosition())
             ?.cards
-            ?.get(viewModel.cardPosition.value!!)
+            ?.get(viewModel.getCardPosition())
             ?.assignedTo
 
         viewModel.assignedMemberDetailList.value?.apply {
@@ -225,8 +225,8 @@ class CardDetailsFragment : Fragment() {
                 if (action == Constants.SELECT) {
 
                     viewModel.apply {
-                        boardDetails.value?.taskList?.get(taskListPosition.value!!)?.cards?.get(
-                            cardPosition.value!!
+                        getBoardDetails()?.taskList?.get(getTaskListPosition())?.cards?.get(
+                            getCardPosition()
                         ).apply {
                             if (!(this?.assignedTo?.contains(user.id)!!)) {
                                 this.assignedTo.add(user.id)
@@ -238,8 +238,8 @@ class CardDetailsFragment : Fragment() {
                 } else {
 
                     viewModel.apply {
-                        boardDetails.value?.taskList?.get(taskListPosition.value!!)?.cards?.get(
-                            cardPosition.value!!
+                        getBoardDetails()?.taskList?.get(getTaskListPosition())?.cards?.get(
+                            getCardPosition()
                         ).apply {
                             this?.assignedTo?.remove(user.id)
                         }
@@ -265,11 +265,11 @@ class CardDetailsFragment : Fragment() {
     private fun setUpSelectedMembersList() {
 
         viewModel.apply {
-            val cardAssignedMemberList = boardDetails.value
+            val cardAssignedMemberList = getBoardDetails()
                 ?.taskList
-                ?.get(viewModel.taskListPosition.value!!)
+                ?.get(viewModel.getTaskListPosition())
                 ?.cards
-                ?.get(viewModel.cardPosition.value!!)
+                ?.get(viewModel.getCardPosition())
                 ?.assignedTo
 
             val selectedMembersList: ArrayList<SelectedMembers> = ArrayList()
@@ -369,7 +369,7 @@ class CardDetailsFragment : Fragment() {
         binding.apply {
             tvSelectLabelColor.text = ""
             tvSelectLabelColor.setBackgroundColor(
-                Color.parseColor(viewModel.selectedColor.value.toString())
+                Color.parseColor(viewModel.getSelectedColor())
             )
 
         }
@@ -381,7 +381,7 @@ class CardDetailsFragment : Fragment() {
         val listDialog = object : LabelColorListDialog(
             requireContext(),
             colorsList, resources.getString(R.string.str_select_label_color),
-            viewModel.selectedColor.value.toString()
+            viewModel.getSelectedColor()
         ) {
             override fun onItemSelected(color: String) {
                 viewModel.setSelectedColor(color)

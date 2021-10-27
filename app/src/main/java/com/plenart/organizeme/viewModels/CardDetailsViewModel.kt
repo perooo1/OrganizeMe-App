@@ -9,95 +9,95 @@ import com.plenart.organizeme.models.Card
 import com.plenart.organizeme.models.Task
 import com.plenart.organizeme.models.User
 
-class CardDetailsViewModel: ViewModel() {
+class CardDetailsViewModel : ViewModel() {
 
-    private val _boardDetails: MutableLiveData<Board> = MutableLiveData()
     private val _assignedMemberDetailList: MutableLiveData<ArrayList<User>> = MutableLiveData()
-    private val _taskListPosition: MutableLiveData<Int> = MutableLiveData(-1)
-    private val _cardPosition: MutableLiveData<Int> = MutableLiveData()
-    private val _selectedColor: MutableLiveData<String> = MutableLiveData("")
-    private val _taskListUpdated: MutableLiveData<Boolean> = MutableLiveData()
-    private val _selectedDueDateMilis: MutableLiveData<Long> = MutableLiveData(0L)
-    private val _cardName: MutableLiveData<String> = MutableLiveData()
+    private var boardDetails: Board? = null
+    private var taskListPosition: Int = -1
+    private var cardPosition: Int = -1
+    private var selectedColor: String = String()
+    private var taskListUpdated: Boolean = false
+    private var selectedDueDateMilis: Long = 0L
+    private var cardName: String = String()
 
     val firestore = Firestore()
-
-    val boardDetails: LiveData<Board>
-        get() = _boardDetails
 
     val assignedMemberDetailList: LiveData<ArrayList<User>>
         get() = _assignedMemberDetailList
 
-    val taskListPosition: LiveData<Int>
-        get() = _taskListPosition
-
-    val cardPosition: LiveData<Int>
-        get() = _cardPosition
-
-    val selectedColor: LiveData<String>
-        get() = _selectedColor
-
-    val taskListUpdated: LiveData<Boolean>
-        get() = _taskListUpdated
-
-    val selectedDueDateMilis: LiveData<Long>
-        get() = _selectedDueDateMilis
-
-    val cardName: LiveData<String>
-        get() = _cardName
-
-    fun setCardName(name: String){
-        _cardName.value = name
+    fun setCardName(name: String) {
+        cardName = name
     }
 
-    fun setBoardDetails(board: Board){
-        _boardDetails.value = board
+    fun setBoardDetails(board: Board) {
+        boardDetails = board
     }
 
-    fun setSelectedColor(color: String){
-        _selectedColor.value = color
+    fun getBoardDetails(): Board? {
+        return this.boardDetails
     }
 
-    fun setTaskListPosition(position: Int){
-        _taskListPosition.value = position
+    fun setSelectedColor(color: String) {
+        selectedColor = color
     }
 
-    fun setCardPosition(position: Int){
-        _cardPosition.value = position
+    fun getSelectedColor(): String {
+        return this.selectedColor
     }
 
-    fun setAssignedMembers(members: ArrayList<User>){
+    fun setTaskListPosition(position: Int) {
+        taskListPosition = position
+    }
+
+    fun getTaskListPosition(): Int {
+        return this.taskListPosition
+    }
+
+    fun setCardPosition(position: Int) {
+        cardPosition = position
+    }
+
+    fun getCardPosition(): Int {
+        return this.cardPosition
+    }
+
+    fun setAssignedMembers(members: ArrayList<User>) {
         _assignedMemberDetailList.value = members
     }
 
-   fun setSelectedDueDate(dueDate: Long){
-       _selectedDueDateMilis.value = dueDate
-   }
-
-    fun updateCardDetails(){
-        val card = Card(_cardName.value.toString(),
-            _boardDetails.value?.taskList?.get(_taskListPosition.value!!)?.cards?.get(_cardPosition.value!!)?.createdBy!!,
-            _boardDetails.value?.taskList?.get(_taskListPosition.value!!)?.cards?.get(_cardPosition.value!!)?.assignedTo!!,
-            _selectedColor.value.toString(),
-            _selectedDueDateMilis.value!!
-        )
-
-        val taskList: ArrayList<Task> = _boardDetails.value!!.taskList
-        taskList.removeAt(taskList.size -1)
-
-        _boardDetails.value?.taskList?.get(_taskListPosition.value!!)?.cards!![_cardPosition.value!!] = card
-        _taskListUpdated.value = firestore.addUpdateTaskList(_boardDetails.value!!)
+    fun setSelectedDueDate(dueDate: Long) {
+        selectedDueDateMilis = dueDate
     }
 
-    fun deleteCard(){
-        val cardsList: ArrayList<Card> = _boardDetails.value?.taskList!![_taskListPosition.value!!].cards
-        cardsList.removeAt(_cardPosition.value!!)
+    fun getSelectedDueDate(): Long {
+        return this.selectedDueDateMilis
+    }
 
-        val taskList: ArrayList<Task> = _boardDetails.value?.taskList!!
+    fun updateCardDetails() {
+        val card = Card(
+            cardName,
+            boardDetails?.taskList?.get(taskListPosition)?.cards?.get(cardPosition)?.createdBy!!,
+            boardDetails?.taskList?.get(taskListPosition)?.cards?.get(cardPosition)?.assignedTo!!,
+            selectedColor,
+            selectedDueDateMilis
+        )
+
+        val taskList: ArrayList<Task> = boardDetails?.taskList!!
         taskList.removeAt(taskList.size - 1)
 
-        taskList[_taskListPosition.value!!].cards = cardsList
-        _taskListUpdated.value = firestore.addUpdateTaskList(_boardDetails.value!!)
+        boardDetails?.taskList?.get(taskListPosition)?.cards!![cardPosition] = card
+        taskListUpdated = firestore.addUpdateTaskList(boardDetails!!)
+    }
+
+    fun deleteCard() {
+        val cardsList: ArrayList<Card> = boardDetails?.taskList!![taskListPosition].cards
+        cardsList.removeAt(cardPosition)
+
+        val taskList: ArrayList<Task> = boardDetails?.taskList!!
+        taskList.removeAt(taskList.size - 1)
+
+        taskList[taskListPosition].cards = cardsList
+        taskListUpdated = firestore.addUpdateTaskList(boardDetails!!)
     }
 
 }

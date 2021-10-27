@@ -2,8 +2,6 @@ package com.plenart.organizeme.viewModels
 
 import android.net.Uri
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
@@ -18,77 +16,65 @@ import kotlinx.coroutines.tasks.await
 
 class CreateBoardViewModel: ViewModel() {
 
-    private val _selectedImageFileUri: MutableLiveData<Uri> = MutableLiveData()
-    private val _userName: MutableLiveData<String> = MutableLiveData()
-    private val _boardName: MutableLiveData<String> = MutableLiveData()
-    private val _boardImageURL: MutableLiveData<String> = MutableLiveData()
-    private val _fileExtension: MutableLiveData<String> = MutableLiveData()
-    private val _boardCreated: MutableLiveData<Boolean> = MutableLiveData()
+    private var selectedImageFileUri: Uri? = null
+    private var userName: String = String()
+    private var boardName: String = String()
+    private var boardImageURL: String = String()
+    private var fileExtension: String = String()
+    private var boardCreated: Boolean = false
 
     val firestore = Firestore()
 
-    val selectedImageFileUri: LiveData<Uri>
-        get() = _selectedImageFileUri
-
-    val userName: LiveData<String>
-        get() = _userName
-
-    val boardName: LiveData<String>
-        get() = _boardName
-
-    val boardImageURL: LiveData<String>
-        get() = _boardImageURL
-
-    val fileExtension: LiveData<String>
-        get() = _fileExtension
-
-    val boardCreated: LiveData<Boolean>
-        get() = _boardCreated
-
-
     fun setUserName(userName: String){
-        _userName.value = userName
+        this.userName = userName
     }
 
     fun setBoardName(boardName: String){
-        _boardName.value = boardName
+        this.boardName = boardName
+    }
+
+    fun getBoardName(): String{
+        return this.boardName
     }
 
     fun setSelectedImageFileUri(uri: Uri?){
-        _selectedImageFileUri.value = uri
+        selectedImageFileUri = uri
     }
 
-    fun setFileExtension(extension: String?){
-        _fileExtension.value = extension
+    fun getSelectedImageFileUri(): Uri?{
+        return selectedImageFileUri
+    }
+
+    fun setFileExtension(extension: String){
+        fileExtension = extension
     }
 
     fun createBoard(){
         val assignedUserArrayList: ArrayList<String> = ArrayList();
         assignedUserArrayList.add(getCurrentUserID())
 
-        val boardName = _boardName.value.toString()
         if(boardName.isEmpty()){
             Log.i("createBoard","board name is empty")
         }
         else{
             val board = Board(
                 boardName,
-                _boardImageURL.value.toString(),
-                _userName.value.toString(),
+                boardImageURL,
+                userName,
                 assignedUserArrayList
             )
-            _boardCreated.value = firestore.createBoard(board)
+            boardCreated = firestore.createBoard(board)
         }
     }
 
     fun uploadBoardImage(){
 
-        if(_selectedImageFileUri.value != null){
+        if(selectedImageFileUri != null){
             try{
                 viewModelScope.launch {
                     val uploadedBoardImage = uploadBoardCallback()
                     uploadedBoardImage.metadata!!.reference!!.downloadUrl.addOnSuccessListener { uri ->
-                        _boardImageURL.value = uri.toString()
+                        boardImageURL = uri.toString()
                         createBoard()
                     }
                 }
@@ -104,9 +90,9 @@ class CreateBoardViewModel: ViewModel() {
         val sRef: StorageReference = FirebaseStorage.getInstance()
             .reference
             .child("BOARD_IMAGE"+System.currentTimeMillis()
-                    +"."+ _fileExtension.value)
+                    +"."+ fileExtension)
 
-        return sRef.putFile(_selectedImageFileUri.value!!).await()
+        return sRef.putFile(selectedImageFileUri!!).await()
     }
 
     private fun getCurrentUserID(): String{

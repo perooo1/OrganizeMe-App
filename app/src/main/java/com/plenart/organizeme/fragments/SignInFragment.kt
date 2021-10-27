@@ -41,12 +41,12 @@ class SignInFragment : Fragment() {
 
     private fun initListeners() {
         binding.btnSignInSignInActivity.setOnClickListener() {
-            if (!viewModel.email.contains('@')) {
+            if (!viewModel.getEmail().contains('@')) {
                 Toast.makeText(requireContext(), "Email must contain @ sign", Toast.LENGTH_SHORT)
                     .show()
             }
             else{
-                if (viewModel.password.isEmpty() || viewModel.password.length < 6) {
+                if (viewModel.getPassword().isEmpty() || viewModel.getPassword().length < 6) {
                     Toast.makeText(
                         requireContext(),
                         "Please enter a password of min 6 characters",
@@ -66,14 +66,14 @@ class SignInFragment : Fragment() {
 
     private fun getEmail() = with(binding.etEmailSignInActivity) {
         this.doAfterTextChanged {
-            viewModel.email = text.toString()
+            viewModel.setEmail(text.toString())
         }
 
     }
 
     private fun getPassword() = with(binding.etPasswordSignInActivity) {
         this.doAfterTextChanged {
-            viewModel.password = text.toString()
+            viewModel.setPassword(text.toString())
         }
     }
 

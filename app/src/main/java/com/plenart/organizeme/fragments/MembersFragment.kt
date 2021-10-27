@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.plenart.organizeme.adapters.MemberListItemAdapter
 import com.plenart.organizeme.databinding.DialogAddSearchMemberBinding
 import com.plenart.organizeme.databinding.FragmentMembersBinding
+import com.plenart.organizeme.models.User
 import com.plenart.organizeme.viewModels.MembersViewModel
 
 
@@ -62,8 +63,8 @@ class MembersFragment : Fragment() {
     }
 
     private fun initMember() {
-        viewModel.member?.observe(viewLifecycleOwner, Observer {
-            memberDetails()
+        viewModel.member.observe(viewLifecycleOwner, Observer {
+            memberDetails(it)
         })
     }
 
@@ -102,9 +103,9 @@ class MembersFragment : Fragment() {
         }
     }
 
-    private fun memberDetails() {
+    private fun memberDetails(user: User) {
         viewModel.apply {
-            boardDetails.value?.assignedTo?.add(viewModel.member.value?.id.toString())
+            boardDetails.value?.assignedTo?.add(user.id)
             firestore.assignMemberToBoard(viewModel.boardDetails.value!!)
         }
     }

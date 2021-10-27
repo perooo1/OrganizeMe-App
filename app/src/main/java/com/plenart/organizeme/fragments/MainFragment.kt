@@ -11,7 +11,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.bumptech.glide.Glide
 import com.google.android.material.navigation.NavigationView
 import com.plenart.organizeme.R
 import com.plenart.organizeme.adapters.BoardItemsAdapter
@@ -55,7 +54,7 @@ class MainFragment : Fragment() {
         fragmentMainBinding.fabCreateBoard.setOnClickListener {
             val directions =
                 DrawerHostFragmentDirections.actionSecNavHostFragmentToCreateBoardFragment(
-                    viewModel.userName
+                    viewModel.getUserName()
                 )
             requireActivity().findNavController(R.id.main_content_navigation_component)
                 .navigate(directions)

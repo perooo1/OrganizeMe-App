@@ -54,10 +54,10 @@ class MyProfileFragment : Fragment() {
         }
 
         binding.btnUpdateMyProfileActivity.setOnClickListener {
-            if (viewModel.selectedImageFileUri?.value != null) {
+            if (viewModel.getSelectedImageFileUri() != null) {
                 viewModel.uploadUserImage()
             }
-            if (viewModel.mobile.value.toString().isEmpty()) {
+            if (viewModel.getMobile().toString().isEmpty()) {
                 Toast.makeText(context, "Please provide a phone number", Toast.LENGTH_SHORT).show()
             } else {
                 viewModel.updateUserProfileData()
@@ -106,10 +106,10 @@ class MyProfileFragment : Fragment() {
         if (resultCode == Activity.RESULT_OK && requestCode == Constants.PICK_IMAGE_REQUEST_CODE && data!!.data != null) {
 
             viewModel.setSelectedImageFileUri(data.data)
-            viewModel.setFileExtension(Constants.getFileExtension(requireActivity(), data.data))
+            viewModel.setFileExtension(Constants.getFileExtension(requireActivity(), data.data).toString())
 
             try {
-                binding.ivUserImage.loadImage(viewModel.selectedImageFileUri?.value.toString())
+                binding.ivUserImage.loadImage(viewModel.getSelectedImageFileUri().toString())
 
             } catch (e: IOException) {
                 e.printStackTrace()

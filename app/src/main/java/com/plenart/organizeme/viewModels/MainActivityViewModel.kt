@@ -11,14 +11,18 @@ class MainActivityViewModel: ViewModel() {
 
     private val _user: MutableLiveData<User> = MutableLiveData()
     private val _boardsList: MutableLiveData<ArrayList<Board>> = MutableLiveData()
-    var userName = ""
-    val firestore = Firestore()
+    private var userName = String()
+    private val firestore = Firestore()
 
     val user: LiveData<User>
         get() = _user
 
     val boardsList: LiveData<ArrayList<Board>>
         get() = _boardsList
+
+    fun getUserName(): String{
+        return this.userName
+    }
 
     fun loadUserData(){
         viewModelScope.launch {

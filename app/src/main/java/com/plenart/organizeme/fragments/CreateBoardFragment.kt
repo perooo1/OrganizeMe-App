@@ -11,7 +11,6 @@ import android.widget.Toast
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.plenart.organizeme.R
@@ -36,7 +35,6 @@ class CreateBoardFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        initObservers()
         initListeners()
 
         getArgs()
@@ -61,25 +59,18 @@ class CreateBoardFragment : Fragment() {
         }
 
         binding.btnCreateCreateBoardActivity.setOnClickListener{
-            if(viewModel.selectedImageFileUri.value != null){
+            if(viewModel.getSelectedImageFileUri() != null){
                 viewModel.uploadBoardImage()
             }
             else{
-                viewModel.createBoard()
+                if(viewModel.getBoardName().isEmpty()){
+                    Toast.makeText(requireContext(),"Please enter Board name!",Toast.LENGTH_SHORT).show()
+                }
+                else{
+                    viewModel.createBoard()
+                }
             }
         }
-    }
-
-    private fun initObservers() {
-        initBoardName()
-    }
-
-    private fun initBoardName() {
-        viewModel.boardName.observe(viewLifecycleOwner, Observer {
-            if(it == null || it.isEmpty()){
-                Toast.makeText(context, "please provide a board name", Toast.LENGTH_SHORT).show()
-            }
-        })
     }
 
     private fun getBoardName(){
@@ -108,11 +99,11 @@ class CreateBoardFragment : Fragment() {
         super.onActivityResult(requestCode, resultCode, data)
         if(resultCode == Activity.RESULT_OK && requestCode == Constants.PICK_IMAGE_REQUEST_CODE && data!!.data != null){
             viewModel.setSelectedImageFileUri(data.data);
-            viewModel.setFileExtension(Constants.getFileExtension(requireActivity(),data.data))
+            viewModel.setFileExtension(Constants.getFileExtension(requireActivity(),data.data).toString())
 
             try{
                 Glide.with(this)
-                    .load(viewModel.selectedImageFileUri.value)
+                    .load(viewModel.getSelectedImageFileUri())
                     .centerCrop()
                     .placeholder(R.drawable.ic_board_place_holder)
                     .into(binding.ivBoardImageCreateBoardActivity)
