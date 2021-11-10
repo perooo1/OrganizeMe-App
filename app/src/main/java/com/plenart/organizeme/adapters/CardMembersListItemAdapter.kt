@@ -1,72 +1,71 @@
 package com.plenart.organizeme.adapters
 
-import android.content.Context
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.plenart.organizeme.R
 import com.plenart.organizeme.databinding.ItemCardSelectedMemberBinding
-import com.plenart.organizeme.interfaces.CardItemClickInterface
 import com.plenart.organizeme.interfaces.MemberItemClickInterface
-import com.plenart.organizeme.interfaces.SelectedMembersClickInterface
 import com.plenart.organizeme.models.SelectedMembers
+import com.plenart.organizeme.utils.CardMembersDiffCallback
+import com.plenart.organizeme.utils.gone
+import com.plenart.organizeme.utils.loadImage
+import com.plenart.organizeme.utils.visible
 
 class CardMembersListItemAdapter(
-    private val context: Context,
-    private val list: ArrayList<SelectedMembers>,
-    private val assignMembers: Boolean
-) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    private val assignMembers: Boolean,
+    private val memberItemClickListener: MemberItemClickInterface
+) : ListAdapter<SelectedMembers, CardMembersListItemAdapter.CardMemberItemViewHolder>(
+    CardMembersDiffCallback()
+) {
 
-    private var onClickListener: MemberItemClickInterface? = null;
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val binding = ItemCardSelectedMemberBinding.inflate(LayoutInflater.from(parent.context),parent,false);
-        return CardMemberItemViewHolder(binding);
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int
+    ): CardMembersListItemAdapter.CardMemberItemViewHolder {
+        val binding = ItemCardSelectedMemberBinding.inflate(
+            LayoutInflater.from(parent.context),
+            parent,
+            false
+        );
+        return CardMemberItemViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val model = list[position];
+    override fun onBindViewHolder(holder: CardMemberItemViewHolder, position: Int) {
+        val model = getItem(position)
 
-        if(holder is CardMemberItemViewHolder){
-            if(position == list.size -1 && assignMembers){
-                holder.binding.ivAddMember.visibility = View.VISIBLE;
-                holder.binding.ivSelectedMemberImage.visibility = View.GONE;
-            }
-            else{
-                holder.binding.ivAddMember.visibility = View.GONE;
-                holder.binding.ivSelectedMemberImage.visibility = View.VISIBLE;
+        holder.bind(model, position)
 
-                Glide.with(context)
-                    .load(model.image)
-                    .centerCrop()
-                    .placeholder(R.drawable.ic_user_place_holder)
-                    .into(holder.binding.ivSelectedMemberImage);
+        holder.itemView.setOnClickListener {
+            memberItemClickListener.onClick()
+        }
 
-            }
+    }
 
-            holder.itemView.setOnClickListener{
-                if(onClickListener != null){
-                    onClickListener!!.onClick();
+    inner class CardMemberItemViewHolder(val binding: ItemCardSelectedMemberBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(model: SelectedMembers, position: Int) {
+            if (position == itemCount - 1 && assignMembers) {
+                binding.apply {
+                    ivAddMember.visible()
+                    ivSelectedMemberImage.gone()
+
+                }
+            } else {
+                binding.apply {
+                    ivAddMember.gone()
+                    ivSelectedMemberImage.visible()
                 }
             }
+
+            binding.ivSelectedMemberImage.loadImage(model.image)
 
         }
     }
 
-    override fun getItemCount(): Int {
-        return list.size;
-    }
-
-    fun setOnClickListener(onClickInterface: MemberItemClickInterface){
-        this.onClickListener = onClickInterface;
-    }
-
-
-    inner class CardMemberItemViewHolder(val binding: ItemCardSelectedMemberBinding ): RecyclerView.ViewHolder(binding.root){
-
-    }
-
 
 }
+
+
+

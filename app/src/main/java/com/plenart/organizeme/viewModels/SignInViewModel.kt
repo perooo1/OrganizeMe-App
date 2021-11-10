@@ -1,43 +1,54 @@
 package com.plenart.organizeme.viewModels
 
-import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
-import com.plenart.organizeme.firebase.Firestore
-import com.plenart.organizeme.models.User
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 
 class SignInViewModel: ViewModel() {
-    private lateinit var auth: FirebaseAuth;
+    private lateinit var auth: FirebaseAuth
 
-    var emailLiveData: MutableLiveData<String>? = null;
-    var passwordLiveData: MutableLiveData<String>? = null;
-    var userLiveData: MutableLiveData<User>? = null;
+    private val _user: MutableLiveData<Boolean> = MutableLiveData(false)
+    private var email: String = String()
+    private var password: String = String()
 
-    init {
-        Log.i("SignInViewModel", "SignInView model created!");
+    val user: LiveData<Boolean>
+        get() = _user
+
+    fun getEmail(): String{
+        return this.email
     }
 
-    fun singInUser(){
+    fun setEmail(email: String){
+        this.email = email
+    }
 
-        auth = FirebaseAuth.getInstance();
+    fun getPassword():String{
+        return this.password
+    }
 
-        auth.signInWithEmailAndPassword(emailLiveData as String, passwordLiveData as String).addOnCompleteListener{ task ->
+    fun setPassword(password: String){
+        this.password = password
+    }
 
-            if(task.isSuccessful){
-                userLiveData?.value = Firestore().loadUserDataNEW();
-                val user = auth.currentUser;
 
+    fun signInUser(){
+        auth = FirebaseAuth.getInstance()
+        auth.signInWithEmailAndPassword(email, password).addOnCompleteListener{ task ->
+            try{
+                if(task.isSuccessful){
+                    _user.value = true
+                }
+                else{
+                    _user.value = false
+                    task.exception
+                }
             }
-            else{
-                Log.d("TAG", "signInWithEmailFail")
-                //Toast.makeText(context, "Auth for login failed", Toast.LENGTH_SHORT).show();
+            catch (e: FirebaseAuthInvalidCredentialsException){
+                e.errorCode
             }
         }
     }
 
-    override fun onCleared() {
-        super.onCleared();
-        Log.i("SignInViewModel", "SignInView model destroyed!");
-    }
 }

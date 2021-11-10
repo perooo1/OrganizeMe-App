@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation_graph"
+    app:startDestination="@id/splashFragment">
+
+    <fragment
+        android:id="@+id/splashFragment"
+        android:name="com.plenart.organizeme.fragments.SplashFragment"
+        android:label="fragment_splash"
+        tools:layout="@layout/fragment_splash">
+        <action
+            android:id="@+id/action_splashFragment_to_introFragment"
+            app:destination="@id/introFragment"
+            app:popUpTo="@id/splashFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_splashFragment_to_secNavHostFragment"
+            app:destination="@id/secNavHostFragment"
+            app:popUpTo="@id/splashFragment"
+            app:popUpToInclusive="true"
+            />
+    </fragment>
+    <fragment
+        android:id="@+id/introFragment"
+        android:name="com.plenart.organizeme.fragments.IntroFragment"
+        android:label="fragment_intro"
+        tools:layout="@layout/fragment_intro">
+        <action
+            android:id="@+id/action_introFragment_to_signInFragment"
+            app:destination="@id/signInFragment" />
+        <action
+            android:id="@+id/action_introFragment_to_signUpFragment"
+            app:destination="@id/signUpFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/signInFragment"
+        android:name="com.plenart.organizeme.fragments.SignInFragment"
+        android:label="@string/sign_in"
+        tools:layout="@layout/fragment_sign_in">
+        <action
+            android:id="@+id/action_signInFragment_to_secNavHostFragment"
+            app:destination="@id/secNavHostFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/signUpFragment"
+        android:name="com.plenart.organizeme.fragments.SignUpFragment"
+        android:label="@string/sign_up"
+        tools:layout="@layout/fragment_sign_up" >
+        <action
+            android:id="@+id/action_signUpFragment_to_secNavHostFragment"
+            app:destination="@id/secNavHostFragment" />
+        <action
+            android:id="@+id/action_signUpFragment_to_signInFragment"
+            app:destination="@id/signInFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/membersFragment"
+        android:name="com.plenart.organizeme.fragments.MembersFragment"
+        android:label="@string/members"
+        tools:layout="@layout/fragment_members">
+        <argument
+            android:name="board_details"
+            app:argType="com.plenart.organizeme.models.Board" />
+    </fragment>
+    <fragment
+        android:id="@+id/cardDetailsFragment"
+        android:name="com.plenart.organizeme.fragments.CardDetailsFragment"
+        android:label="@string/card_details"
+        tools:layout="@layout/fragment_card_details">
+        <argument
+            android:name="task_list_item_position"
+            app:argType="integer" />
+        <argument
+            android:name="card_list_item_positoni"
+            app:argType="integer" />
+        <argument
+            android:name="board_details"
+            app:argType="com.plenart.organizeme.models.Board" />
+        <argument
+            android:name="assigned_users"
+            app:argType="com.plenart.organizeme.models.User[]" />
+    </fragment>
+    <fragment
+        android:id="@+id/taskListFragment"
+        android:name="com.plenart.organizeme.fragments.TaskListFragment"
+        android:label="fragment_task_list"
+        tools:layout="@layout/fragment_task_list">
+        <action
+            android:id="@+id/action_taskListFragment_to_membersFragment"
+            app:destination="@id/membersFragment" />
+        <action
+            android:id="@+id/action_taskListFragment_to_cardDetailsFragment"
+            app:destination="@id/cardDetailsFragment" />
+        <argument
+            android:name="document_id"
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/createBoardFragment"
+        android:name="com.plenart.organizeme.fragments.CreateBoardFragment"
+        android:label="@string/create_board_title"
+        tools:layout="@layout/fragment_create_board">
+
+        <argument
+            android:name="user_name"
+            app:argType="string" />
+
+    </fragment>
+    <fragment
+        android:id="@+id/secNavHostFragment"
+        android:name="com.plenart.organizeme.fragments.DrawerHostFragment"
+        android:label="SecNavHostFragment">
+        <action
+            android:id="@+id/action_secNavHostFragment_to_taskListFragment"
+            app:destination="@id/taskListFragment" />
+        <action
+            android:id="@+id/action_secNavHostFragment_to_createBoardFragment"
+            app:destination="@id/createBoardFragment" />
+        <action
+            android:id="@+id/action_secNavHostFragment_to_introFragment"
+            app:popUpTo="@id/introFragment"
+            app:popUpToInclusive="true"
+            app:destination="@id/introFragment" />
+    </fragment>
+</navigation>

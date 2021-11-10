@@ -13,53 +13,19 @@
         android:roundIcon="@mipmap/ic_launcher_custom_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.OrganizeMe">
+
         <activity
-            android:name=".activities.CardDetailsActivity"
+            android:name=".activities.MainActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme"/>
-        <activity
-            android:name=".activities.MembersActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme" />
-        <activity
-            android:name=".activities.TaskListActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme" />
-        <activity
-            android:name=".activities.CreateBoardActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme" />
-        <activity
-            android:name=".activities.MyProfileActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme" />
-        <activity android:name=".activities.BaseActivity" />
-        <activity
-            android:name=".activities.SignInActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme2" />
-        <activity
-            android:name=".activities.SignUpActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme2" />
-        <activity
-            android:name=".activities.IntroActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme2" />
-        <activity
-            android:name=".activities.SplashActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme2">
+            android:theme="@style/SplashTheme"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
-        <activity
-            android:name=".activities.MainActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme" />
     </application>
 
 </manifest>

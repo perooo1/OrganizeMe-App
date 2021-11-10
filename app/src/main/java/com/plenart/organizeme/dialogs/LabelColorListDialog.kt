@@ -14,9 +14,8 @@ abstract class LabelColorListDialog(context: Context,
                                     private var mSelectedColor: String = ""
 ) : Dialog(context) {
 
-    private lateinit var dialogListBinding: DialogListBinding;
-
-    private var adapter: LabelColorListAdapter? = null;
+    private lateinit var dialogListBinding: DialogListBinding
+    private lateinit var labelColorAdapter: LabelColorListAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,16 +31,25 @@ abstract class LabelColorListDialog(context: Context,
     }
 
     private fun setUpRecyclerView(binding: DialogListBinding ){
-        binding.tvTitle.text = title;
-        binding.rvList.layoutManager = LinearLayoutManager(context);
-        adapter = LabelColorListAdapter(context,list, mSelectedColor);
-        binding.rvList.adapter = adapter;
 
-        adapter!!.onItemClickListener = object: LabelColorClickedInterface{
+        val listener = object : LabelColorClickedInterface{
             override fun onClick(position: Int, color: String) {
-                dismiss();
+                dismiss()
                 onItemSelected(color)
+            }
 
+        }
+
+        labelColorAdapter = LabelColorListAdapter(list, mSelectedColor, listener)
+        binding.tvTitle.text = title
+
+        labelColorAdapter = LabelColorListAdapter(list, mSelectedColor, listener)
+
+        binding.apply {
+            tvTitle.text = title
+            rvList.apply{
+                layoutManager = LinearLayoutManager(context)
+                adapter = labelColorAdapter
             }
 
         }

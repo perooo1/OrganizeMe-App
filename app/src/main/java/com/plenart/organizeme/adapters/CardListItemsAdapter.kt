@@ -1,111 +1,114 @@
 package com.plenart.organizeme.adapters
 
-import android.content.Context
 import android.graphics.Color
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.plenart.organizeme.activities.TaskListActivity
 import com.plenart.organizeme.databinding.ItemCardBinding
-import com.plenart.organizeme.interfaces.BoardItemClickInterface
 import com.plenart.organizeme.interfaces.CardItemClickInterface
+import com.plenart.organizeme.interfaces.ITaskListCallback
 import com.plenart.organizeme.interfaces.MemberItemClickInterface
 import com.plenart.organizeme.models.Card
 import com.plenart.organizeme.models.SelectedMembers
+import com.plenart.organizeme.utils.CardDiffCallback
+import com.plenart.organizeme.utils.gone
+import com.plenart.organizeme.utils.visible
 
-class CardListItemsAdapter(private val context: Context, private var list: ArrayList<Card>): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class CardListItemsAdapter(
+    private val taskListCallback: ITaskListCallback,
+    private val taskPosition: Int,
+    private val cardItemClickListener: CardItemClickInterface
+) :
+    ListAdapter<Card, CardListItemsAdapter.CardItemViewHolder>(CardDiffCallback()) {
 
-    private var onClickListener: CardItemClickInterface? = null;
+    private lateinit var cardMembersListItemAdapter: CardMembersListItemAdapter
+    private val members = taskListCallback.getAssignedMembersDetailList()
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val binding = ItemCardBinding.inflate(LayoutInflater.from(parent.context),parent,false);
-        return CardItemViewHolder(binding);
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardItemViewHolder {
+        val binding = ItemCardBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return CardItemViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val model = list[position];
+    override fun onBindViewHolder(holder: CardItemViewHolder, position: Int) {
+        val model = getItem(position)
+        holder.bind(model)
+    }
 
-        if(holder is CardItemViewHolder){
-            
-            if(model.labelColor.isNotEmpty()){
-                holder.binding.viewLabelColor.visibility = View.VISIBLE;
-                holder.binding.viewLabelColor.setBackgroundColor(Color.parseColor(model.labelColor));
+    inner class CardItemViewHolder(val binding: ItemCardBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(card: Card) {
+            setLabelColor(card)
+            binding.tvCardName.text = card.name
+            setupSelectedMembers(card)
+
+            binding.itemCard.setOnClickListener {
+                taskListCallback.cardDetails(taskPosition, absoluteAdapterPosition)
             }
-            else{
-                holder.binding.viewLabelColor.visibility = View.GONE;
+        }
+
+        private fun setLabelColor(card: Card) {
+            if (card.labelColor.isNotEmpty()) {
+                binding.viewLabelColor.apply {
+                    visible()
+                    setBackgroundColor(Color.parseColor(card.labelColor))
+                }
+            } else {
+                binding.viewLabelColor.gone()
             }
-            
-            holder.binding.tvCardName.text = model.name;
 
-            if((context as TaskListActivity).mAssignedMemberDetailList.size > 0){
-                val selectedMembersList: ArrayList<SelectedMembers> = ArrayList();
+        }
 
-                for(i in context.mAssignedMemberDetailList.indices){
-                    for(j in model.assignedTo){
-                        if(context.mAssignedMemberDetailList[i].id == j){
-
+        private fun setupSelectedMembers(card: Card) {
+            if (members.size > 0) {
+                val selectedMembersList: ArrayList<SelectedMembers> = ArrayList()
+                for (i in members.indices) {
+                    for (j in card.assignedTo) {
+                        if (members[i].id == j) {
                             val selectedMembers = SelectedMembers(
-                                context.mAssignedMemberDetailList[i].id,
-                                context.mAssignedMemberDetailList[i].image
-                            );
-
-                            selectedMembersList.add(selectedMembers);
-
+                                members[i].id,
+                                members[i].image
+                            )
+                            selectedMembersList.add(selectedMembers)
                         }
                     }
                 }
 
-                if(selectedMembersList.size > 0){
-                    if(selectedMembersList.size == 1 && selectedMembersList[0].id == model.createdBy){
-                        holder.binding.rvCardSelectedMembersList.visibility = View.GONE;
+                if (selectedMembersList.size > 0) {
+                    if (selectedMembersList.size == 1 && selectedMembersList[0].id == card.createdBy) {
+                        binding.rvCardSelectedMembersList.gone()
+                    } else {
+                        setupCardMembersRecycler(selectedMembersList)
                     }
-                    else{
-                        holder.binding.rvCardSelectedMembersList.visibility = View.VISIBLE;
-                        holder.binding.rvCardSelectedMembersList.layoutManager = GridLayoutManager(context,4);
-
-                        val adapter = CardMembersListItemAdapter(context, selectedMembersList,false);
-                        holder.binding.rvCardSelectedMembersList.adapter = adapter;
-
-                        adapter.setOnClickListener(object: MemberItemClickInterface{
-                            override fun onClick() {
-                                if(onClickListener != null){
-                                    onClickListener!!.onClick(position);
-                                }
-                            }
-
-                        })
-
-                    }
-                }
-
-                else{
-                    holder.binding.rvCardSelectedMembersList.visibility = View.GONE;
+                } else {
+                    binding.rvCardSelectedMembersList.gone()
                 }
 
             }
+        }
 
-            holder.itemView.setOnClickListener{
-                if(onClickListener != null){
-                    onClickListener!!.onClick(position);
+        private fun setupCardMembersRecycler(selectedMembersList: ArrayList<SelectedMembers>) {
+
+            val listener = object : MemberItemClickInterface{
+                override fun onClick() {
+                    cardItemClickListener.onClick(bindingAdapterPosition)
                 }
+            }
+
+            cardMembersListItemAdapter = CardMembersListItemAdapter(false,listener)
+            cardMembersListItemAdapter.submitList(selectedMembersList)      //don't know if it makes sense bc it's not in observer
+
+            binding.rvCardSelectedMembersList.apply {
+                visible()
+                layoutManager = GridLayoutManager(context, 4)
+                adapter = cardMembersListItemAdapter
             }
 
         }
 
     }
 
-    override fun getItemCount(): Int {
-        return list.size;
-    }
-
-    fun setOnClickListener(onClickInterface: CardItemClickInterface){
-        this.onClickListener = onClickInterface;
-    }
-
-    inner class CardItemViewHolder(val binding: ItemCardBinding ): RecyclerView.ViewHolder(binding.root){
-
-    }
 
 }
