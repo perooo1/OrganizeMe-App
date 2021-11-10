@@ -11,7 +11,9 @@ import com.plenart.organizeme.utils.gone
 import com.plenart.organizeme.utils.loadImage
 import com.plenart.organizeme.utils.visible
 
-class MemberListItemAdapter(private val list: ArrayList<User>) :
+class MemberListItemAdapter(
+    private val list: ArrayList<User>
+) :
     RecyclerView.Adapter<MemberListItemAdapter.MemberItemViewHolder>() {
 
     private var onClickListener: SelectedMembersClickInterface? = null
@@ -31,13 +33,16 @@ class MemberListItemAdapter(private val list: ArrayList<User>) :
         holder.bind(model, position)
 
         holder.itemView.setOnClickListener {
+
             if (onClickListener != null) {
                 if (model.selected) {
-                    onClickListener!!.onClick(position, model, Constants.UN_SELECT)
+                    onClickListener?.onClick(position, model, Constants.UN_SELECT)
                 } else {
-                    onClickListener!!.onClick(position, model, Constants.SELECT)
+                    onClickListener?.onClick(position, model, Constants.SELECT)
                 }
             }
+
+
         }
 
     }
@@ -45,6 +50,7 @@ class MemberListItemAdapter(private val list: ArrayList<User>) :
     override fun getItemCount(): Int {
         return list.size
     }
+
 
     fun setOnClickListener(onClickListener: SelectedMembersClickInterface) {
         this.onClickListener = onClickListener

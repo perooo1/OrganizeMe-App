@@ -16,11 +16,12 @@ import com.bumptech.glide.Glide
 import com.plenart.organizeme.R
 import com.plenart.organizeme.databinding.FragmentCreateBoardBinding
 import com.plenart.organizeme.utils.Constants
+import com.plenart.organizeme.utils.loadImage
 import com.plenart.organizeme.viewModels.CreateBoardViewModel
 import java.io.IOException
 
 class CreateBoardFragment : Fragment() {
-    private lateinit var binding : FragmentCreateBoardBinding
+    private lateinit var binding: FragmentCreateBoardBinding
     private val viewModel: CreateBoardViewModel by viewModels()
 
     override fun onCreateView(
@@ -28,7 +29,7 @@ class CreateBoardFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        binding = FragmentCreateBoardBinding.inflate(inflater,container, false)
+        binding = FragmentCreateBoardBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -50,30 +51,32 @@ class CreateBoardFragment : Fragment() {
 
     private fun initListeners() {
         binding.ivBoardImageCreateBoardActivity.setOnClickListener {
-            if(Constants.isReadExternalStorageAllowed(requireActivity())){
+            if (Constants.isReadExternalStorageAllowed(requireActivity())) {
                 Constants.showImageChooser(requireActivity())
-            }
-            else{
+            } else {
                 Constants.requestStoragePermission(requireActivity())
             }
         }
 
-        binding.btnCreateCreateBoardActivity.setOnClickListener{
-            if(viewModel.getSelectedImageFileUri() != null){
+        binding.btnCreateCreateBoardActivity.setOnClickListener {
+            if (viewModel.getSelectedImageFileUri() != null) {
                 viewModel.uploadBoardImage()
-            }
-            else{
-                if(viewModel.getBoardName().isEmpty()){
-                    Toast.makeText(requireContext(),"Please enter Board name!",Toast.LENGTH_SHORT).show()
-                }
-                else{
+            } else {
+                if (viewModel.getBoardName().isEmpty()) {
+                    Toast.makeText(
+                        requireContext(),
+                        resources.getString(R.string.please_provide_a_board_name),
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
+                } else {
                     viewModel.createBoard()
                 }
             }
         }
     }
 
-    private fun getBoardName(){
+    private fun getBoardName() {
         binding.etBoardNameCreateBoardActivity.doAfterTextChanged {
             viewModel.setBoardName(it.toString())
         }
@@ -85,33 +88,31 @@ class CreateBoardFragment : Fragment() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if(requestCode == Constants.READ_STORAGE_PERMISSION_CODE){
-            if(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+        if (requestCode == Constants.READ_STORAGE_PERMISSION_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Constants.showImageChooser(requireActivity())
             }
-        }
-        else{
-            Toast.makeText(context,"permission denied. You can change it in settings", Toast.LENGTH_LONG).show()
+        } else {
+            Toast.makeText(
+                context,
+                resources.getString(R.string.permission_denied),
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if(resultCode == Activity.RESULT_OK && requestCode == Constants.PICK_IMAGE_REQUEST_CODE && data!!.data != null){
+        if (resultCode == Activity.RESULT_OK && requestCode == Constants.PICK_IMAGE_REQUEST_CODE && data!!.data != null) {
             viewModel.setSelectedImageFileUri(data.data);
-            viewModel.setFileExtension(Constants.getFileExtension(requireActivity(),data.data).toString())
+            viewModel.setFileExtension(
+                Constants.getFileExtension(requireActivity(), data.data).toString()
+            )
 
-            try{
-                Glide.with(this)
-                    .load(viewModel.getSelectedImageFileUri())
-                    .centerCrop()
-                    .placeholder(R.drawable.ic_board_place_holder)
-                    .into(binding.ivBoardImageCreateBoardActivity)
+            binding.ivBoardImageCreateBoardActivity.loadImage(
+                viewModel.getSelectedImageFileUri().toString()
+            )
 
-            }
-            catch (e: IOException){
-                e.printStackTrace()
-            }
         }
 
     }

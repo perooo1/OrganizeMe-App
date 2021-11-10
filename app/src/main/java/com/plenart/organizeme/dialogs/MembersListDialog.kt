@@ -13,7 +13,7 @@ abstract class MembersListDialog(context: Context, private var list: ArrayList<U
 ) :Dialog(context){
 
     private lateinit var dialogListBinding: DialogListBinding;
-    private var adapter: MemberListItemAdapter? = null;
+    private lateinit var memberListItemAdapter: MemberListItemAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,11 +30,14 @@ abstract class MembersListDialog(context: Context, private var list: ArrayList<U
         binding.tvTitle.text = title;
 
         if(list.size > 0){
-            binding.rvList.layoutManager = LinearLayoutManager(context);
-            adapter = MemberListItemAdapter(list);
-            binding.rvList.adapter = adapter;
+            memberListItemAdapter = MemberListItemAdapter(list);
 
-            adapter!!.setOnClickListener(object: SelectedMembersClickInterface{
+            binding.rvList.apply {
+                layoutManager = LinearLayoutManager(context);
+                adapter = memberListItemAdapter
+            }
+
+            memberListItemAdapter.setOnClickListener(object: SelectedMembersClickInterface{
                 override fun onClick(position: Int, user: User, action: String) {
                     dismiss();
                     onItemSelected(user,action);

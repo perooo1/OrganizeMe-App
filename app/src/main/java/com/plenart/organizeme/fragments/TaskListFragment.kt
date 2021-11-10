@@ -21,16 +21,15 @@ import com.plenart.organizeme.models.User
 import com.plenart.organizeme.utils.Constants
 import com.plenart.organizeme.viewModels.TaskListViewModel
 
-
 class TaskListFragment : Fragment(), ITaskListCallback {
     private lateinit var binding: FragmentTaskListBinding
+    private lateinit var taskListItemsAdapter: TaskListItemsAdapter
     val viewModel: TaskListViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         binding = FragmentTaskListBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -41,12 +40,26 @@ class TaskListFragment : Fragment(), ITaskListCallback {
 
         initObservers()
         getArgs()
+        addTaskListToBoard()
+        setupRecycler()
 
+    }
+
+    private fun setupRecycler() {
+        taskListItemsAdapter = TaskListItemsAdapter(
+            requireActivity(),
+            this
+        )
+
+        binding.rvTaskList.apply {
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+            setHasFixedSize(true)
+            adapter = taskListItemsAdapter
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_members, menu)
-        //super.onCreateOptionsMenu(menu, inflater)
     }
 
     private fun getArgs() {
@@ -55,9 +68,15 @@ class TaskListFragment : Fragment(), ITaskListCallback {
     }
 
     private fun initObservers() {
-        initAssignedMembers()
         initTaskAddedUpdated()
         initBoardDetails()
+        initTaskList()
+    }
+
+    private fun initTaskList() {
+        viewModel.taskList.observe(viewLifecycleOwner, Observer {
+            taskListItemsAdapter.submitList(it)
+        })
     }
 
     private fun initBoardDetails() {
@@ -76,19 +95,6 @@ class TaskListFragment : Fragment(), ITaskListCallback {
                 addUpdateTaskListSuccess()
             } else {
                 Log.i("taskAddedUpdatedObserver", "task addedUpdate failed: it==false")
-            }
-        })
-    }
-
-    private fun initAssignedMembers() {
-        viewModel.assignedMemberDetailList.observe(viewLifecycleOwner, Observer { members ->
-            if (members != null && members.isNotEmpty()) {
-                boardMembersDetailsList(members)
-            } else {
-                Log.i(
-                    "assignedMembersObserver",
-                    "assignedMembers is empty or null! ${viewModel.assignedMemberDetailList.value.toString()}"
-                )
             }
         })
     }
@@ -186,29 +192,9 @@ class TaskListFragment : Fragment(), ITaskListCallback {
         findNavController().navigate(directions)
     }
 
-    private fun boardMembersDetailsList(members: ArrayList<User>) {
-
+    private fun addTaskListToBoard() {
         val addTaskList = Task(resources.getString(R.string.add_list))
         viewModel.boardDetails.value?.taskList?.add(addTaskList)
-
-        val adapterTask = TaskListItemsAdapter(
-            requireActivity(),
-            this,
-            members
-        )
-
-        viewModel.taskList.observe(viewLifecycleOwner, Observer {
-            adapterTask.submitList(it)
-        })
-
-        binding.apply {
-            rvTaskList.apply {
-                layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-                setHasFixedSize(true)
-                adapter = adapterTask
-            }
-        }
-
     }
 
     override fun updateCardsInTaskList(position: Int, cards: ArrayList<Card>) {
@@ -221,10 +207,13 @@ class TaskListFragment : Fragment(), ITaskListCallback {
         }
     }
 
+    override fun getAssignedMembersDetailList(): ArrayList<User> {
+        return viewModel.assignedMemberDetailList.value ?: ArrayList<User>()
+    }
+
     companion object {
         const val MEMBERS_REQUEST_CODE: Int = 13
         const val CARD_DETAILS_REQUEST_CODE: Int = 14
     }
-
 
 }

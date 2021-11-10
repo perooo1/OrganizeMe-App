@@ -39,7 +39,7 @@
                     android:padding="@dimen/my_profile_screen_content_padding"
                     >
 
-                    <ImageView
+                    <de.hdodenhof.circleimageview.CircleImageView
                         android:id="@+id/iv_board_image_create_board_activity"
                         android:layout_width="@dimen/board_image_size"
                         android:layout_height="@dimen/board_image_size"

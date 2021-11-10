@@ -13,12 +13,11 @@ import com.plenart.organizeme.utils.loadImage
 import com.plenart.organizeme.utils.visible
 
 class CardMembersListItemAdapter(
-    private val assignMembers: Boolean
+    private val assignMembers: Boolean,
+    private val memberItemClickListener: MemberItemClickInterface
 ) : ListAdapter<SelectedMembers, CardMembersListItemAdapter.CardMemberItemViewHolder>(
     CardMembersDiffCallback()
 ) {
-
-    private var onClickListener: MemberItemClickInterface? = null
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -36,16 +35,11 @@ class CardMembersListItemAdapter(
         val model = getItem(position)
 
         holder.bind(model, position)
+
         holder.itemView.setOnClickListener {
-            if (onClickListener != null) {
-                onClickListener!!.onClick()
-            }
+            memberItemClickListener.onClick()
         }
 
-    }
-
-    fun setOnClickListener(onClickInterface: MemberItemClickInterface) {
-        this.onClickListener = onClickInterface;
     }
 
     inner class CardMemberItemViewHolder(val binding: ItemCardSelectedMemberBinding) :

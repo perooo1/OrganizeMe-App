@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
@@ -15,7 +16,10 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.plenart.organizeme.R
 import com.plenart.organizeme.databinding.FragmentDrawerHostBinding
+import com.plenart.organizeme.databinding.NavHeaderMainBinding
+import com.plenart.organizeme.utils.loadImage
 import com.plenart.organizeme.viewModels.DrawerHostViewModel
+import de.hdodenhof.circleimageview.CircleImageView
 
 
 class DrawerHostFragment : Fragment() {
@@ -32,7 +36,6 @@ class DrawerHostFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         binding = FragmentDrawerHostBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -84,5 +87,6 @@ class DrawerHostFragment : Fragment() {
         navHostFragment =
             childFragmentManager.findFragmentById(R.id.sec_nav_host) as NavHostFragment
     }
+
 
 }

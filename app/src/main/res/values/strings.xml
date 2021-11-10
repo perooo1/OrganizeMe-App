@@ -11,8 +11,6 @@
     <string name="password">Password</string>
     <string name="email">Email</string>
     <string name="sign_in_description_text">Please enter your email and password to sign in</string>
-    <string name="please_wait">Please wait</string>
-    <string name="please_click_back_again_to_exit">Please click back again to exit</string>
 
     <string name="nav_my_profile">My Profile</string>
     <string name="nav_sign_out">Sign Out</string>
@@ -50,19 +48,31 @@
     <string name="delete_card">Delete Card</string>
 
     <string name="alert">Alert</string>
-    <string name="confirmation_message_to_delete_card">Are you sure you want to delete card \'%1$s\'?</string>
+    <string name="confirmation_message_to_delete_card">Are you sure you want to delete \'%1$s\'?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
 
     <string name="str_select_label_color">Select Label Color</string>
-
     <string name="str_select_member">Select Member</string>
 
-    <string name="default_notification_channel_id">projemanag_notification_channel_id</string>
     <string name="nav_home">Home</string>
-    <string name="please_provide_a_board_name">Please provide a board name</string>
+    <string name="board_created_by">Created by %1$s</string>
     <string name="create_board_tip">To create a board press the button below</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="please_wait">Please wait</string>
+    <string name="please_click_back_again_to_exit">Please click back again to exit</string>
+    <string name="please_provide_a_board_name">Please provide a board name</string>
+    <string name="please_provide_a_card_name">Please provide a card name</string>
+    <string name="please_provide_list_name">Please provide list name</string>
+    <string name="please_provide_email">Please provide members\' email address</string>
+    <string name="please_provide_phone_num">Please provide a phone number</string>
+    <string name="please_provide_password">Please provide a password</string>
+    <string name="please_provide_your_name">Please provide your name</string>
+
+    <string name="permission_denied">Permission denied. You can change it in settings</string>
+    <string name="email_hint">Email must contain \'@\' sign</string>
+    <string name="password_min_characters">Please enter a password of min 6 characters</string>
+    <string name="registration_failed">Registration failed</string>
+    <string name="registration_successful">You have successfully registered!</string>
 
 </resources>

@@ -15,8 +15,6 @@ import com.google.android.material.navigation.NavigationView
 import com.plenart.organizeme.R
 import com.plenart.organizeme.adapters.BoardItemsAdapter
 import com.plenart.organizeme.databinding.FragmentMainBinding
-import com.plenart.organizeme.databinding.MainContentBinding
-import com.plenart.organizeme.interfaces.BoardItemClickInterface
 import com.plenart.organizeme.models.Board
 import com.plenart.organizeme.utils.gone
 import com.plenart.organizeme.utils.loadImage
@@ -27,8 +25,8 @@ import de.hdodenhof.circleimageview.CircleImageView
 
 class MainFragment : Fragment() {
     private lateinit var fragmentMainBinding: FragmentMainBinding
-    private lateinit var mainContentBinding: MainContentBinding
     private val viewModel: MainActivityViewModel by viewModels()
+    private lateinit var boardsAdapter: BoardItemsAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -48,6 +46,7 @@ class MainFragment : Fragment() {
         initListeners()
 
         viewModel.loadUserData()
+        setupRecycler()
     }
 
     private fun initListeners() {
@@ -71,6 +70,7 @@ class MainFragment : Fragment() {
     private fun initBoardsList() {
         viewModel.boardsList.observe(viewLifecycleOwner, Observer { boardsList ->
             if (boardsList != null && boardsList.isNotEmpty()) {
+                boardsAdapter.submitList(boardsList)
                 displayBoards(boardsList)
             } else {
                 Log.i("boardsListObserver", "boardListObserver: boardsList is empty or null!")
@@ -90,11 +90,30 @@ class MainFragment : Fragment() {
         })
     }
 
+    private fun setupRecycler() {
+        boardsAdapter = BoardItemsAdapter { model -> boardItemClickListener(model) }
+
+        fragmentMainBinding.mainContentIncluded.rvBoards.apply {
+            layoutManager = LinearLayoutManager(context)
+            setHasFixedSize(true)
+            adapter = boardsAdapter
+        }
+
+    }
+
+    private fun boardItemClickListener(model: Board) {
+        val directions =
+            DrawerHostFragmentDirections.actionSecNavHostFragmentToTaskListFragment(
+                model.documentID
+            )
+        requireActivity().findNavController(R.id.main_content_navigation_component)
+            .navigate(directions)
+    }
+
     private fun updateNavigationUserDetails(
         loggedInUser: com.plenart.organizeme.models.User,
         readBoardsList: Boolean = false
     ) {
-
         val navView = requireActivity().findViewById<NavigationView>(R.id.nav_view)
         val header = navView.getHeaderView(0)
         val userImage = header.findViewById<CircleImageView>(R.id.nav_user_img)
@@ -106,15 +125,11 @@ class MainFragment : Fragment() {
         if (readBoardsList) {
             viewModel.getBoardsList()
         }
-
     }
 
     private fun displayBoards(boardsList: ArrayList<Board>) {
-        mainContentBinding = fragmentMainBinding.mainContentIncluded
-        configureAdapter()
-
         if (boardsList.size > 0) {
-            mainContentBinding.apply {
+            fragmentMainBinding.mainContentIncluded.apply {
                 rvBoards.visible()
                 tvNoBoardsAvailable.gone()
                 tvTip.gone()
@@ -122,7 +137,7 @@ class MainFragment : Fragment() {
 
             }
         } else {
-            mainContentBinding.apply {
+            fragmentMainBinding.mainContentIncluded.apply {
                 rvBoards.gone()
                 tvNoBoardsAvailable.visible()
                 tvTip.visible()
@@ -131,31 +146,5 @@ class MainFragment : Fragment() {
         }
     }
 
-    private fun configureAdapter() {
-        val adapterToSet = BoardItemsAdapter()
-
-        viewModel.boardsList.observe(viewLifecycleOwner, Observer {
-            adapterToSet.submitList(it)
-        })
-
-        mainContentBinding.rvBoards.apply {
-            layoutManager = LinearLayoutManager(context)
-            setHasFixedSize(true)
-            adapter = adapterToSet
-        }
-
-        adapterToSet.setOnClickListener(object : BoardItemClickInterface {
-            override fun onClick(position: Int, model: Board) {
-
-                val directions =
-                    DrawerHostFragmentDirections.actionSecNavHostFragmentToTaskListFragment(
-                        model.documentID
-                    )
-                requireActivity().findNavController(R.id.main_content_navigation_component)
-                    .navigate(directions)
-            }
-        })
-
-    }
 
 }

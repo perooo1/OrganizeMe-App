@@ -121,6 +121,7 @@
         <action
             android:id="@+id/action_secNavHostFragment_to_introFragment"
             app:popUpTo="@id/introFragment"
+            app:popUpToInclusive="true"
             app:destination="@id/introFragment" />
     </fragment>
 </navigation>

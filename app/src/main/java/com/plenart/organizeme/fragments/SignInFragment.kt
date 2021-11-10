@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.widget.doAfterTextChanged
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -24,7 +24,6 @@ class SignInFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         binding = FragmentSignInBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -42,46 +41,42 @@ class SignInFragment : Fragment() {
     private fun initListeners() {
         binding.btnSignInSignInActivity.setOnClickListener() {
             if (!viewModel.getEmail().contains('@')) {
-                Toast.makeText(requireContext(), "Email must contain @ sign", Toast.LENGTH_SHORT)
+                Toast.makeText(
+                    requireContext(),
+                    resources.getString(R.string.email_hint),
+                    Toast.LENGTH_SHORT
+                )
                     .show()
-            }
-            else{
+            } else {
                 if (viewModel.getPassword().isEmpty() || viewModel.getPassword().length < 6) {
                     Toast.makeText(
                         requireContext(),
-                        "Please enter a password of min 6 characters",
+                        resources.getString(R.string.password_min_characters),
                         Toast.LENGTH_SHORT
                     )
                         .show()
-                }
-                else{
+                } else {
                     viewModel.signInUser()
                 }
 
             }
-
-
         }
     }
 
-    private fun getEmail() = with(binding.etEmailSignInActivity) {
-        this.doAfterTextChanged {
-            viewModel.setEmail(text.toString())
-        }
-
+    private fun getEmail() = binding.etEmailSignInActivity.doOnTextChanged { newEmail, _, _, _ ->
+        viewModel.setEmail(newEmail.toString())
     }
 
-    private fun getPassword() = with(binding.etPasswordSignInActivity) {
-        this.doAfterTextChanged {
-            viewModel.setPassword(text.toString())
+    private fun getPassword() =
+        binding.etPasswordSignInActivity.doOnTextChanged { newPassword, _, _, _ ->
+            viewModel.setPassword(newPassword.toString())
         }
-    }
 
     private fun initObservers() {
-        initUser()
+        userSignInSuccess()
     }
 
-    private fun initUser() {
+    private fun userSignInSuccess() {
         viewModel.user.observe(viewLifecycleOwner, Observer { newUser ->
             if (newUser) {
                 signInSuccess()

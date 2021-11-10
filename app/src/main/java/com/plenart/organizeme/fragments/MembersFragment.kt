@@ -12,9 +12,11 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.plenart.organizeme.R
 import com.plenart.organizeme.adapters.MemberListItemAdapter
 import com.plenart.organizeme.databinding.DialogAddSearchMemberBinding
 import com.plenart.organizeme.databinding.FragmentMembersBinding
+import com.plenart.organizeme.interfaces.SelectedMembersClickInterface
 import com.plenart.organizeme.models.User
 import com.plenart.organizeme.viewModels.MembersViewModel
 
@@ -27,7 +29,6 @@ class MembersFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         binding = FragmentMembersBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -90,6 +91,7 @@ class MembersFragment : Fragment() {
     }
 
     private fun setUpMembersList() {
+
         val adapterToSet =
             MemberListItemAdapter(viewModel.assignedMemberDetailList.value!!)
         binding.apply {
@@ -99,7 +101,6 @@ class MembersFragment : Fragment() {
                 adapter = adapterToSet
 
             }
-
         }
     }
 
@@ -123,7 +124,7 @@ class MembersFragment : Fragment() {
 
         val dialog = Dialog(requireContext())
 
-        var dialogBinding: DialogAddSearchMemberBinding =
+        val dialogBinding: DialogAddSearchMemberBinding =
             DialogAddSearchMemberBinding.inflate(layoutInflater)
         dialog.setContentView(dialogBinding.root)
 
@@ -137,7 +138,7 @@ class MembersFragment : Fragment() {
                 } else {
                     Toast.makeText(
                         requireContext(),
-                        "Please enter members' email address",
+                        resources.getString(R.string.please_provide_email),
                         Toast.LENGTH_SHORT
                     ).show()
                 }

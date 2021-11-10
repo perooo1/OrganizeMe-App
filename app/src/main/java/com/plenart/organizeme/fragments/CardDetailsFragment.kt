@@ -31,13 +31,13 @@ import kotlin.collections.ArrayList
 
 class CardDetailsFragment : Fragment() {
     private lateinit var binding: FragmentCardDetailsBinding
+    private lateinit var cardMembersListItemAdapter:CardMembersListItemAdapter
     private val viewModel: CardDetailsViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         binding = FragmentCardDetailsBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -81,7 +81,7 @@ class CardDetailsFragment : Fragment() {
                 if (etNameCardDetails.text.toString().isNotEmpty()) {
                     viewModel.updateCardDetails()
                 } else {
-                    Toast.makeText(context, "Please enter a card name", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context,resources.getString(R.string.please_provide_a_card_name), Toast.LENGTH_SHORT).show()
                 }
             }
 
@@ -158,7 +158,7 @@ class CardDetailsFragment : Fragment() {
 
     private fun getArgs() {
         val args: CardDetailsFragmentArgs by navArgs()
-        val assignedMembers = (args.assignedUsers).toList()
+        val assignedMembers = ArrayList((args.assignedUsers).toList())
 
         viewModel.apply {
             setBoardDetails(args.boardDetails)
@@ -295,22 +295,7 @@ class CardDetailsFragment : Fragment() {
                     tvSelectMembers.gone()
                     rvSelectedMembers.visible()
 
-                    val adapterToSet =
-                        CardMembersListItemAdapter(true)
-
-                    adapterToSet.submitList(selectedMembersList)        //same situation as in cardlistitemsadapter
-
-                    rvSelectedMembers.apply {
-                        layoutManager = GridLayoutManager(requireContext(), 6)
-                        adapter = adapterToSet
-                    }
-
-                    adapterToSet.setOnClickListener(object : MemberItemClickInterface {
-                        override fun onClick() {
-                            membersListDialog()
-                        }
-
-                    })
+                    setupCardMembersListRecycler(selectedMembersList)
 
                 } else {
                     tvSelectMembers.visible()
@@ -319,6 +304,25 @@ class CardDetailsFragment : Fragment() {
             }
 
         }
+    }
+
+    private fun setupCardMembersListRecycler(selectedMembersList: ArrayList<SelectedMembers>) {
+
+        val listener = object: MemberItemClickInterface{
+            override fun onClick() {
+                membersListDialog()
+            }
+
+        }
+
+        cardMembersListItemAdapter = CardMembersListItemAdapter(true,listener)
+        cardMembersListItemAdapter.submitList(selectedMembersList)        //same situation as in cardlistitemsadapter
+
+        binding.rvSelectedMembers.apply {
+            layoutManager = GridLayoutManager(requireContext(), 6)
+            adapter = cardMembersListItemAdapter
+        }
+
     }
 
     private fun alertDialogForDeleteCard(cardName: String) {

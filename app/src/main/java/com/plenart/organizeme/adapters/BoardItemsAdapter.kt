@@ -4,16 +4,14 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.plenart.organizeme.R
 import com.plenart.organizeme.databinding.ItemBoardBinding
-import com.plenart.organizeme.interfaces.BoardItemClickInterface
 import com.plenart.organizeme.models.Board
 import com.plenart.organizeme.utils.BoardDiffCallback
 import com.plenart.organizeme.utils.loadImage
 
-class BoardItemsAdapter() :
+class BoardItemsAdapter(private val boardItemClickListener: (Board) -> Unit) :
     ListAdapter<Board, BoardItemsAdapter.BoardItemViewHolder>(BoardDiffCallback()) {
-
-    private var boardItemClickListener: BoardItemClickInterface? = null
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -28,12 +26,8 @@ class BoardItemsAdapter() :
 
         holder.bindImage(model.image)
         holder.bindText(model.name, model.createdBy)
-        holder.bindListeners(position, model)
+        holder.bindListeners(model, boardItemClickListener)
 
-    }
-
-    fun setOnClickListener(onClickInterface: BoardItemClickInterface) {
-        this.boardItemClickListener = onClickInterface
     }
 
     inner class BoardItemViewHolder(val binding: ItemBoardBinding) :
@@ -47,16 +41,13 @@ class BoardItemsAdapter() :
         fun bindText(name: String, createdBy: String) {
             binding.apply {
                 tvNameItemBoard.text = name
-                tvCreatedByItemBoard.text = "Created by: $createdBy"
+                tvCreatedByItemBoard.text =
+                    itemView.context.getString(R.string.board_created_by, createdBy)
             }
         }
 
-        fun bindListeners(position: Int, model: Board) {
-            itemView.setOnClickListener {
-                if (boardItemClickListener != null) {
-                    boardItemClickListener?.onClick(position, model)
-                }
-            }
+        fun bindListeners(model: Board, boardItemClickListener: (Board) -> Unit) {
+            binding.root.setOnClickListener { boardItemClickListener(model) }
         }
 
     }

@@ -14,7 +14,9 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import com.plenart.organizeme.R
 import com.plenart.organizeme.databinding.FragmentMyProfileBinding
+import com.plenart.organizeme.models.User
 import com.plenart.organizeme.utils.Constants
 import com.plenart.organizeme.utils.loadImage
 import com.plenart.organizeme.viewModels.MyProfileViewModel
@@ -30,7 +32,6 @@ class MyProfileFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         binding = FragmentMyProfileBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -58,7 +59,11 @@ class MyProfileFragment : Fragment() {
                 viewModel.uploadUserImage()
             }
             if (viewModel.getMobile().toString().isEmpty()) {
-                Toast.makeText(context, "Please provide a phone number", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    resources.getString(R.string.please_provide_phone_num),
+                    Toast.LENGTH_SHORT
+                ).show()
             } else {
                 viewModel.updateUserProfileData()
             }
@@ -77,7 +82,7 @@ class MyProfileFragment : Fragment() {
     private fun initUser() {
         viewModel.user.observe(viewLifecycleOwner, Observer { newUser ->
             if (newUser != null) {
-                setUserDataInUI()
+                setUserDataInUI(newUser)
             } else {
                 Log.i("UserObserver", "error observing user")
             }
@@ -93,7 +98,11 @@ class MyProfileFragment : Fragment() {
     private fun getMobile() {
         binding.etMobileMyProfileActivity.doAfterTextChanged {
             if (binding.etMobileMyProfileActivity.text!!.isEmpty()) {
-                Toast.makeText(context, "Please provide a phone number", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    resources.getString(R.string.please_provide_phone_num),
+                    Toast.LENGTH_SHORT
+                ).show()
             } else {
                 viewModel.setMobile(it.toString().toLong())
             }
@@ -106,7 +115,9 @@ class MyProfileFragment : Fragment() {
         if (resultCode == Activity.RESULT_OK && requestCode == Constants.PICK_IMAGE_REQUEST_CODE && data!!.data != null) {
 
             viewModel.setSelectedImageFileUri(data.data)
-            viewModel.setFileExtension(Constants.getFileExtension(requireActivity(), data.data).toString())
+            viewModel.setFileExtension(
+                Constants.getFileExtension(requireActivity(), data.data).toString()
+            )
 
             try {
                 binding.ivUserImage.loadImage(viewModel.getSelectedImageFileUri().toString())
@@ -117,21 +128,16 @@ class MyProfileFragment : Fragment() {
         }
     }
 
-    private fun setUserDataInUI() {
+    private fun setUserDataInUI(user: User) {
 
         binding.apply {
+            ivUserImage.loadImage(user.image)
+            etNameMyProfileActivity.setText(user.name)
+            etEmailMyProfileActivity.setText(user.email)
 
-            ivUserImage.loadImage(viewModel.user.value?.image.toString())
-            viewModel.apply {
-                etNameMyProfileActivity.setText(user.value?.name)
-                etEmailMyProfileActivity.setText(user.value?.email)
-
-                if (user.value?.mobile != 0L) {
-                    etMobileMyProfileActivity.setText(user.value?.mobile.toString())
-                }
-
+            if (user.mobile != 0L) {
+                etMobileMyProfileActivity.setText(user.mobile.toString())
             }
-
         }
 
     }
@@ -149,7 +155,7 @@ class MyProfileFragment : Fragment() {
         } else {
             Toast.makeText(
                 context,
-                "permission denied. You can change it in settings",
+                resources.getString(R.string.permission_denied),
                 Toast.LENGTH_LONG
             ).show()
         }

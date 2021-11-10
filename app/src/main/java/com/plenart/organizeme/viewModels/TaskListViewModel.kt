@@ -37,9 +37,11 @@ class TaskListViewModel : ViewModel() {
     fun getAssignedMembersListDetails() {
         viewModelScope.launch(Dispatchers.IO) {
             _assignedMemberDetailList.postValue(
-                firestore.getAssignedMembersListDetails(
-                    _boardDetails.value?.assignedTo!!
-                )
+                _boardDetails.value?.assignedTo?.let {
+                    firestore.getAssignedMembersListDetails(
+                        it
+                    )
+                }
             )
         }
     }

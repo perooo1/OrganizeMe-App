@@ -13,7 +13,6 @@ import com.plenart.organizeme.databinding.ItemTaskBinding
 import com.plenart.organizeme.interfaces.CardItemClickInterface
 import com.plenart.organizeme.interfaces.ITaskListCallback
 import com.plenart.organizeme.models.Task
-import com.plenart.organizeme.models.User
 import com.plenart.organizeme.utils.TaskDiffCallback
 import com.plenart.organizeme.utils.gone
 import com.plenart.organizeme.utils.visible
@@ -21,14 +20,13 @@ import java.util.*
 
 class TaskListItemsAdapter(
     private val context: Context,
-    private val taskListCallback: ITaskListCallback,
-    private val members: ArrayList<User>
+    private val taskListCallback: ITaskListCallback
 ) :
     ListAdapter<Task, TaskListItemsAdapter.ListItemViewHolder>(TaskDiffCallback()) {
 
+    private lateinit var adapterCard: CardListItemsAdapter
     private var mPositionDraggedFrom = -1
     private var mPositionDraggedTo = -1
-
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ListItemViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_task, parent, false)
@@ -55,16 +53,16 @@ class TaskListItemsAdapter(
         val builder = AlertDialog.Builder(context)
 
         builder.apply {
-            setTitle("Alert");
-            setMessage("Are you sure you want to delete $title?")
+            setTitle(context.getString(R.string.alert));
+            setMessage(context.getString(R.string.confirmation_message_to_delete_card, title))
             setIcon(android.R.drawable.ic_dialog_alert);
 
-            setPositiveButton("Yes") { dialogInterface, _ ->
+            setPositiveButton(context.getString(R.string.yes)) { dialogInterface, _ ->
                 dialogInterface.dismiss();
                 taskListCallback.deleteTaskList(position)
             }
 
-            setNegativeButton("No") { dialogInterface, _ ->
+            setNegativeButton(context.getString(R.string.no)) { dialogInterface, _ ->
                 dialogInterface.dismiss()
             }
         }
@@ -120,7 +118,7 @@ class TaskListItemsAdapter(
                         taskListCallback.createTaskList(listName)
 
                     } else {
-                        Toast.makeText(context, "Please enter list name", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.please_provide_list_name), Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -145,12 +143,11 @@ class TaskListItemsAdapter(
                     if (listName.isNotEmpty()) {
                         taskListCallback.updateTaskList(position, listName, task)
                     } else {
-                        Toast.makeText(context, "Please enter list name", Toast.LENGTH_SHORT)
+                        Toast.makeText(context, context.getString(R.string.please_provide_list_name), Toast.LENGTH_SHORT)
                             .show()
                     }
 
                 }
-
             }
         }
 
@@ -177,12 +174,10 @@ class TaskListItemsAdapter(
                     if (cardName.isNotEmpty()) {
                         taskListCallback.addCardToTaskList(position, cardName)
                     } else {
-                        Toast.makeText(context, "Please enter a card name!", Toast.LENGTH_SHORT)
+                        Toast.makeText(context, context.getString(R.string.please_provide_a_card_name), Toast.LENGTH_SHORT)
                             .show()
                     }
-
                 }
-
             }
 
             loadCards(task, position)
@@ -196,7 +191,17 @@ class TaskListItemsAdapter(
         }
 
         private fun loadCards(task: Task, position: Int) {
-            val adapterCard = CardListItemsAdapter(members, taskListCallback, position)
+            val listenerNeeded = object : CardItemClickInterface {
+                override fun onClick(cardPosition: Int) {
+                    taskListCallback.cardDetails(
+                        position,
+                        cardPosition
+                    )         //first position is taskList position
+                }
+
+            }
+
+            adapterCard = CardListItemsAdapter(taskListCallback, position, listenerNeeded)
             adapterCard.submitList(task.cards)
 
             binding.apply {
@@ -208,14 +213,6 @@ class TaskListItemsAdapter(
 
             }
 
-            adapterCard.setOnClickListener(object : CardItemClickInterface {
-                override fun onClick(cardPosition: Int) {
-                    taskListCallback.cardDetails(
-                        position,
-                        cardPosition
-                    )         //first position is taskList position
-                }
-            })
         }
 
         private fun repositionCards(task: Task, position: Int) {
@@ -239,9 +236,8 @@ class TaskListItemsAdapter(
                     bindingAdapter?.notifyItemMoved(
                         draggedPosition,
                         targetPosition
-                    )             //careful!
-                    //adapter.notifyItemMoved(draggedPosition,targetPosition)
-                    return false;
+                    )
+                    return false
 
                 }
 

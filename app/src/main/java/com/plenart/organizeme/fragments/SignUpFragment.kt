@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.widget.doAfterTextChanged
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -23,8 +24,7 @@ class SignUpFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        binding = FragmentSignUpBinding.inflate(inflater,container,false)
+        binding = FragmentSignUpBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -39,8 +39,8 @@ class SignUpFragment : Fragment() {
 
     }
 
-    private fun initListeners(){
-        binding.btnSignUpSignUpActivity.setOnClickListener{
+    private fun initListeners() {
+        binding.btnSignUpSignUpActivity.setOnClickListener {
             viewModel.registerUser()
         }
     }
@@ -52,76 +52,79 @@ class SignUpFragment : Fragment() {
         initUserRegister()
     }
 
-    private fun getName()=with(binding.etNameSignUpActivity){
-        this.doAfterTextChanged {
-            viewModel.setName(text.toString())
-        }
+    private fun getName() = binding.etNameSignUpActivity.doOnTextChanged { newName, _, _, _ ->
+        viewModel.setName(newName.toString())
     }
 
-    private fun getEmail()=with(binding.etEmailSignUpActivity) {
-        this.doAfterTextChanged {
-            viewModel.setEmail(text.toString())
-        }
+    private fun getEmail() = binding.etEmailSignUpActivity.doOnTextChanged { newEmail, _, _, _ ->
+        viewModel.setEmail(newEmail.toString())
     }
 
-    private fun getPassword()=with(binding.etPasswordSignUpActivity) {
-        this.doAfterTextChanged {
-            viewModel.setPassword(text.toString())
-        }
+    private fun getPassword() = binding.etPasswordSignUpActivity.doOnTextChanged { newPassword, _, _, _ ->
+        viewModel.setPassword(newPassword.toString())
     }
 
     private fun initUserRegister() {
         viewModel.userRegisterSuccess.observe(viewLifecycleOwner, Observer {
-            if(it){
+            if (it) {
                 userRegisteredSuccess()
-            }
-            else{
-                Toast.makeText(activity,"registration failed", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(
+                    activity,
+                    resources.getString(R.string.registration_failed),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         })
     }
 
     private fun initPassword() {
         viewModel.password.observe(viewLifecycleOwner, Observer { newPassword ->
-            if(newPassword == null ){
-                Toast.makeText(requireContext(), "Please enter a password", Toast.LENGTH_SHORT)
+            if (newPassword == null) {
+                Toast.makeText(
+                    requireContext(),
+                    resources.getString(R.string.please_provide_password),
+                    Toast.LENGTH_SHORT
+                )
                     .show()
-            }
-            else{
-                binding.etPasswordSignUpActivity.text.toString()
             }
         })
     }
 
     private fun initEmail() {
         viewModel.email.observe(viewLifecycleOwner, Observer { newEmail ->
-            if(newEmail == null ){
-                Toast.makeText(requireContext(), "Email must contain @ sign", Toast.LENGTH_SHORT)
+            if (newEmail == null) {
+                Toast.makeText(
+                    requireContext(),
+                    resources.getString(R.string.email_hint),
+                    Toast.LENGTH_SHORT
+                )
                     .show()
-            }
-            else{
-                binding.etEmailSignUpActivity.text.toString().trim{it <=' '}
             }
         })
     }
 
     private fun initName() {
         viewModel.name.observe(viewLifecycleOwner, Observer { newName ->
-            if(newName == null ){
-                Toast.makeText(requireContext(), "Please enter your name", Toast.LENGTH_SHORT)
+            if (newName == null) {
+                Toast.makeText(
+                    requireContext(),
+                    resources.getString(R.string.please_provide_your_name),
+                    Toast.LENGTH_SHORT
+                )
                     .show()
-            }
-            else{
-                binding.etNameSignUpActivity.text.toString().trim{it <=' '}
             }
         })
     }
 
-    private fun userRegisteredSuccess(){
-        Toast.makeText(activity, " you have successfully registered the email", Toast.LENGTH_LONG).show()
+    private fun userRegisteredSuccess() {
+        Toast.makeText(
+            activity,
+            resources.getString(R.string.registration_successful),
+            Toast.LENGTH_LONG
+        ).show()
         viewModel.signOut()
         findNavController().navigate(R.id.action_signUpFragment_to_signInFragment)
     }
-
 
 }
